@@ -22,7 +22,9 @@ The tests include synthetic images and optional dataset images located in the `d
 ### Native Dependencies
 
 The project references an OpenCvSharp runtime that ships the native
-`OpenCvSharpExtern` library. On some distributions you may need additional
+`OpenCvSharpExtern` library. The runtime package is selected based on the
+target distribution. On Ubuntu the library uses the `ubuntu.22.04-x64`
+runtime to ensure compatible native binaries. You may still need additional
 system libraries such as `libtesseract` and FFmpeg. On Ubuntu the following
 packages satisfy the requirements:
 

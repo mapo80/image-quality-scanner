@@ -7,17 +7,18 @@
     <!-- Ensure runtime-specific native libraries are copied -->
     <!-- Target generic Linux runtime so that the runtime package
          includes all required native libraries. -->
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">linux-x64</RuntimeIdentifier>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">ubuntu.22.04-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.6.0.20220608" />
+    <PackageReference Include="OpenCvSharp4.runtime.ubuntu.20.04-x64" Version="4.6.0.20220608" />
     <!--
-      Use the generic Linux runtime build of OpenCvSharp which ships all
-      required native libraries so tests run on most distributions without
-      extra packages.
+      Use the Ubuntu 22.04 runtime so the native OpenCvSharpExtern library
+      is bundled for that distribution. This avoids missing library errors
+      when running tests.
     -->
-    <PackageReference Include="OpenCvSharp4.runtime.linux-x64" Version="4.10.0.20240717" />
+    <PackageReference Include="OpenCvSharp4.runtime.ubuntu.22.04-x64" Version="4.6.0-snapshot" />
   </ItemGroup>
 
 </Project>
