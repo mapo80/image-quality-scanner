@@ -19,6 +19,18 @@ dotnet test DocQualityChecker.Tests/DocQualityChecker.Tests.csproj
 
 The tests include synthetic images and optional dataset images located in the `dataset/` directory. If the dataset folder is missing, the dataset tests will be skipped.
 
+### Native Dependencies
+
+The project references `OpenCvSharp4.runtime.ubuntu.18.04-x64` which ships the
+native `OpenCvSharpExtern` library for Linux. On some distributions you may
+need additional system libraries such as `libtesseract` and FFmpeg. On Ubuntu
+the following packages satisfy the requirements:
+
+```bash
+sudo apt-get update
+sudo apt-get install libtesseract5 libgtk2.0-0 libdc1394-25 libavcodec60
+```
+
 ## Using the Library
 
 ```csharp
