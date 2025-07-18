@@ -5,19 +5,19 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <!-- Ensure runtime-specific native libraries are copied -->
-    <!-- Target Ubuntu 18.04 by default so that the matching runtime
-         package provides the native OpenCvSharpExtern library. -->
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">ubuntu.18.04-x64</RuntimeIdentifier>
+    <!-- Target generic Linux runtime so that the runtime package
+         includes all required native libraries. -->
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">linux-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4" Version="4.6.0.20220608" />
     <!--
-      Use the Ubuntu 18.04 runtime build of OpenCvSharp to ensure the
-      native OpenCvSharpExtern library is available on most Linux
-      distributions without requiring additional system libraries.
+      Use the generic Linux runtime build of OpenCvSharp which ships all
+      required native libraries so tests run on most distributions without
+      extra packages.
     -->
-    <PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="4.6.0.20220608" />
+    <PackageReference Include="OpenCvSharp4.runtime.linux-x64" Version="4.10.0.20240717" />
   </ItemGroup>
 
 </Project>

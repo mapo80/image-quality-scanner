@@ -21,14 +21,14 @@ The tests include synthetic images and optional dataset images located in the `d
 
 ### Native Dependencies
 
-The project references `OpenCvSharp4.runtime.ubuntu.18.04-x64` which ships the
-native `OpenCvSharpExtern` library for Linux. On some distributions you may
-need additional system libraries such as `libtesseract` and FFmpeg. On Ubuntu
-the following packages satisfy the requirements:
+The project references an OpenCvSharp runtime that ships the native
+`OpenCvSharpExtern` library. On some distributions you may need additional
+system libraries such as `libtesseract` and FFmpeg. On Ubuntu the following
+packages satisfy the requirements:
 
 ```bash
 sudo apt-get update
-sudo apt-get install libtesseract5 libgtk2.0-0 libdc1394-25 libavcodec60
+sudo apt-get install libtesseract5 libgtk2.0-0 libdc1394-25 libavcodec60 libavformat60 libavutil58 libswscale7 libtiff6 libopenexr-3-1-30
 ```
 
 ## Using the Library
