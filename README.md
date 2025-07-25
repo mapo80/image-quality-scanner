@@ -32,6 +32,18 @@ sudo apt-get update
 sudo apt-get install libtesseract5 libgtk2.0-0 libdc1394-25 libavcodec60 libavformat60 libavutil58 libswscale7 libtiff6 libopenexr-3-1-30
 ```
 
+If these packages are not sufficient (for example on newer distributions),
+you can build OpenCV and `libOpenCvSharpExtern.so` yourself using the helper
+script in `scripts/build-opencvsharp.sh`:
+
+```bash
+./scripts/build-opencvsharp.sh
+sudo cp libOpenCvSharpExtern.so /usr/lib/
+```
+
+This script follows the same process described in the [Docker gist](https://gist.github.com/mapo80/32a68cc1b797e9115ad73b6de8056394) and
+produces a library compatible with Ubuntu 24.04.
+
 ## Using the Library
 
 ```csharp
