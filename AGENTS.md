@@ -8,8 +8,8 @@ To run the tests locally you must install .NET and OpenCV dependencies:
    export PATH=$PATH:/usr/share/dotnet
    ```
 2. Install the native libraries required by OpenCvSharp. The project uses the
-   `OpenCvSharp4.runtime.ubuntu.22.04-x64` package, so on Ubuntu 24.04 you will
-   need the following compatibility libraries:
+   `OpenCvSharp4.runtime.linux-x64` package, so on Ubuntu 24.04 you will
+   need the following libraries:
    ```bash
    sudo apt-get update
    sudo apt-get install libtesseract5 libgtk2.0-0 libdc1394-25 libavcodec60 libavformat60 libavutil58 libswscale7 libtiff6 libopenexr-3-1-30

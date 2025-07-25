@@ -21,12 +21,11 @@ The tests include synthetic images and optional dataset images located in the `d
 
 ### Native Dependencies
 
-The project references an OpenCvSharp runtime that ships the native
-`OpenCvSharpExtern` library. The runtime package is selected based on the
-target distribution. On Ubuntu the library uses the `ubuntu.22.04-x64`
-runtime to ensure compatible native binaries. You may still need additional
-system libraries such as `libtesseract` and FFmpeg. On Ubuntu the following
-packages satisfy the requirements:
+The project relies on the `OpenCvSharp4.runtime.linux-x64` package which
+bundles the native `OpenCvSharpExtern` library for any Linux distribution.
+To satisfy its dependencies on Ubuntu 24.04 install the following packages
+(see the [Docker setup](https://gist.github.com/mapo80/32a68cc1b797e9115ad73b6de8056394)
+for a full example):
 
 ```bash
 sudo apt-get update
