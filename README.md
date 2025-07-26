@@ -812,6 +812,6 @@ npm test --silent
 Copia quindi la cartella `webapp/test-results` dentro `docs/integration_test_run`
 per aggiornare screenshot e video nel repository.
 
-![Schermata test di integrazione](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/test-finished-1.png)
+![Schermata test di integrazione](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/test-finished.png)
 
 [Guarda il video](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/video.webm)

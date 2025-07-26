@@ -11,7 +11,6 @@ import {
   Typography,
   message,
   Spin,
-  InputNumber,
   Table,
 } from 'antd';
 import axios from 'axios';
@@ -40,6 +39,26 @@ const defaultThresholds: Record<string, number> = {
   NoiseThreshold: 500,
   MotionBlurThreshold: 3,
   BandingThreshold: 0.5,
+};
+
+const sliderRanges: Record<string, [number, number]> = {
+  BrisqueMax: [0, 100],
+  BlurThreshold: [0, 300],
+  BrightThreshold: [0, 255],
+  AreaThreshold: [0, 2000],
+  ExposureMin: [0, 255],
+  ExposureMax: [0, 255],
+  ContrastMin: [0, 100],
+  DominanceThreshold: [0, 5],
+  NoiseThreshold: [0, 1000],
+  MotionBlurThreshold: [0, 10],
+  BandingThreshold: [0, 5],
+};
+
+const sliderSteps: Record<string, number> = {
+  DominanceThreshold: 0.1,
+  BandingThreshold: 0.1,
+  MotionBlurThreshold: 0.1,
 };
 
 const checkConfig: Record<string, any> = {
@@ -194,11 +213,16 @@ const QualityChecker: React.FC = () => {
         {Object.entries(settings).map(([k, v]) =>
           k === 'BlurThreshold' ? null : (
             <Col span={12} key={k}>
-              <Typography.Text>{k}</Typography.Text>
-              <InputNumber
-                style={{ width: '100%' }}
+              <Typography.Text>
+                {k}: {v}
+                {v !== defaultThresholds[k] && ` (default ${defaultThresholds[k]})`}
+              </Typography.Text>
+              <Slider
+                min={sliderRanges[k][0]}
+                max={sliderRanges[k][1]}
+                step={sliderSteps[k] || 1}
                 value={v}
-                onChange={(val) =>
+                onChange={(val: number) =>
                   setSettings(prev => ({ ...prev, [k]: val as number }))
                 }
               />

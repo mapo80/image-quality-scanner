@@ -14,24 +14,27 @@ async function uploadAndAnalyze(page, heatmaps=false) {
 }
 
 test.describe('Frontend/Backend Integration', () => {
-  test('default configuration returns valid response', async ({ page }) => {
+  test('default configuration returns valid response', async ({ page }, testInfo) => {
     const data = await uploadAndAnalyze(page);
     expect(data.isValidDocument).toBeDefined();
+    await page.screenshot({ path: testInfo.outputPath('test-finished.png'), fullPage: true });
   });
 
-  test('heatmap generation works', async ({ page }) => {
+  test('heatmap generation works', async ({ page }, testInfo) => {
     const data = await uploadAndAnalyze(page, true);
     expect(data.blurHeatmap).not.toBeNull();
     expect(data.glareHeatmap).not.toBeNull();
+    await page.screenshot({ path: testInfo.outputPath('test-finished.png'), fullPage: true });
   });
 
-  test('heatmaps not requested are omitted', async ({ page }) => {
+  test('heatmaps not requested are omitted', async ({ page }, testInfo) => {
     const data = await uploadAndAnalyze(page, false);
     expect(data.blurHeatmap).toBeNull();
     expect(data.glareHeatmap).toBeNull();
+    await page.screenshot({ path: testInfo.outputPath('test-finished.png'), fullPage: true });
   });
 
-  test('custom blur threshold modifies result', async ({ page }) => {
+  test('custom blur threshold modifies result', async ({ page }, testInfo) => {
     await page.goto('/');
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(sampleImage);
@@ -40,5 +43,6 @@ test.describe('Frontend/Backend Integration', () => {
     const json = await page.locator('pre').textContent();
     const data = JSON.parse(json!);
     expect(data.results.BlurScore).toBeDefined();
+    await page.screenshot({ path: testInfo.outputPath('test-finished.png'), fullPage: true });
   });
 });
