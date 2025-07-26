@@ -50,36 +50,22 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             double sumSq = 0;
-            int count = 0;
-
-            int[,] kernel = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
-            var pixels = image.Pixels;
             int w = image.Width;
+            int h = image.Height;
+            var intensities = GetIntensityBuffer(image);
 
-            for (int y = 1; y < image.Height - 1; y++)
+            for (int y = 1; y < h - 1; y++)
             {
                 int row = y * w;
-                for (int x = 1; x < image.Width - 1; x++)
+                for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    double c00 = Intensity(pixels[idx - w]);
-                    double c10 = Intensity(pixels[idx - 1]);
-                    double c11 = Intensity(pixels[idx]);
-                    double c12 = Intensity(pixels[idx + 1]);
-                    double c20 = Intensity(pixels[idx + w]);
-
-                    double lap = kernel[0, 1] * c00 +
-                                  kernel[1, 0] * c10 +
-                                  kernel[1, 1] * c11 +
-                                  kernel[1, 2] * c12 +
-                                  kernel[2, 1] * c20;
-
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
                     sumSq += lap * lap;
-                    count++;
                 }
             }
 
-            blurScore = sumSq / count;
+            blurScore = sumSq / ((w - 2) * (h - 2));
             return blurScore < threshold;
         }
 
@@ -92,22 +78,23 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             double sumX = 0, sumY = 0;
-            var pixels = image.Pixels;
             int w = image.Width;
+            int h = image.Height;
+            var intensities = GetIntensityBuffer(image);
 
-            for (int y = 1; y < image.Height - 1; y++)
+            for (int y = 1; y < h - 1; y++)
             {
                 int row = y * w;
-                for (int x = 1; x < image.Width - 1; x++)
+                for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    double i1 = Intensity(pixels[idx + 1]);
-                    double i2 = Intensity(pixels[idx - 1]);
-                    double i3 = Intensity(pixels[idx + w]);
-                    double i4 = Intensity(pixels[idx - w]);
+                    double left = intensities[idx - 1];
+                    double right = intensities[idx + 1];
+                    double up = intensities[idx - w];
+                    double down = intensities[idx + w];
 
-                    sumX += Math.Abs(i1 - i2);
-                    sumY += Math.Abs(i3 - i4);
+                    sumX += Math.Abs(right - left);
+                    sumY += Math.Abs(down - up);
                 }
             }
 
@@ -131,29 +118,18 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             var map = new SKBitmap(image.Width, image.Height, SKColorType.Gray8, SKAlphaType.Opaque);
-            int[,] kernel = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
-            var pixels = image.Pixels;
-            var span = map.GetPixelSpan(); // Span<byte>
+            var span = map.GetPixelSpan();
             int w = image.Width;
+            int h = image.Height;
+            var intensities = GetIntensityBuffer(image);
 
-            for (int y = 1; y < image.Height - 1; y++)
+            for (int y = 1; y < h - 1; y++)
             {
                 int row = y * w;
-                for (int x = 1; x < image.Width - 1; x++)
+                for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    double c00 = Intensity(pixels[idx - w]);
-                    double c10 = Intensity(pixels[idx - 1]);
-                    double c11 = Intensity(pixels[idx]);
-                    double c12 = Intensity(pixels[idx + 1]);
-                    double c20 = Intensity(pixels[idx + w]);
-
-                    double lap = kernel[0, 1] * c00 +
-                                  kernel[1, 0] * c10 +
-                                  kernel[1, 1] * c11 +
-                                  kernel[1, 2] * c12 +
-                                  kernel[2, 1] * c20;
-
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
                     span[idx] = (byte)Math.Clamp(Math.Abs(lap), 0, 255);
                 }
             }
@@ -170,29 +146,18 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             var mask = new SKBitmap(image.Width, image.Height, SKColorType.Gray8, SKAlphaType.Opaque);
-            int[,] kernel = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
-            var pixels = image.Pixels;
-            var span = mask.GetPixelSpan(); // Span<byte>
+            var span = mask.GetPixelSpan();
             int w = image.Width;
+            int h = image.Height;
+            var intensities = GetIntensityBuffer(image);
 
-            for (int y = 1; y < image.Height - 1; y++)
+            for (int y = 1; y < h - 1; y++)
             {
                 int row = y * w;
-                for (int x = 1; x < image.Width - 1; x++)
+                for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    double c00 = Intensity(pixels[idx - w]);
-                    double c10 = Intensity(pixels[idx - 1]);
-                    double c11 = Intensity(pixels[idx]);
-                    double c12 = Intensity(pixels[idx + 1]);
-                    double c20 = Intensity(pixels[idx + w]);
-
-                    double lap = kernel[0, 1] * c00 +
-                                  kernel[1, 0] * c10 +
-                                  kernel[1, 1] * c11 +
-                                  kernel[1, 2] * c12 +
-                                  kernel[2, 1] * c20;
-
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
                     double val = lap * lap;
                     span[idx] = val < threshold ? (byte)255 : (byte)0;
                 }
@@ -383,6 +348,17 @@ namespace DocQualityChecker
         private static double Intensity(SKColor p)
         {
             return (p.Red + p.Green + p.Blue) / 3.0;
+        }
+
+        private static double[] GetIntensityBuffer(SKBitmap image)
+        {
+            var pixels = image.Pixels;
+            var buffer = new double[pixels.Length];
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                buffer[i] = Intensity(pixels[i]);
+            }
+            return buffer;
         }
 
         /// <summary>
