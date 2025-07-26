@@ -53,7 +53,7 @@ const QualityChecker: React.FC = () => {
     }
     const formData = new FormData();
     formData.append('Image', file);
-    formData.append('Checks', selectedChecks.join(','));
+    selectedChecks.forEach(c => formData.append('Checks', c));
     formData.append('Settings.BlurThreshold', blurThreshold.toString());
     formData.append('Settings.GenerateHeatmaps', String(generateHeatmaps));
     try {

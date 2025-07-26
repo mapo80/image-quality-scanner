@@ -3,3 +3,6 @@ obj/
 **/bin/
 **/obj/
 
+webapp/node_modules
+webapp/test-results
+**/.playwright

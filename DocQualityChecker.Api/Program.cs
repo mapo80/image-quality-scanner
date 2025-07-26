@@ -8,7 +8,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.EnableAnnotations();
 });
 
 var app = builder.Build();
