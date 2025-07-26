@@ -66,3 +66,205 @@ dotnet test DocQualityChecker.Tests/DocQualityChecker.Tests.csproj -c Release
 
 I test creeranno alcune immagini di prova e verificheranno le funzioni di blur, glare, esposizione, contrasto, dominante colore e rumore.
 
+
+## Esempi di output dei test
+
+Le immagini generate dai test possono essere replicate eseguendo il progetto `DocsGenerator`:
+
+```bash
+dotnet run --project DocsGenerator/DocsGenerator.csproj -c Release
+```
+
+I file saranno salvati nella cartella `docs/images`. Qui sotto sono riportati i principali casi di test con i valori ottenuti e le relative immagini.
+
+### Immagine ad alta qualità
+
+![Originale](docs/images/high_quality_original.png)
+![Heatmap Blur](docs/images/high_quality_blur_heatmap.png)
+![Heatmap Glare](docs/images/high_quality_glare_heatmap.png)
+![Bounding box](docs/images/high_quality_bbox.png)
+
+```
+BrisqueScore: 6.50
+BlurScore: 661.16
+IsBlurry: False
+GlareArea: 0
+HasGlare: False
+Exposure: 176.00
+IsWellExposed: True
+Contrast: 64.99
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 91.70
+HasNoise: False
+IsValidDocument: True
+```
+
+### Immagine sfocata
+
+![Originale](docs/images/blurry_original.png)
+![Heatmap Blur](docs/images/blurry_blur_heatmap.png)
+![Heatmap Glare](docs/images/blurry_glare_heatmap.png)
+![Bounding box](docs/images/blurry_bbox.png)
+
+```
+BrisqueScore: 4.02
+BlurScore: 1.22
+IsBlurry: True
+GlareArea: 0
+HasGlare: False
+Exposure: 175.98
+IsWellExposed: True
+Contrast: 51.15
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 0.12
+HasNoise: False
+IsValidDocument: False
+```
+
+### Immagine con riflessi
+
+![Originale](docs/images/glare_original.png)
+![Heatmap Blur](docs/images/glare_blur_heatmap.png)
+![Heatmap Glare](docs/images/glare_glare_heatmap.png)
+![Bounding box](docs/images/glare_bbox.png)
+
+```
+BrisqueScore: 5.10
+BlurScore: 948.94
+IsBlurry: False
+GlareArea: 2500
+HasGlare: True
+Exposure: 186.94
+IsWellExposed: False
+Contrast: 57.61
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 130.45
+HasNoise: False
+IsValidDocument: False
+```
+
+### Punteggio BRISQUE elevato
+
+![Originale](docs/images/high_brisque_original.png)
+![Heatmap Blur](docs/images/high_brisque_blur_heatmap.png)
+![Heatmap Glare](docs/images/high_brisque_glare_heatmap.png)
+![Bounding box](docs/images/high_brisque_bbox.png)
+
+```
+BrisqueScore: 6.50
+BlurScore: 661.16
+IsBlurry: False
+GlareArea: 0
+HasGlare: False
+Exposure: 176.00
+IsWellExposed: True
+Contrast: 64.99
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 91.70
+HasNoise: False
+IsValidDocument: False
+```
+
+### Immagine sottoesposta
+
+![Originale](docs/images/underexposed_original.png)
+![Heatmap Blur](docs/images/underexposed_blur_heatmap.png)
+![Heatmap Glare](docs/images/underexposed_glare_heatmap.png)
+![Bounding box](docs/images/underexposed_bbox.png)
+
+```
+BrisqueScore: 0.00
+BlurScore: 0.00
+IsBlurry: True
+GlareArea: 0
+HasGlare: False
+Exposure: 20.00
+IsWellExposed: False
+Contrast: 0.00
+HasLowContrast: True
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 0.00
+HasNoise: False
+IsValidDocument: False
+```
+
+### Contrasto molto basso
+
+![Originale](docs/images/low_contrast_original.png)
+![Heatmap Blur](docs/images/low_contrast_blur_heatmap.png)
+![Heatmap Glare](docs/images/low_contrast_glare_heatmap.png)
+![Bounding box](docs/images/low_contrast_bbox.png)
+
+```
+BrisqueScore: 0.00
+BlurScore: 0.41
+IsBlurry: True
+GlareArea: 0
+HasGlare: False
+Exposure: 120.60
+IsWellExposed: True
+Contrast: 1.62
+HasLowContrast: True
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 0.06
+HasNoise: False
+IsValidDocument: False
+```
+
+### Dominante di colore
+
+![Originale](docs/images/color_cast_original.png)
+![Heatmap Blur](docs/images/color_cast_blur_heatmap.png)
+![Heatmap Glare](docs/images/color_cast_glare_heatmap.png)
+![Bounding box](docs/images/color_cast_bbox.png)
+
+```
+BrisqueScore: 0.00
+BlurScore: 0.00
+IsBlurry: True
+GlareArea: 0
+HasGlare: False
+Exposure: 76.25
+IsWellExposed: False
+Contrast: 0.00
+HasLowContrast: True
+ColorDominance: 3.00
+HasColorDominance: True
+Noise: 0.00
+HasNoise: False
+IsValidDocument: False
+```
+
+### Immagine rumorosa
+
+![Originale](docs/images/noise_original.png)
+![Heatmap Blur](docs/images/noise_blur_heatmap.png)
+![Heatmap Glare](docs/images/noise_glare_heatmap.png)
+![Bounding box](docs/images/noise_bbox.png)
+
+```
+BrisqueScore: 7.81
+BlurScore: 60581.41
+IsBlurry: False
+GlareArea: 755
+HasGlare: True
+Exposure: 161.65
+IsWellExposed: True
+Contrast: 71.27
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 3460.45
+HasNoise: True
+IsValidDocument: False
+```

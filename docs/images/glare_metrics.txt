@@ -1,0 +1,14 @@
+BrisqueScore: 5.10
+BlurScore: 948.94
+IsBlurry: False
+GlareArea: 2500
+HasGlare: True
+Exposure: 186.94
+IsWellExposed: False
+Contrast: 57.61
+HasLowContrast: False
+ColorDominance: 1.00
+HasColorDominance: False
+Noise: 130.45
+HasNoise: False
+IsValidDocument: False
