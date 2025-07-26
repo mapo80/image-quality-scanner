@@ -23,5 +23,15 @@ namespace DocQualityChecker
         /// Optional glare heatmap if generated.
         /// </summary>
         public SKBitmap? GlareHeatmap { get; set; }
+
+        /// <summary>
+        /// Bounding boxes of detected blurry regions when heatmaps are generated.
+        /// </summary>
+        public IReadOnlyList<SKRectI>? BlurRegions { get; set; }
+
+        /// <summary>
+        /// Bounding boxes of detected glare regions when heatmaps are generated.
+        /// </summary>
+        public IReadOnlyList<SKRectI>? GlareRegions { get; set; }
     }
 }
