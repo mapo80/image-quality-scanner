@@ -707,3 +707,17 @@ npm run dev
 ```
 
 La webapp presuppone che l'API sia raggiungibile su `http://localhost:5274` e consente di caricare un'immagine tramite drag&drop, regolare alcune soglie e inviare la richiesta all'endpoint `/quality/check`. Il risultato viene mostrato a video e, se richiesto, anche le heatmap generate.
+
+## Test di integrazione con Chrome Headless
+
+L'esecuzione della suite Playwright avvia automaticamente l'API e la webapp.
+Durante i test viene caricato un documento di esempio e i risultati sono mostrati
+nel browser. Lo script è configurato per registrare un video e acquisire uno
+screenshot finale: gli artefatti sono disponibili nella cartella
+`docs/integration_test_run`.
+
+![Schermata test di integrazione](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/test-finished-1.png)
+
+Il file `video.webm` nella stessa cartella mostra l'intero flusso di
+caricamento dell'immagine, invio della richiesta e visualizzazione del JSON di
+risposta.
