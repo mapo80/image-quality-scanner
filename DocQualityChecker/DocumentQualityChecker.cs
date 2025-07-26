@@ -20,22 +20,8 @@ namespace DocQualityChecker
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            double sum = 0;
-            double sumSq = 0;
-            var pixels = image.Pixels;
-            int count = pixels.Length;
-
-            foreach (var p in pixels)
-            {
-                double intensity = (p.Red + p.Green + p.Blue) / 3.0;
-                sum += intensity;
-                sumSq += intensity * intensity;
-            }
-
-            double mean = sum / count;
-            double variance = sumSq / count - mean * mean;
-            // normalize to 0-100 range
-            return variance / (255.0 * 255.0) * 100.0;
+            var intensities = GetIntensityBuffer(image);
+            return ComputeBrisqueScore(intensities);
         }
 
         /// <summary>
@@ -48,25 +34,8 @@ namespace DocQualityChecker
         public bool IsBlurry(SKBitmap image, double threshold, out double blurScore)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            double sumSq = 0;
-            int w = image.Width;
-            int h = image.Height;
             var intensities = GetIntensityBuffer(image);
-
-            for (int y = 1; y < h - 1; y++)
-            {
-                int row = y * w;
-                for (int x = 1; x < w - 1; x++)
-                {
-                    int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    sumSq += lap * lap;
-                }
-            }
-
-            blurScore = sumSq / ((w - 2) * (h - 2));
-            return blurScore < threshold;
+            return IsBlurry(intensities, image.Width, image.Height, threshold, out blurScore);
         }
 
         /// <summary>
@@ -76,31 +45,8 @@ namespace DocQualityChecker
         public double ComputeMotionBlurScore(SKBitmap image)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            double sumX = 0, sumY = 0;
-            int w = image.Width;
-            int h = image.Height;
             var intensities = GetIntensityBuffer(image);
-
-            for (int y = 1; y < h - 1; y++)
-            {
-                int row = y * w;
-                for (int x = 1; x < w - 1; x++)
-                {
-                    int idx = row + x;
-                    double left = intensities[idx - 1];
-                    double right = intensities[idx + 1];
-                    double up = intensities[idx - w];
-                    double down = intensities[idx + w];
-
-                    sumX += Math.Abs(right - left);
-                    sumY += Math.Abs(down - up);
-                }
-            }
-
-            double max = Math.Max(sumX, sumY);
-            double min = Math.Min(sumX, sumY) + 1e-5;
-            return max / min;
+            return ComputeMotionBlurScore(intensities, image.Width, image.Height);
         }
 
         public bool HasMotionBlur(SKBitmap image, double threshold, out double score)
@@ -116,25 +62,8 @@ namespace DocQualityChecker
         public SKBitmap CreateBlurHeatmap(SKBitmap image)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            var map = new SKBitmap(image.Width, image.Height, SKColorType.Gray8, SKAlphaType.Opaque);
-            var span = map.GetPixelSpan();
-            int w = image.Width;
-            int h = image.Height;
             var intensities = GetIntensityBuffer(image);
-
-            for (int y = 1; y < h - 1; y++)
-            {
-                int row = y * w;
-                for (int x = 1; x < w - 1; x++)
-                {
-                    int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    span[idx] = (byte)Math.Clamp(Math.Abs(lap), 0, 255);
-                }
-            }
-
-            return map;
+            return CreateBlurHeatmap(intensities, image.Width, image.Height);
         }
 
         /// <summary>
@@ -144,26 +73,8 @@ namespace DocQualityChecker
         public List<SKRectI> FindBlurRegions(SKBitmap image, double threshold)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            var mask = new SKBitmap(image.Width, image.Height, SKColorType.Gray8, SKAlphaType.Opaque);
-            var span = mask.GetPixelSpan();
-            int w = image.Width;
-            int h = image.Height;
             var intensities = GetIntensityBuffer(image);
-
-            for (int y = 1; y < h - 1; y++)
-            {
-                int row = y * w;
-                for (int x = 1; x < w - 1; x++)
-                {
-                    int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    double val = lap * lap;
-                    span[idx] = val < threshold ? (byte)255 : (byte)0;
-                }
-            }
-
-            return FindConnectedComponents(mask);
+            return FindBlurRegions(intensities, image.Width, image.Height, threshold);
         }
 
         /// <summary>
@@ -345,6 +256,203 @@ namespace DocQualityChecker
             return score > threshold;
         }
 
+        private static double ComputeBrisqueScore(double[] intensities)
+        {
+            double sum = 0;
+            double sumSq = 0;
+            int count = intensities.Length;
+
+            foreach (double i in intensities)
+            {
+                sum += i;
+                sumSq += i * i;
+            }
+
+            double mean = sum / count;
+            double variance = sumSq / count - mean * mean;
+            return variance / (255.0 * 255.0) * 100.0;
+        }
+
+        private static bool IsBlurry(double[] intensities, int w, int h, double threshold, out double blurScore)
+        {
+            double sumSq = 0;
+            for (int y = 1; y < h - 1; y++)
+            {
+                int row = y * w;
+                for (int x = 1; x < w - 1; x++)
+                {
+                    int idx = row + x;
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
+                    sumSq += lap * lap;
+                }
+            }
+
+            blurScore = sumSq / ((w - 2) * (h - 2));
+            return blurScore < threshold;
+        }
+
+        private static double ComputeMotionBlurScore(double[] intensities, int w, int h)
+        {
+            double sumX = 0, sumY = 0;
+            for (int y = 1; y < h - 1; y++)
+            {
+                int row = y * w;
+                for (int x = 1; x < w - 1; x++)
+                {
+                    int idx = row + x;
+                    double left = intensities[idx - 1];
+                    double right = intensities[idx + 1];
+                    double up = intensities[idx - w];
+                    double down = intensities[idx + w];
+
+                    sumX += Math.Abs(right - left);
+                    sumY += Math.Abs(down - up);
+                }
+            }
+
+            double max = Math.Max(sumX, sumY);
+            double min = Math.Min(sumX, sumY) + 1e-5;
+            return max / min;
+        }
+
+        private static SKBitmap CreateBlurHeatmap(double[] intensities, int w, int h)
+        {
+            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
+            var span = map.GetPixelSpan();
+
+            for (int y = 1; y < h - 1; y++)
+            {
+                int row = y * w;
+                for (int x = 1; x < w - 1; x++)
+                {
+                    int idx = row + x;
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
+                    span[idx] = (byte)Math.Clamp(Math.Abs(lap), 0, 255);
+                }
+            }
+
+            return map;
+        }
+
+        private static List<SKRectI> FindBlurRegions(double[] intensities, int w, int h, double threshold)
+        {
+            var mask = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
+            var span = mask.GetPixelSpan();
+
+            for (int y = 1; y < h - 1; y++)
+            {
+                int row = y * w;
+                for (int x = 1; x < w - 1; x++)
+                {
+                    int idx = row + x;
+                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
+                    double val = lap * lap;
+                    span[idx] = val < threshold ? (byte)255 : (byte)0;
+                }
+            }
+
+            return FindConnectedComponents(mask);
+        }
+
+        private static double ComputeNoise(double[] intensities, int w, int h)
+        {
+            double sum = 0;
+            int count = 0;
+            for (int y = 1; y < h - 1; y++)
+            {
+                int row = y * w;
+                for (int x = 1; x < w - 1; x++)
+                {
+                    int idx = row + x;
+                    double center = intensities[idx];
+                    double neighborSum = 0;
+                    for (int j = -1; j <= 1; j++)
+                        for (int i = -1; i <= 1; i++)
+                            if (i != 0 || j != 0)
+                                neighborSum += intensities[idx + i + j * w];
+                    double mean = neighborSum / 8.0;
+                    double diff = center - mean;
+                    sum += diff * diff;
+                    count++;
+                }
+            }
+            return sum / count;
+        }
+
+        private static double ComputeBandingScore(double[] intensities, int w, int h)
+        {
+            var rowMeans = new double[h];
+            var colMeans = new double[w];
+            double sum = 0, sumSq = 0;
+
+            for (int y = 0; y < h; y++)
+            {
+                int row = y * w;
+                for (int x = 0; x < w; x++)
+                {
+                    double val = intensities[row + x];
+                    rowMeans[y] += val;
+                    colMeans[x] += val;
+                    sum += val;
+                    sumSq += val * val;
+                }
+            }
+
+            for (int i = 0; i < h; i++) rowMeans[i] /= w;
+            for (int i = 0; i < w; i++) colMeans[i] /= h;
+
+            double mean = sum / (w * h);
+            double var = sumSq / (w * h) - mean * mean + 1e-5;
+
+            double rowVar = 0, colVar = 0;
+            for (int i = 0; i < h; i++)
+            {
+                double d = rowMeans[i] - mean;
+                rowVar += d * d;
+            }
+            rowVar /= h;
+            for (int i = 0; i < w; i++)
+            {
+                double d = colMeans[i] - mean;
+                colVar += d * d;
+            }
+            colVar /= w;
+
+            double bandVar = Math.Max(rowVar, colVar);
+            return bandVar / var;
+        }
+
+        private static bool HasGlare(double[] intensities, int brightThreshold, int areaThreshold, out int glareArea)
+        {
+            int count = 0;
+            foreach (double val in intensities)
+            {
+                if (val >= brightThreshold)
+                    count++;
+            }
+            glareArea = count;
+            return glareArea > areaThreshold;
+        }
+
+        private static SKBitmap CreateGlareHeatmap(double[] intensities, int w, int h, int brightThreshold)
+        {
+            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
+            var span = map.GetPixelSpan();
+
+            for (int i = 0; i < intensities.Length; i++)
+            {
+                span[i] = intensities[i] >= brightThreshold ? (byte)255 : (byte)0;
+            }
+
+            return map;
+        }
+
+        private static List<SKRectI> FindGlareRegions(double[] intensities, int w, int h, int brightThreshold)
+        {
+            var mask = CreateGlareHeatmap(intensities, w, h, brightThreshold);
+            return FindConnectedComponents(mask);
+        }
+
         private static double Intensity(SKColor p)
         {
             return (p.Red + p.Green + p.Blue) / 3.0;
@@ -372,21 +480,8 @@ namespace DocQualityChecker
         public bool HasGlare(SKBitmap image, int brightThreshold, int areaThreshold, out int glareArea)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            int count = 0;
-            var pixels = image.Pixels;
-
-            foreach (var p in pixels)
-            {
-                double intensity = Intensity(p);
-                if (intensity >= brightThreshold)
-                {
-                    count++;
-                }
-            }
-
-            glareArea = count;
-            return glareArea > areaThreshold;
+            var intensities = GetIntensityBuffer(image);
+            return HasGlare(intensities, brightThreshold, areaThreshold, out glareArea);
         }
 
         /// <summary>
@@ -395,18 +490,8 @@ namespace DocQualityChecker
         public SKBitmap CreateGlareHeatmap(SKBitmap image, int brightThreshold)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            var map = new SKBitmap(image.Width, image.Height, SKColorType.Gray8, SKAlphaType.Opaque);
-            var src = image.Pixels;
-            var dst = map.GetPixelSpan();
-
-            for (int i = 0; i < src.Length; i++)
-            {
-                byte val = Intensity(src[i]) >= brightThreshold ? (byte)255 : (byte)0;
-                dst[i] = val;
-            }
-
-            return map;
+            var intensities = GetIntensityBuffer(image);
+            return CreateGlareHeatmap(intensities, image.Width, image.Height, brightThreshold);
         }
 
         /// <summary>
@@ -415,9 +500,8 @@ namespace DocQualityChecker
         public List<SKRectI> FindGlareRegions(SKBitmap image, int brightThreshold)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-
-            var mask = CreateGlareHeatmap(image, brightThreshold);
-            return FindConnectedComponents(mask);
+            var intensities = GetIntensityBuffer(image);
+            return FindGlareRegions(intensities, image.Width, image.Height, brightThreshold);
         }
 
         private static List<SKRectI> FindConnectedComponents(SKBitmap mask)
@@ -482,14 +566,18 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (settings == null) throw new ArgumentNullException(nameof(settings));
 
+            var intensities = GetIntensityBuffer(image);
+            int w = image.Width;
+            int h = image.Height;
+
             var result = new DocumentQualityResult
             {
-                BrisqueScore = ComputeBrisqueScore(image),
-                IsBlurry = IsBlurry(image, settings.BlurThreshold, out var blurScore),
+                BrisqueScore = ComputeBrisqueScore(intensities),
+                IsBlurry = IsBlurry(intensities, w, h, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
-                HasMotionBlur = HasMotionBlur(image, settings.MotionBlurThreshold, out var mblur),
-                MotionBlurScore = mblur,
-                HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area),
+                HasMotionBlur = ComputeMotionBlurScore(intensities, w, h) > settings.MotionBlurThreshold,
+                MotionBlurScore = ComputeMotionBlurScore(intensities, w, h),
+                HasGlare = HasGlare(intensities, settings.BrightThreshold, settings.AreaThreshold, out var area),
                 GlareArea = area,
                 IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
                 Exposure = exposure,
@@ -497,18 +585,18 @@ namespace DocQualityChecker
                 Contrast = contrast,
                 HasColorDominance = HasColorDominance(image, settings.DominanceThreshold, out var dom),
                 ColorDominance = dom,
-                HasNoise = HasNoise(image, settings.NoiseThreshold, out var noise),
-                Noise = noise,
-                HasBanding = HasBanding(image, settings.BandingThreshold, out var band),
-                BandingScore = band
+                HasNoise = ComputeNoise(intensities, w, h) > settings.NoiseThreshold,
+                Noise = ComputeNoise(intensities, w, h),
+                HasBanding = ComputeBandingScore(intensities, w, h) > settings.BandingThreshold,
+                BandingScore = ComputeBandingScore(intensities, w, h)
             };
 
             if (settings.GenerateHeatmaps)
             {
-                result.BlurHeatmap = CreateBlurHeatmap(image);
-                result.GlareHeatmap = CreateGlareHeatmap(image, settings.BrightThreshold);
-                result.BlurRegions = FindBlurRegions(image, settings.BlurThreshold);
-                result.GlareRegions = FindGlareRegions(image, settings.BrightThreshold);
+                result.BlurHeatmap = CreateBlurHeatmap(intensities, w, h);
+                result.GlareHeatmap = CreateGlareHeatmap(intensities, w, h, settings.BrightThreshold);
+                result.BlurRegions = FindBlurRegions(intensities, w, h, settings.BlurThreshold);
+                result.GlareRegions = FindGlareRegions(intensities, w, h, settings.BrightThreshold);
             }
 
             result.IsValidDocument = result.BrisqueScore <= settings.BrisqueMax &&
