@@ -528,6 +528,147 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Tempi di esecuzione dei controlli
+
+Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciascun controllo su ogni immagine del dataset.
+
+
+### 93_HONOR-7X.png
+| Controllo | ms |
+|-----------|---|
+| Brisque | 29.99 |
+| Blur | 50.69 |
+| MotionBlur | 44.50 |
+| Glare | 30.14 |
+| Exposure | 29.50 |
+| Contrast | 36.06 |
+| ColorDominance | 28.90 |
+| Noise | 108.55 |
+| Banding | 5.12 |
+| BlurHeatmap | 940.12 |
+| GlareHeatmap | 637.75 |
+| BlurRegions | 726.28 |
+| GlareRegions | 285.37 |
+| Total | 1584.56 |
+
+### blur/img1.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 66.94 |
+| Blur | 111.63 |
+| MotionBlur | 98.50 |
+| Glare | 68.00 |
+| Exposure | 67.30 |
+| Contrast | 79.34 |
+| ColorDominance | 64.79 |
+| Noise | 160.09 |
+| Banding | 11.24 |
+| BlurHeatmap | 923.20 |
+| GlareHeatmap | 873.58 |
+| BlurRegions | 1049.29 |
+| GlareRegions | 979.26 |
+| Total | 4470.32 |
+
+### blur/img2.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 67.96 |
+| Blur | 115.07 |
+| MotionBlur | 99.33 |
+| Glare | 68.95 |
+| Exposure | 67.26 |
+| Contrast | 79.63 |
+| ColorDominance | 66.44 |
+| Noise | 158.59 |
+| Banding | 11.38 |
+| BlurHeatmap | 930.68 |
+| GlareHeatmap | 852.62 |
+| BlurRegions | 1050.58 |
+| GlareRegions | 888.74 |
+| Total | 4432.74 |
+
+### blur/img3.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 68.77 |
+| Blur | 112.90 |
+| MotionBlur | 98.31 |
+| Glare | 69.48 |
+| Exposure | 68.24 |
+| Contrast | 79.51 |
+| ColorDominance | 65.25 |
+| Noise | 161.86 |
+| Banding | 11.89 |
+| BlurHeatmap | 950.32 |
+| GlareHeatmap | 845.18 |
+| BlurRegions | 1044.00 |
+| GlareRegions | 878.44 |
+| Total | 4464.12 |
+
+### glare/img1.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 29.16 |
+| Blur | 48.00 |
+| MotionBlur | 42.79 |
+| Glare | 29.29 |
+| Exposure | 28.91 |
+| Contrast | 34.39 |
+| ColorDominance | 27.80 |
+| Noise | 68.86 |
+| Banding | 4.88 |
+| BlurHeatmap | 385.00 |
+| GlareHeatmap | 355.46 |
+| BlurRegions | 416.31 |
+| GlareRegions | 365.43 |
+| Total | 1848.30 |
+
+### glare/img2.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 28.54 |
+| Blur | 46.92 |
+| MotionBlur | 41.53 |
+| Glare | 29.08 |
+| Exposure | 28.28 |
+| Contrast | 33.24 |
+| ColorDominance | 27.30 |
+| Noise | 66.51 |
+| Banding | 4.70 |
+| BlurHeatmap | 388.57 |
+| GlareHeatmap | 355.07 |
+| BlurRegions | 414.92 |
+| GlareRegions | 367.46 |
+| Total | 1840.22 |
+
+### glare/img3.jpg
+| Controllo | ms |
+|-----------|---|
+| Brisque | 28.61 |
+| Blur | 47.01 |
+| MotionBlur | 41.55 |
+| Glare | 29.49 |
+| Exposure | 28.34 |
+| Contrast | 33.35 |
+| ColorDominance | 27.23 |
+| Noise | 66.66 |
+| Banding | 4.72 |
+| BlurHeatmap | 391.26 |
+| GlareHeatmap | 363.05 |
+| BlurRegions | 434.75 |
+| GlareRegions | 349.94 |
+| Total | 1854.37 |
+
+| Immagine | Tempo totale (ms) |
+|----------|------------------|
+| 93_HONOR-7X.png | 1584.5623 |
+| blur/img1.jpg | 4470.3178 |
+| blur/img2.jpg | 4432.7354 |
+| blur/img3.jpg | 4464.116 |
+| glare/img1.jpg | 1848.301 |
+| glare/img2.jpg | 1840.2161 |
+| glare/img3.jpg | 1854.3725 |
+
 ## Webapp React
 
 Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
