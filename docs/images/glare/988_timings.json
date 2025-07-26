@@ -1,0 +1,16 @@
+{
+  "Brisque": 225.0559,
+  "Blur": 278.1519,
+  "MotionBlur": 313.3395,
+  "Glare": 225.6523,
+  "Exposure": 139.2023,
+  "Contrast": 153.173,
+  "ColorDominance": 152.8469,
+  "Noise": 2709.8974,
+  "Banding": 233.9327,
+  "BlurHeatmap": 437.7544,
+  "GlareHeatmap": 261.308,
+  "BlurRegions": 1440.3591,
+  "GlareRegions": 360.6462,
+  "Total": 3122.0476
+}
