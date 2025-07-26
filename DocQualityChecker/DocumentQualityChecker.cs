@@ -1,102 +1,145 @@
 using System;
-using OpenCvSharp;
-using OpenCvSharp.Quality;
+using SkiaSharp;
 
 namespace DocQualityChecker
 {
     /// <summary>
     /// Provides methods to evaluate image quality for identity documents.
+    /// This implementation relies solely on managed SkiaSharp APIs to avoid
+    /// native OpenCV dependencies.
     /// </summary>
     public class DocumentQualityChecker
     {
-        private readonly string _modelPath;
-        private readonly string _rangePath;
-
         /// <summary>
-        /// Initializes a new instance of <see cref="DocumentQualityChecker"/>.
-        /// </summary>
-        /// <param name="modelPath">Path to BRISQUE model file.</param>
-        /// <param name="rangePath">Path to BRISQUE range file.</param>
-        public DocumentQualityChecker(string modelPath = "Models/brisque_model_live.yml", string rangePath = "Models/brisque_range_live.yml")
-        {
-            _modelPath = modelPath;
-            _rangePath = rangePath;
-        }
-
-        /// <summary>
-        /// Computes the BRISQUE score of the provided image.
+        /// Computes a simple quality score based on pixel intensity variance.
         /// </summary>
         /// <param name="image">Source image.</param>
-        /// <returns>BRISQUE score as a double.</returns>
+        /// <returns>Variance of grayscale intensities.</returns>
         /// <exception cref="ArgumentNullException">Thrown when image is null.</exception>
-        public double ComputeBrisqueScore(Mat image)
+        public double ComputeBrisqueScore(SKBitmap image)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-            using var brisque = QualityBRISQUE.Create(_modelPath, _rangePath);
-            var score = brisque.Compute(image);
-            return score[0];
+
+            double sum = 0;
+            double sumSq = 0;
+            int count = image.Width * image.Height;
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var p = image.GetPixel(x, y);
+                    double intensity = (p.Red + p.Green + p.Blue) / 3.0;
+                    sum += intensity;
+                    sumSq += intensity * intensity;
+                }
+            }
+
+            double mean = sum / count;
+            double variance = sumSq / count - mean * mean;
+            // normalize to 0-100 range
+            return variance / (255.0 * 255.0) * 100.0;
         }
 
         /// <summary>
-        /// Checks if the image is blurry using the variance of the Laplacian.
+        /// Checks if the image is blurry using a simple Laplacian variance metric.
         /// </summary>
         /// <param name="image">Source image.</param>
         /// <param name="threshold">Blur threshold.</param>
         /// <param name="blurScore">Returned blur score.</param>
         /// <returns>True if image is considered blurry.</returns>
-        public bool IsBlurry(Mat image, double threshold, out double blurScore)
+        public bool IsBlurry(SKBitmap image, double threshold, out double blurScore)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            using var gray = image.CvtColor(ColorConversionCodes.BGR2GRAY);
-            using var laplacian = gray.Laplacian(MatType.CV_64F);
-            Cv2.MeanStdDev(laplacian, out _, out var stdDev);
-            blurScore = stdDev.Val0 * stdDev.Val0;
+            double sumSq = 0;
+            int count = 0;
+
+            int[,] kernel = new int[,] { { 0, 1, 0 }, { 1, -4, 1 }, { 0, 1, 0 } };
+
+            for (int y = 1; y < image.Height - 1; y++)
+            {
+                for (int x = 1; x < image.Width - 1; x++)
+                {
+                    double c00 = Intensity(image.GetPixel(x, y - 1));
+                    double c10 = Intensity(image.GetPixel(x - 1, y));
+                    double c11 = Intensity(image.GetPixel(x, y));
+                    double c12 = Intensity(image.GetPixel(x + 1, y));
+                    double c20 = Intensity(image.GetPixel(x, y + 1));
+
+                    double lap = kernel[0, 1] * c00 +
+                                  kernel[1, 0] * c10 +
+                                  kernel[1, 1] * c11 +
+                                  kernel[1, 2] * c12 +
+                                  kernel[2, 1] * c20;
+
+                    sumSq += lap * lap;
+                    count++;
+                }
+            }
+
+            blurScore = sumSq / count;
             return blurScore < threshold;
         }
 
+        private static double Intensity(SKColor p)
+        {
+            return (p.Red + p.Green + p.Blue) / 3.0;
+        }
+
         /// <summary>
-        /// Detects presence of glare in the image.
+        /// Detects presence of glare based on bright pixel area.
         /// </summary>
         /// <param name="image">Source image.</param>
-        /// <param name="brightThreshold">Brightness threshold used to segment glare.</param>
-        /// <param name="areaThreshold">Minimum area of glare region.</param>
+        /// <param name="brightThreshold">Brightness threshold.</param>
+        /// <param name="areaThreshold">Minimum glare area.</param>
         /// <param name="glareArea">Total area of detected glare.</param>
         /// <returns>True if glare is detected above the threshold.</returns>
-        public bool HasGlare(Mat image, int brightThreshold, int areaThreshold, out int glareArea)
+        public bool HasGlare(SKBitmap image, int brightThreshold, int areaThreshold, out int glareArea)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            using var gray = image.CvtColor(ColorConversionCodes.BGR2GRAY);
-            using var mask = gray.Threshold(brightThreshold, 255, ThresholdTypes.Binary);
-            // Remove small artifacts
-            var kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new Size(3, 3));
-            Cv2.MorphologyEx(mask, mask, MorphTypes.Open, kernel);
-            glareArea = Cv2.CountNonZero(mask);
+            int count = 0;
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    double intensity = Intensity(image.GetPixel(x, y));
+                    if (intensity >= brightThreshold)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            glareArea = count;
             return glareArea > areaThreshold;
         }
 
         /// <summary>
         /// Performs all quality checks on the provided image.
         /// </summary>
-        /// <param name="image">Source image.</param>
-        /// <param name="settings">Threshold settings.</param>
-        /// <returns>Aggregated result of all quality checks.</returns>
-        public DocumentQualityResult CheckQuality(Mat image, QualitySettings settings)
+        public DocumentQualityResult CheckQuality(SKBitmap image, QualitySettings settings)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (settings == null) throw new ArgumentNullException(nameof(settings));
 
-            var result = new DocumentQualityResult();
-            result.BrisqueScore = ComputeBrisqueScore(image);
-            result.IsBlurry = IsBlurry(image, settings.BlurThreshold, out var blurScore);
-            result.BlurScore = blurScore;
-            result.HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area);
-            result.GlareArea = area;
+            var result = new DocumentQualityResult
+            {
+                BrisqueScore = ComputeBrisqueScore(image),
+                IsBlurry = IsBlurry(image, settings.BlurThreshold, out var blurScore),
+                BlurScore = blurScore,
+                HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area),
+                GlareArea = area
+            };
+
             result.IsValidDocument = result.BrisqueScore <= settings.BrisqueMax &&
-                                      !result.IsBlurry &&
-                                      !result.HasGlare;
+                                     !result.IsBlurry &&
+                                     !result.HasGlare;
+
             return result;
         }
     }
 }
+

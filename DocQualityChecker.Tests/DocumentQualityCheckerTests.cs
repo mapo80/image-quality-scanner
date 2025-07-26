@@ -1,18 +1,22 @@
 using DocQualityChecker;
-using OpenCvSharp;
+using SkiaSharp;
 using Xunit;
 
 namespace DocQualityChecker.Tests
 {
     public class DocumentQualityCheckerTests
     {
-        private DocumentQualityChecker CreateChecker() => new DocumentQualityChecker("../DocQualityChecker/Models/brisque_model_live.yml", "../DocQualityChecker/Models/brisque_range_live.yml");
+        private DocumentQualityChecker CreateChecker() => new DocumentQualityChecker();
 
-        private Mat CreateBaseImage()
+        private SKBitmap CreateBaseImage()
         {
-            var img = new Mat(new Size(200, 200), MatType.CV_8UC3, Scalar.All(255));
-            Cv2.PutText(img, "ID", new Point(50, 100), HersheyFonts.HersheySimplex, 1.0, Scalar.Black, 2);
-            return img;
+            var bmp = new SKBitmap(200, 200);
+            using var canvas = new SKCanvas(bmp);
+            canvas.Clear(new SKColor(200, 200, 200));
+            using var paint = new SKPaint { Color = SKColors.Black };
+            canvas.DrawRect(new SKRect(40, 80, 160, 120), paint);
+            canvas.Flush();
+            return bmp;
         }
 
         [Fact]
@@ -29,10 +33,16 @@ namespace DocQualityChecker.Tests
         public void BlurryImage_IsInvalid()
         {
             using var img = CreateBaseImage();
-            Cv2.GaussianBlur(img, img, new Size(21, 21), 0);
+            using var blurred = new SKBitmap(img.Width, img.Height);
+            using (var canvas = new SKCanvas(blurred))
+            using (var paint = new SKPaint { ImageFilter = SKImageFilter.CreateBlur(10, 10) })
+            {
+                canvas.DrawBitmap(img, 0, 0, paint);
+                canvas.Flush();
+            }
             var checker = CreateChecker();
             var settings = new QualitySettings();
-            var result = checker.CheckQuality(img, settings);
+            var result = checker.CheckQuality(blurred, settings);
             Assert.False(result.IsValidDocument);
             Assert.True(result.IsBlurry);
         }
@@ -41,8 +51,12 @@ namespace DocQualityChecker.Tests
         public void GlareImage_IsInvalid()
         {
             using var img = CreateBaseImage();
-            // Add bright rectangle simulating glare
-            Cv2.Rectangle(img, new Rect(60, 60, 50, 50), new Scalar(255, 255, 255), -1);
+            using (var canvas = new SKCanvas(img))
+            using (var paint = new SKPaint { Color = SKColors.White })
+            {
+                canvas.DrawRect(new SKRect(60, 60, 110, 110), paint);
+                canvas.Flush();
+            }
             var checker = CreateChecker();
             var settings = new QualitySettings();
             var result = checker.CheckQuality(img, settings);
