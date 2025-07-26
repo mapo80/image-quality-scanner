@@ -11,6 +11,8 @@ import {
   Typography,
   message,
   Spin,
+  InputNumber,
+  Table,
 } from 'antd';
 import axios from 'axios';
 
@@ -26,13 +28,51 @@ const checksList = [
   'Banding',
 ];
 
+const defaultThresholds: Record<string, number> = {
+  BrisqueMax: 50,
+  BlurThreshold: 100,
+  BrightThreshold: 240,
+  AreaThreshold: 500,
+  ExposureMin: 80,
+  ExposureMax: 180,
+  ContrastMin: 30,
+  DominanceThreshold: 1.5,
+  NoiseThreshold: 500,
+  MotionBlurThreshold: 3,
+  BandingThreshold: 0.5,
+};
+
+const checkConfig: Record<string, any> = {
+  Brisque: { valueKey: 'BrisqueScore', thresholdKey: 'BrisqueMax', type: '<=' },
+  Blur: { valueKey: 'BlurScore', thresholdKey: 'BlurThreshold', type: '>=' },
+  Glare: { valueKey: 'GlareArea', thresholdKey: 'AreaThreshold', type: '<=' },
+  Exposure: {
+    valueKey: 'Exposure',
+    thresholdKey: ['ExposureMin', 'ExposureMax'],
+    type: 'range',
+  },
+  Contrast: { valueKey: 'Contrast', thresholdKey: 'ContrastMin', type: '>=' },
+  ColorDominance: {
+    valueKey: 'ColorDominance',
+    thresholdKey: 'DominanceThreshold',
+    type: '<=',
+  },
+  Noise: { valueKey: 'Noise', thresholdKey: 'NoiseThreshold', type: '<=' },
+  MotionBlur: {
+    valueKey: 'MotionBlurScore',
+    thresholdKey: 'MotionBlurThreshold',
+    type: '<=',
+  },
+  Banding: { valueKey: 'BandingScore', thresholdKey: 'BandingThreshold', type: '<=' },
+};
+
 const QualityChecker: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [generateHeatmaps, setGenerateHeatmaps] = useState(false);
-  const [blurThreshold, setBlurThreshold] = useState(100);
+  const [settings, setSettings] = useState<Record<string, number>>({ ...defaultThresholds });
   const [selectedChecks, setSelectedChecks] = useState<string[]>(checksList);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -46,6 +86,61 @@ const QualityChecker: React.FC = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: { 'image/*': [] } });
 
+  const evaluateCheck = (check: string) => {
+    if (!result) return null;
+    const cfg = checkConfig[check];
+    if (!cfg) return null;
+    const value = result.Results?.[cfg.valueKey];
+    if (value === undefined) return null;
+    const curThr = Array.isArray(cfg.thresholdKey)
+      ? cfg.thresholdKey.map((k: string) => settings[k])
+      : settings[cfg.thresholdKey];
+    const defThr = Array.isArray(cfg.thresholdKey)
+      ? cfg.thresholdKey.map((k: string) => defaultThresholds[k])
+      : defaultThresholds[cfg.thresholdKey];
+
+    let pass = true;
+    let diff = 0;
+    if (cfg.type === '>=') {
+      pass = value >= curThr;
+      diff = Math.abs((value - curThr) / curThr) * 100;
+    } else if (cfg.type === '<=') {
+      pass = value <= curThr;
+      diff = Math.abs((value - curThr) / curThr) * 100;
+    } else if (cfg.type === 'range') {
+      const [min, max] = curThr as number[];
+      if (value < min) {
+        pass = false;
+        diff = ((min - value) / min) * 100;
+      } else if (value > max) {
+        pass = false;
+        diff = ((value - max) / max) * 100;
+      } else {
+        const center = (min + max) / 2;
+        diff = (Math.abs(value - center) / center) * 100;
+      }
+    }
+
+    let color: 'green' | 'orange' | 'red' = 'green';
+    if (!pass) {
+      color = 'red';
+    } else if (diff < 20) {
+      color = 'orange';
+    }
+
+    return {
+      check,
+      value: value.toFixed ? value.toFixed(2) : value,
+      threshold: Array.isArray(cfg.thresholdKey) ? curThr.join(' - ') : curThr,
+      default: Array.isArray(cfg.thresholdKey)
+        ? defThr.join(' - ')
+        : defThr,
+      diff: diff.toFixed(1) + '%',
+      pass,
+      color,
+    };
+  };
+
   const handleAnalyze = async () => {
     if (!file) {
       message.error("Carica un'immagine");
@@ -54,7 +149,9 @@ const QualityChecker: React.FC = () => {
     const formData = new FormData();
     formData.append('Image', file);
     selectedChecks.forEach(c => formData.append('Checks', c));
-    formData.append('Settings.BlurThreshold', blurThreshold.toString());
+    Object.entries(settings).forEach(([k, v]) => {
+      formData.append(`Settings.${k}`, String(v));
+    });
     formData.append('Settings.GenerateHeatmaps', String(generateHeatmaps));
     try {
       setLoading(true);
@@ -81,15 +178,33 @@ const QualityChecker: React.FC = () => {
           <Slider
             min={0}
             max={300}
-            value={blurThreshold}
-            onChange={(v: number) => setBlurThreshold(v)}
+            value={settings.BlurThreshold}
+            onChange={(v: number) =>
+              setSettings(prev => ({ ...prev, BlurThreshold: v }))
+            }
             marks={{ 0: '0', 100: '100', 200: '200', 300: '300' }}
           />
-          <Typography.Text>Soglia Blur: {blurThreshold}</Typography.Text>
+          <Typography.Text>Soglia Blur: {settings.BlurThreshold}</Typography.Text>
         </Col>
         <Col span={12}>
           <Checkbox checked={generateHeatmaps} onChange={e => setGenerateHeatmaps(e.target.checked)}>Genera heatmaps</Checkbox>
         </Col>
+      </Row>
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        {Object.entries(settings).map(([k, v]) =>
+          k === 'BlurThreshold' ? null : (
+            <Col span={12} key={k}>
+              <Typography.Text>{k}</Typography.Text>
+              <InputNumber
+                style={{ width: '100%' }}
+                value={v}
+                onChange={(val) =>
+                  setSettings(prev => ({ ...prev, [k]: val as number }))
+                }
+              />
+            </Col>
+          )
+        )}
       </Row>
       <Checkbox.Group
         options={checksList}
@@ -105,7 +220,30 @@ const QualityChecker: React.FC = () => {
 
       {result && (
         <div style={{ marginTop: 20 }}>
-          <pre style={{ background: '#f6f6f6', padding: 10 }}>{JSON.stringify(result, null, 2)}</pre>
+          <Table
+            dataSource={selectedChecks
+              .map(c => evaluateCheck(c))
+              .filter(Boolean) as any[]}
+            pagination={false}
+            rowKey="check"
+            columns={[
+              { title: 'Check', dataIndex: 'check' },
+              { title: 'Valore', dataIndex: 'value' },
+              { title: 'Soglia', dataIndex: 'threshold' },
+              { title: 'Default', dataIndex: 'default' },
+              { title: 'Δ', dataIndex: 'diff' },
+              {
+                title: 'Esito',
+                dataIndex: 'pass',
+                render: (_: any, r: any) => (
+                  <span style={{ color: r.color }}>{r.pass ? 'OK' : 'NO'}</span>
+                ),
+              },
+            ]}
+          />
+          <pre style={{ background: '#f6f6f6', padding: 10, marginTop: 20 }}>
+            {JSON.stringify(result, null, 2)}
+          </pre>
           {generateHeatmaps && result.BlurHeatmap && (
             <Image src={`data:image/png;base64,${result.BlurHeatmap}`} alt="Blur heatmap" />
           )}

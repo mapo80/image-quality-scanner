@@ -711,13 +711,23 @@ La webapp presuppone che l'API sia raggiungibile su `http://localhost:5274` e co
 ## Test di integrazione con Chrome Headless
 
 L'esecuzione della suite Playwright avvia automaticamente l'API e la webapp.
-Durante i test viene caricato un documento di esempio e i risultati sono mostrati
-nel browser. Lo script è configurato per registrare un video e acquisire uno
-screenshot finale: gli artefatti sono disponibili nella cartella
-`docs/integration_test_run`.
+Durante i test viene caricato un documento di esempio e i risultati sono
+mostrati nel browser. Lo script registra un video e uno screenshot finale che
+vengono salvati in `webapp/test-results`.
+
+Per rigenerare gli artefatti:
+
+```bash
+bash dotnet-install.sh -InstallDir "$HOME/dotnet" -Version 9.0.303
+cd webapp
+npm install
+npx playwright install --with-deps
+npm test --silent
+```
+
+Copia quindi la cartella `webapp/test-results` dentro `docs/integration_test_run`
+per aggiornare screenshot e video nel repository.
 
 ![Schermata test di integrazione](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/test-finished-1.png)
 
-Il file `video.webm` nella stessa cartella mostra l'intero flusso di
-caricamento dell'immagine, invio della richiesta e visualizzazione del JSON di
-risposta.
+[Guarda il video](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/video.webm)
