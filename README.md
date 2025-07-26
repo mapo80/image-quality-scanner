@@ -133,6 +133,51 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Valutazione con il dataset Roboflow
+
+Per testare il rilevamento dei riflessi su immagini reali è possibile utilizzare il dataset [glare](https://universe.roboflow.com/pradeep-singh/glare-xw4ce) (49 immagini annotate) e il dataset [blur](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n) per la sfocatura.
+I dataset possono essere scaricati con la chiave API `tcaZqJkWcEENQPa2p2H1` tramite lo script `download_datasets.py` presente nel repository:
+
+```bash
+python download_datasets.py
+```
+
+Lo script salva le cartelle `glare_dataset` e `blur_dataset`. Da queste è sufficiente prelevare alcune immagini (massimo 20) da analizzare con il programma `DatasetEvaluator` che stampa i valori calcolati e salva la heatmap accanto all'immagine esaminata:
+
+Dopo aver estratto le immagini, è disponibile il programma `DatasetEvaluator` che stampa i valori calcolati dalla libreria e salva la mappa di calore dei riflessi accanto all'immagine esaminata:
+
+```bash
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj <percorso immagine>
+```
+
+Esempio eseguendo il tool sul file `docs/dataset_samples/glare/img1.jpg` fornito nel repository:
+
+```bash
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj docs/dataset_samples/glare/img1.jpg
+```
+
+Output ottenuto:
+
+```
+File: img1.jpg
+  BrisqueScore: 13.42
+  BlurScore: 213.15
+  IsBlurry: False
+  GlareArea: 1540
+  HasGlare: True
+  Exposure: 105.08
+  IsWellExposed: True
+  Contrast: 94.68
+  HasLowContrast: False
+  ColorDominance: 1.04
+  HasColorDominance: False
+  Noise: 26.08
+  HasNoise: False
+  IsValidDocument: False
+```
+
+Confrontando le coordinate di `GlareRegions` con le annotazioni del dataset è possibile quantificare la precisione della libreria.
+
 ### Immagine con riflessi
 
 ![Originale](docs/images/glare_original.png)
@@ -275,4 +320,32 @@ HasColorDominance: False
 Noise: 3460.45
 HasNoise: True
 IsValidDocument: False
+```
+
+## Esempio dal dataset "blur"
+
+Analizzando alcune immagini del dataset [blur](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n) è possibile verificare la rilevazione della sfocatura. Di seguito l'output generato su `docs/dataset_samples/blur/img1.jpg`:
+
+```bash
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj docs/dataset_samples/blur/img1.jpg
+```
+
+Esempio di risultato:
+
+```
+File: img1.jpg
+  BrisqueScore: 6.36
+  BlurScore: 79.86
+  IsBlurry: True
+  GlareArea: 76139
+  HasGlare: True
+  Exposure: 152.23
+  IsWellExposed: True
+  Contrast: 64.61
+  HasLowContrast: False
+  ColorDominance: 1.08
+  HasColorDominance: False
+  Noise: 10.55
+  HasNoise: False
+  IsValidDocument: False
 ```
