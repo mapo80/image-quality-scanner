@@ -57,10 +57,37 @@ void Evaluate(string imgPath)
     Console.WriteLine($"  HasNoise: {result.HasNoise}");
     Console.WriteLine($"  IsValidDocument: {result.IsValidDocument}");
 
+    string dir = Path.GetDirectoryName(imgPath) ?? ".";
+    string name = Path.GetFileNameWithoutExtension(imgPath);
+
+    var lines = new[]
+    {
+        $"BrisqueScore: {result.BrisqueScore:F2}",
+        $"BlurScore: {result.BlurScore:F2}",
+        $"IsBlurry: {result.IsBlurry}",
+        $"GlareArea: {result.GlareArea}",
+        $"HasGlare: {result.HasGlare}",
+        $"Exposure: {result.Exposure:F2}",
+        $"IsWellExposed: {result.IsWellExposed}",
+        $"Contrast: {result.Contrast:F2}",
+        $"HasLowContrast: {result.HasLowContrast}",
+        $"ColorDominance: {result.ColorDominance:F2}",
+        $"HasColorDominance: {result.HasColorDominance}",
+        $"Noise: {result.Noise:F2}",
+        $"HasNoise: {result.HasNoise}",
+        $"IsValidDocument: {result.IsValidDocument}"
+    };
+
+    File.WriteAllLines(Path.Combine(dir, name + "_metrics.txt"), lines);
+
+    if (result.BlurHeatmap != null)
+    {
+        using var fs = File.OpenWrite(Path.Combine(dir, name + "_blur_heatmap.png"));
+        result.BlurHeatmap.Encode(fs, SKEncodedImageFormat.Png, 100);
+    }
+
     if (result.GlareHeatmap != null)
     {
-        string dir = Path.GetDirectoryName(imgPath) ?? ".";
-        string name = Path.GetFileNameWithoutExtension(imgPath);
         using var fs = File.OpenWrite(Path.Combine(dir, name + "_glare_heatmap.png"));
         result.GlareHeatmap.Encode(fs, SKEncodedImageFormat.Png, 100);
     }

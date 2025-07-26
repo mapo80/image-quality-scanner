@@ -349,3 +349,168 @@ File: img1.jpg
   HasNoise: False
   IsValidDocument: False
 ```
+
+## Analisi completa delle immagini del dataset
+
+Di seguito l'output della libreria per tutte le immagini presenti nella cartella `docs/dataset_samples`.
+
+### blur/img1.jpg
+
+![Originale](docs/dataset_samples/blur/img1.jpg)
+![Heatmap Blur](docs/dataset_samples/blur/img1_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/blur/img1_glare_heatmap.png)
+
+```
+BrisqueScore: 6.36
+BlurScore: 79.86
+IsBlurry: True
+GlareArea: 76139
+HasGlare: True
+Exposure: 152.23
+IsWellExposed: True
+Contrast: 64.61
+HasLowContrast: False
+ColorDominance: 1.08
+HasColorDominance: False
+Noise: 10.55
+HasNoise: False
+IsValidDocument: False
+```
+
+### blur/img2.jpg
+
+![Originale](docs/dataset_samples/blur/img2.jpg)
+![Heatmap Blur](docs/dataset_samples/blur/img2_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/blur/img2_glare_heatmap.png)
+
+```
+BrisqueScore: 5.28
+BlurScore: 12.08
+IsBlurry: True
+GlareArea: 0
+HasGlare: False
+Exposure: 84.98
+IsWellExposed: True
+Contrast: 58.27
+HasLowContrast: False
+ColorDominance: 1.09
+HasColorDominance: False
+Noise: 1.38
+HasNoise: False
+IsValidDocument: False
+```
+
+### blur/img3.jpg
+
+![Originale](docs/dataset_samples/blur/img3.jpg)
+![Heatmap Blur](docs/dataset_samples/blur/img3_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/blur/img3_glare_heatmap.png)
+
+```
+BrisqueScore: 2.40
+BlurScore: 324.15
+IsBlurry: False
+GlareArea: 5458
+HasGlare: True
+Exposure: 31.92
+IsWellExposed: False
+Contrast: 36.84
+HasLowContrast: False
+ColorDominance: 1.43
+HasColorDominance: False
+Noise: 37.95
+HasNoise: False
+IsValidDocument: False
+```
+
+### glare/img1.jpg
+
+![Originale](docs/dataset_samples/glare/img1.jpg)
+![Heatmap Blur](docs/dataset_samples/glare/img1_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/glare/img1_glare_heatmap.png)
+
+```
+BrisqueScore: 13.42
+BlurScore: 213.15
+IsBlurry: False
+GlareArea: 1540
+HasGlare: True
+Exposure: 105.08
+IsWellExposed: True
+Contrast: 94.68
+HasLowContrast: False
+ColorDominance: 1.04
+HasColorDominance: False
+Noise: 26.08
+HasNoise: False
+IsValidDocument: False
+```
+
+### glare/img2.jpg
+
+![Originale](docs/dataset_samples/glare/img2.jpg)
+![Heatmap Blur](docs/dataset_samples/glare/img2_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/glare/img2_glare_heatmap.png)
+
+```
+BrisqueScore: 5.36
+BlurScore: 205.19
+IsBlurry: False
+GlareArea: 391
+HasGlare: False
+Exposure: 95.60
+IsWellExposed: True
+Contrast: 60.30
+HasLowContrast: False
+ColorDominance: 1.04
+HasColorDominance: False
+Noise: 21.80
+HasNoise: False
+IsValidDocument: False
+```
+
+### glare/img3.jpg
+
+![Originale](docs/dataset_samples/glare/img3.jpg)
+![Heatmap Blur](docs/dataset_samples/glare/img3_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/glare/img3_glare_heatmap.png)
+
+```
+BrisqueScore: 5.05
+BlurScore: 551.69
+IsBlurry: False
+GlareArea: 1424
+HasGlare: True
+Exposure: 114.82
+IsWellExposed: True
+Contrast: 58.15
+HasLowContrast: False
+ColorDominance: 1.04
+HasColorDominance: False
+Noise: 39.41
+HasNoise: False
+IsValidDocument: False
+```
+
+### 93_HONOR-7X.png
+
+![Originale](docs/dataset_samples/93_HONOR-7X.png)
+![Heatmap Blur](docs/dataset_samples/93_HONOR-7X_blur_heatmap.png)
+![Heatmap Glare](docs/dataset_samples/93_HONOR-7X_glare_heatmap.png)
+
+```
+BrisqueScore: 14.94
+BlurScore: 1900.95
+IsBlurry: False
+GlareArea: 30889
+HasGlare: True
+Exposure: 124.03
+IsWellExposed: True
+Contrast: 98.01
+HasLowContrast: False
+ColorDominance: 1.02
+HasColorDominance: False
+Noise: 225.22
+HasNoise: False
+IsValidDocument: False
+```
