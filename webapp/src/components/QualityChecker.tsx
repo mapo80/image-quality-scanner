@@ -109,7 +109,7 @@ const QualityChecker: React.FC = () => {
     if (!result) return null;
     const cfg = checkConfig[check];
     if (!cfg) return null;
-    const value = result.Results?.[cfg.valueKey];
+    const value = result.results?.[cfg.valueKey];
     if (value === undefined) return null;
     const curThr = Array.isArray(cfg.thresholdKey)
       ? cfg.thresholdKey.map((k: string) => settings[k])
@@ -268,11 +268,11 @@ const QualityChecker: React.FC = () => {
           <pre style={{ background: '#f6f6f6', padding: 10, marginTop: 20 }}>
             {JSON.stringify(result, null, 2)}
           </pre>
-          {generateHeatmaps && result.BlurHeatmap && (
-            <Image src={`data:image/png;base64,${result.BlurHeatmap}`} alt="Blur heatmap" />
+          {generateHeatmaps && result.blurHeatmap && (
+            <Image src={`data:image/png;base64,${result.blurHeatmap}`} alt="Blur heatmap" />
           )}
-          {generateHeatmaps && result.GlareHeatmap && (
-            <Image src={`data:image/png;base64,${result.GlareHeatmap}`} alt="Glare heatmap" />
+          {generateHeatmaps && result.glareHeatmap && (
+            <Image src={`data:image/png;base64,${result.glareHeatmap}`} alt="Glare heatmap" />
           )}
         </div>
       )}
