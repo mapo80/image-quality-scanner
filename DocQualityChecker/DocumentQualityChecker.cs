@@ -585,13 +585,17 @@ namespace DocQualityChecker
             int w = image.Width;
             int h = image.Height;
 
+            double motionScore = ComputeMotionBlurScore(intensities, w, h);
+            double noiseScore = ComputeNoise(intensities, w, h);
+            double bandingScore = ComputeBandingScore(intensities, w, h);
+
             var result = new DocumentQualityResult
             {
                 BrisqueScore = ComputeBrisqueScore(intensities),
                 IsBlurry = IsBlurry(intensities, w, h, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
-                HasMotionBlur = ComputeMotionBlurScore(intensities, w, h) > settings.MotionBlurThreshold,
-                MotionBlurScore = ComputeMotionBlurScore(intensities, w, h),
+                HasMotionBlur = motionScore > settings.MotionBlurThreshold,
+                MotionBlurScore = motionScore,
                 HasGlare = HasGlare(intensities, settings.BrightThreshold, settings.AreaThreshold, out var area),
                 GlareArea = area,
                 IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
@@ -600,10 +604,10 @@ namespace DocQualityChecker
                 Contrast = contrast,
                 HasColorDominance = HasColorDominance(image, settings.DominanceThreshold, out var dom),
                 ColorDominance = dom,
-                HasNoise = ComputeNoise(intensities, w, h) > settings.NoiseThreshold,
-                Noise = ComputeNoise(intensities, w, h),
-                HasBanding = ComputeBandingScore(intensities, w, h) > settings.BandingThreshold,
-                BandingScore = ComputeBandingScore(intensities, w, h)
+                HasNoise = noiseScore > settings.NoiseThreshold,
+                Noise = noiseScore,
+                HasBanding = bandingScore > settings.BandingThreshold,
+                BandingScore = bandingScore
             };
 
             if (settings.GenerateHeatmaps)

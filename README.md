@@ -691,6 +691,90 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### Considerazioni sui tempi di risposta
 L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma i tempi complessivi oscillano tra circa 23 e 71 ms a seconda dell'immagine.
 
+### Analisi campione cartella `docs/images/glare`
+Per verificare le cause di alcune lentezze riscontrate nello script sono state analizzate due immagini di esempio (`0.jpg` e `10.jpg`). Per ciascun file sono state misurate le tempistiche dei singoli controlli e generati gli heatmap.
+
+#### 0.jpg
+![Originale](docs/images/glare/0.jpg)
+![Glare Heatmap](docs/images/glare/0_glare_heatmap.png)
+
+Valori ottenuti:
+
+```
+BrisqueScore: 2.25
+BlurScore: 47.17
+IsBlurry: True
+GlareArea: 15565
+HasGlare: True
+Exposure: 185.57
+IsWellExposed: False
+Contrast: 39.63
+Noise: 5.14
+BandingScore: 0.30
+IsValidDocument: False
+```
+
+Tempi di esecuzione (ms):
+
+```
+Brisque: 64.9
+Blur: 61.3
+MotionBlur: 41.6
+Glare: 23.3
+Exposure: 26.8
+Contrast: 15.5
+ColorDominance: 14.9
+Noise: 456.6
+Banding: 32.8
+BlurHeatmap: 63.5
+GlareHeatmap: 62.0
+BlurRegions: 184.4
+GlareRegions: 33.5
+Total: 315.8
+```
+
+#### 10.jpg
+![Originale](docs/images/glare/10.jpg)
+![Glare Heatmap](docs/images/glare/10_glare_heatmap.png)
+
+Valori ottenuti:
+
+```
+BrisqueScore: 2.51
+BlurScore: 159.73
+IsBlurry: False
+GlareArea: 20889
+HasGlare: True
+Exposure: 140.98
+IsWellExposed: True
+Contrast: 39.59
+Noise: 13.56
+BandingScore: 0.50
+HasBanding: True
+IsValidDocument: False
+```
+
+Tempi di esecuzione (ms):
+
+```
+Brisque: 475.7
+Blur: 499.6
+MotionBlur: 334.6
+Glare: 164.8
+Exposure: 201.0
+Contrast: 209.1
+ColorDominance: 205.8
+Noise: 2270.0
+Banding: 259.4
+BlurHeatmap: 814.9
+GlareHeatmap: 330.6
+BlurRegions: 1545.8
+GlareRegions: 268.8
+Total: 8738.2
+```
+
+Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individuazione delle regioni (in particolare `FindBlurRegions`) impiegano la maggior parte del tempo a causa di doppi cicli annidati su tutti i pixel. Inoltre alcune metriche venivano ricalcolate più volte all'interno di `CheckQuality`. Ottimizzando questi passaggi e memorizzando i risultati di `ComputeMotionBlurScore`, `ComputeNoise` e `ComputeBandingScore` il tempo complessivo è stato ridotto di circa il 20‑30 % su entrambe le immagini.
+
 Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
 Per testarlo occorre prima avviare l'API:
 
