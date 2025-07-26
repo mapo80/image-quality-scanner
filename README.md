@@ -527,3 +527,22 @@ Noise: 225.22
 HasNoise: False
 IsValidDocument: False
 ```
+
+## Webapp React
+
+Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
+Per testarlo occorre prima avviare l'API:
+
+```bash
+dotnet run --project DocQualityChecker.Api/DocQualityChecker.Api.csproj
+```
+
+In un secondo terminale:
+
+```bash
+cd webapp
+npm install
+npm run dev
+```
+
+La webapp presuppone che l'API sia raggiungibile su `http://localhost:5274` e consente di caricare un'immagine tramite drag&drop, regolare alcune soglie e inviare la richiesta all'endpoint `/quality/check`. Il risultato viene mostrato a video e, se richiesto, anche le heatmap generate.
