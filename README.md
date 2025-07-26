@@ -536,148 +536,148 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 11.34 |
-| Blur | 21.51 |
-| MotionBlur | 1.66 |
-| Glare | 8.98 |
-| Exposure | 5.99 |
-| Contrast | 3.86 |
-| ColorDominance | 6.27 |
-| Noise | 43.79 |
-| Banding | 3.09 |
-| BlurHeatmap | 4.25 |
-| GlareHeatmap | 10.40 |
-| BlurRegions | 20.77 |
-| GlareRegions | 14.47 |
-| Total | 53.46 |
+| Brisque | 14.48 |
+| Blur | 8.47 |
+| MotionBlur | 13.92 |
+| Glare | 6.39 |
+| Exposure | 3.41 |
+| Contrast | 3.95 |
+| ColorDominance | 0.94 |
+| Noise | 27.20 |
+| Banding | 2.94 |
+| BlurHeatmap | 6.88 |
+| GlareHeatmap | 29.45 |
+| BlurRegions | 9.21 |
+| GlareRegions | 2.54 |
+| Total | 29.40 |
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 22.26 |
-| Blur | 34.82 |
-| MotionBlur | 3.75 |
-| Glare | 35.25 |
-| Exposure | 2.61 |
-| Contrast | 2.68 |
-| ColorDominance | 3.70 |
-| Noise | 111.74 |
-| Banding | 3.11 |
-| BlurHeatmap | 13.90 |
-| GlareHeatmap | 3.95 |
-| BlurRegions | 99.67 |
-| GlareRegions | 64.22 |
-| Total | 164.97 |
+| Brisque | 33.53 |
+| Blur | 14.37 |
+| MotionBlur | 25.73 |
+| Glare | 3.17 |
+| Exposure | 11.69 |
+| Contrast | 10.94 |
+| ColorDominance | 10.71 |
+| Noise | 88.02 |
+| Banding | 11.23 |
+| BlurHeatmap | 62.98 |
+| GlareHeatmap | 6.51 |
+| BlurRegions | 50.96 |
+| GlareRegions | 25.46 |
+| Total | 63.83 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 3.52 |
-| Blur | 4.70 |
-| MotionBlur | 3.98 |
-| Glare | 11.12 |
-| Exposure | 3.33 |
+| Brisque | 20.03 |
+| Blur | 13.04 |
+| MotionBlur | 4.88 |
+| Glare | 10.80 |
+| Exposure | 3.23 |
 | Contrast | 2.63 |
-| ColorDominance | 10.36 |
-| Noise | 92.93 |
-| Banding | 3.08 |
-| BlurHeatmap | 6.21 |
-| GlareHeatmap | 20.12 |
-| BlurRegions | 99.02 |
-| GlareRegions | 11.87 |
-| Total | 135.88 |
+| ColorDominance | 9.99 |
+| Noise | 145.17 |
+| Banding | 3.02 |
+| BlurHeatmap | 22.99 |
+| GlareHeatmap | 24.26 |
+| BlurRegions | 16.32 |
+| GlareRegions | 30.24 |
+| Total | 70.89 |
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 21.04 |
-| Blur | 21.97 |
-| MotionBlur | 22.04 |
-| Glare | 13.15 |
-| Exposure | 3.81 |
-| Contrast | 2.65 |
-| ColorDominance | 10.17 |
-| Noise | 81.53 |
-| Banding | 3.39 |
-| BlurHeatmap | 6.32 |
-| GlareHeatmap | 20.67 |
-| BlurRegions | 99.01 |
-| GlareRegions | 13.26 |
-| Total | 125.66 |
+| Brisque | 20.01 |
+| Blur | 5.00 |
+| MotionBlur | 4.12 |
+| Glare | 10.80 |
+| Exposure | 3.47 |
+| Contrast | 2.59 |
+| ColorDominance | 9.79 |
+| Noise | 68.58 |
+| Banding | 3.01 |
+| BlurHeatmap | 23.18 |
+| GlareHeatmap | 23.95 |
+| BlurRegions | 16.48 |
+| GlareRegions | 32.42 |
+| Total | 68.00 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.80 |
-| Blur | 3.07 |
-| MotionBlur | 3.35 |
-| Glare | 1.43 |
-| Exposure | 2.02 |
-| Contrast | 1.30 |
-| ColorDominance | 0.99 |
-| Noise | 30.09 |
-| Banding | 1.60 |
-| BlurHeatmap | 10.98 |
-| GlareHeatmap | 1.38 |
-| BlurRegions | 33.88 |
-| GlareRegions | 5.81 |
-| Total | 47.66 |
+| Brisque | 1.39 |
+| Blur | 8.72 |
+| MotionBlur | 10.19 |
+| Glare | 1.15 |
+| Exposure | 1.02 |
+| Contrast | 1.16 |
+| ColorDominance | 1.64 |
+| Noise | 30.88 |
+| Banding | 1.26 |
+| BlurHeatmap | 9.95 |
+| GlareHeatmap | 1.24 |
+| BlurRegions | 21.93 |
+| GlareRegions | 2.11 |
+| Total | 24.59 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.38 |
-| Blur | 7.11 |
-| MotionBlur | 1.52 |
-| Glare | 1.13 |
-| Exposure | 2.03 |
-| Contrast | 1.24 |
-| ColorDominance | 0.95 |
-| Noise | 30.12 |
-| Banding | 1.32 |
-| BlurHeatmap | 11.19 |
-| GlareHeatmap | 1.33 |
-| BlurRegions | 32.05 |
-| GlareRegions | 4.57 |
-| Total | 47.79 |
+| Brisque | 1.29 |
+| Blur | 8.22 |
+| MotionBlur | 4.27 |
+| Glare | 1.10 |
+| Exposure | 1.90 |
+| Contrast | 1.23 |
+| ColorDominance | 0.94 |
+| Noise | 24.86 |
+| Banding | 1.30 |
+| BlurHeatmap | 9.95 |
+| GlareHeatmap | 1.67 |
+| BlurRegions | 8.52 |
+| GlareRegions | 7.41 |
+| Total | 23.29 |
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.52 |
-| Blur | 10.14 |
-| MotionBlur | 1.58 |
-| Glare | 1.24 |
-| Exposure | 1.99 |
-| Contrast | 1.44 |
-| ColorDominance | 1.08 |
-| Noise | 30.63 |
-| Banding | 1.29 |
-| BlurHeatmap | 6.13 |
-| GlareHeatmap | 7.31 |
-| BlurRegions | 26.78 |
-| GlareRegions | 6.20 |
-| Total | 44.86 |
+| Brisque | 8.08 |
+| Blur | 4.35 |
+| MotionBlur | 1.55 |
+| Glare | 3.34 |
+| Exposure | 1.09 |
+| Contrast | 1.08 |
+| ColorDominance | 0.99 |
+| Noise | 24.90 |
+| Banding | 3.19 |
+| BlurHeatmap | 4.83 |
+| GlareHeatmap | 2.36 |
+| BlurRegions | 13.64 |
+| GlareRegions | 1.71 |
+| Total | 27.28 |
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 53.46 |
-| blur/img1.jpg | 164.97 |
-| blur/img2.jpg | 135.88 |
-| blur/img3.jpg | 125.66 |
-| glare/img1.jpg | 47.66 |
-| glare/img2.jpg | 47.79 |
-| glare/img3.jpg | 44.86 |
+| 93_HONOR-7X.png | 29.40 |
+| blur/img1.jpg | 63.83 |
+| blur/img2.jpg | 70.89 |
+| blur/img3.jpg | 68.00 |
+| glare/img1.jpg | 24.59 |
+| glare/img2.jpg | 23.29 |
+| glare/img3.jpg | 27.28 |
 
-| Immagine | Prima (ms) | Dopo (ms) |
-|----------|-----------|----------|
-| 93_HONOR-7X.png | 497.05 | 53.46 |
-| blur/img1.jpg | 485.03 | 164.97 |
-| blur/img2.jpg | 464.82 | 135.88 |
-| blur/img3.jpg | 480.09 | 125.66 |
-| glare/img1.jpg | 205.37 | 47.66 |
-| glare/img2.jpg | 203.91 | 47.79 |
-| glare/img3.jpg | 206.94 | 44.86 |
+| Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
+|----------|-----------|----------|-------------|
+| 93_HONOR-7X.png | 497.05 | 29.40 | 45.00 |
+| blur/img1.jpg | 485.03 | 63.83 | 61.31 |
+| blur/img2.jpg | 464.82 | 70.89 | 47.83 |
+| blur/img3.jpg | 480.09 | 68.00 | 45.89 |
+| glare/img1.jpg | 205.37 | 24.59 | 48.41 |
+| glare/img2.jpg | 203.91 | 23.29 | 51.27 |
+| glare/img3.jpg | 206.94 | 27.28 | 39.19 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
@@ -689,7 +689,7 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | glare/img2 | 5.36 | 5.36 | 205.19 | 205.19 | 391 | 391 | 95.60 | 95.60 | 60.30 | 60.30 |
 | glare/img3 | 5.05 | 5.05 | 551.69 | 551.69 | 1424 | 1424 | 114.82 | 114.82 | 58.15 | 58.15 |
 ### Considerazioni sui tempi di risposta
-L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma porta i tempi complessivi fra 40 e 130 ms in base alla complessità dell'immagine.
+L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma i tempi complessivi oscillano tra circa 23 e 71 ms a seconda dell'immagine.
 
 Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
 Per testarlo occorre prima avviare l'API:
