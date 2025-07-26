@@ -14,6 +14,18 @@ namespace DocQualityChecker
         public int GlareArea { get; set; }
         public bool IsValidDocument { get; set; }
 
+        public double Exposure { get; set; }
+        public bool IsWellExposed { get; set; }
+
+        public double Contrast { get; set; }
+        public bool HasLowContrast { get; set; }
+
+        public double ColorDominance { get; set; }
+        public bool HasColorDominance { get; set; }
+
+        public double Noise { get; set; }
+        public bool HasNoise { get; set; }
+
         /// <summary>
         /// Optional blur heatmap if generated.
         /// </summary>

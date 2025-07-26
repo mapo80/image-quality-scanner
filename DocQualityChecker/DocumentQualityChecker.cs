@@ -153,6 +153,131 @@ namespace DocQualityChecker
             return FindConnectedComponents(mask);
         }
 
+        /// <summary>
+        /// Computes the average luminance of the image.
+        /// </summary>
+        public double ComputeExposure(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            double sum = 0;
+            int count = image.Width * image.Height;
+
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var p = image.GetPixel(x, y);
+                    double lum = 0.299 * p.Red + 0.587 * p.Green + 0.114 * p.Blue;
+                    sum += lum;
+                }
+            }
+
+            return sum / count;
+        }
+
+        public bool IsWellExposed(SKBitmap image, double min, double max, out double exposure)
+        {
+            exposure = ComputeExposure(image);
+            return exposure >= min && exposure <= max;
+        }
+
+        /// <summary>
+        /// Computes the standard deviation of luminance to estimate contrast.
+        /// </summary>
+        public double ComputeContrast(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            double sum = 0, sumSq = 0;
+            int count = image.Width * image.Height;
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    double lum = 0.299 * image.GetPixel(x, y).Red + 0.587 * image.GetPixel(x, y).Green + 0.114 * image.GetPixel(x, y).Blue;
+                    sum += lum;
+                    sumSq += lum * lum;
+                }
+            }
+            double mean = sum / count;
+            double var = sumSq / count - mean * mean;
+            return Math.Sqrt(Math.Max(var, 0));
+        }
+
+        public bool HasLowContrast(SKBitmap image, double threshold, out double contrast)
+        {
+            contrast = ComputeContrast(image);
+            return contrast < threshold;
+        }
+
+        /// <summary>
+        /// Returns the ratio of the dominant RGB channel over the average.
+        /// </summary>
+        public double ComputeColorDominance(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            double r = 0, g = 0, b = 0;
+            int count = image.Width * image.Height;
+            for (int y = 0; y < image.Height; y++)
+            {
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var p = image.GetPixel(x, y);
+                    r += p.Red;
+                    g += p.Green;
+                    b += p.Blue;
+                }
+            }
+            r /= count;
+            g /= count;
+            b /= count;
+            double avg = (r + g + b) / 3.0 + 1e-5;
+            double max = Math.Max(r, Math.Max(g, b));
+            return max / avg;
+        }
+
+        public bool HasColorDominance(SKBitmap image, double threshold, out double dominance)
+        {
+            dominance = ComputeColorDominance(image);
+            return dominance > threshold;
+        }
+
+        /// <summary>
+        /// Estimates noise by computing variance from local mean in a 3x3 window.
+        /// </summary>
+        public double ComputeNoise(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            double sum = 0;
+            int count = 0;
+            for (int y = 1; y < image.Height - 1; y++)
+            {
+                for (int x = 1; x < image.Width - 1; x++)
+                {
+                    double center = Intensity(image.GetPixel(x, y));
+                    double neighborSum = 0;
+                    for (int j = -1; j <= 1; j++)
+                        for (int i = -1; i <= 1; i++)
+                            if (i != 0 || j != 0)
+                                neighborSum += Intensity(image.GetPixel(x + i, y + j));
+                    double mean = neighborSum / 8.0;
+                    double diff = center - mean;
+                    sum += diff * diff;
+                    count++;
+                }
+            }
+            return sum / count;
+        }
+
+        public bool HasNoise(SKBitmap image, double threshold, out double noise)
+        {
+            noise = ComputeNoise(image);
+            return noise > threshold;
+        }
+
         private static double Intensity(SKColor p)
         {
             return (p.Red + p.Green + p.Blue) / 3.0;
@@ -284,7 +409,15 @@ namespace DocQualityChecker
                 IsBlurry = IsBlurry(image, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
                 HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area),
-                GlareArea = area
+                GlareArea = area,
+                IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
+                Exposure = exposure,
+                HasLowContrast = HasLowContrast(image, settings.ContrastMin, out var contrast),
+                Contrast = contrast,
+                HasColorDominance = HasColorDominance(image, settings.DominanceThreshold, out var dom),
+                ColorDominance = dom,
+                HasNoise = HasNoise(image, settings.NoiseThreshold, out var noise),
+                Noise = noise
             };
 
             if (settings.GenerateHeatmaps)
@@ -297,7 +430,11 @@ namespace DocQualityChecker
 
             result.IsValidDocument = result.BrisqueScore <= settings.BrisqueMax &&
                                      !result.IsBlurry &&
-                                     !result.HasGlare;
+                                     !result.HasGlare &&
+                                     result.IsWellExposed &&
+                                     !result.HasLowContrast &&
+                                     !result.HasColorDominance &&
+                                     !result.HasNoise;
 
             return result;
         }
