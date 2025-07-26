@@ -11,14 +11,21 @@ Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di buil
 
 
 ## Controlli di qualità
-La classe `DocumentQualityChecker` include i seguenti controlli:
+La classe `DocumentQualityChecker` esegue diversi controlli sull'immagine:
 
-- **BrisqueScore**: misura la varianza dell'intensità dei pixel in scala di grigi. Valori alti indicano immagini di bassa qualità.
-- **IsBlurry**: rileva la sfocatura calcolando la varianza del filtro Laplaciano; restituisce il relativo punteggio.
-- **HasGlare**: conta i pixel molto luminosi per stimare le zone di riflesso.
-- **CheckQuality**: combina i controlli precedenti usando le soglie definite in `QualitySettings` e restituisce un `DocumentQualityResult` con i dettagli.
+### BrisqueScore
+Il BRISQUE (Blind/Referenceless Image Spatial Quality Evaluator) è un indice di qualità senza riferimento. In questa implementazione semplificata il punteggio è calcolato dalla varianza dei livelli di intensità e viene normalizzato tra 0 (immagine ideale) e 100 (scarsa qualità). Il valore ottimale è **inferiore a 50** (impostazione `BrisqueMax`).
 
-Le soglie possono essere personalizzate tramite l'oggetto `QualitySettings`.
+### IsBlurry
+Verifica la nitidezza calcolando la varianza del filtro Laplaciano. Restituisce un punteggio numerico e un booleano. Valori maggiori di **100** indicano un'immagine nitida; valori inferiori la rendono sfocata (`BlurThreshold`).
+
+### HasGlare
+Conta i pixel con intensità oltre **240** e verifica che l'area sia minore di **500** pixel. Se l'area luminosa supera la soglia (`AreaThreshold`) l'immagine contiene riflessi.
+
+### CheckQuality
+Combina i controlli precedenti usando le soglie definite in `QualitySettings` e restituisce un `DocumentQualityResult` con tutti i valori ottenuti.
+
+Le soglie sono configurabili tramite l'oggetto `QualitySettings`.
 
 ## Esecuzione dei test
 
