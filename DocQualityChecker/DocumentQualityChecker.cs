@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using SkiaSharp;
 
 namespace DocQualityChecker
@@ -63,7 +64,8 @@ namespace DocQualityChecker
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
             var intensities = GetIntensityBuffer(image);
-            return CreateBlurHeatmap(intensities, image.Width, image.Height);
+            var lap = BuildLaplacian(intensities, image.Width, image.Height);
+            return CreateBlurHeatmap(lap, image.Width, image.Height);
         }
 
         /// <summary>
@@ -315,10 +317,9 @@ namespace DocQualityChecker
             return max / min;
         }
 
-        private static SKBitmap CreateBlurHeatmap(double[] intensities, int w, int h)
+        private static double[] BuildLaplacian(double[] intensities, int w, int h)
         {
-            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
-            var span = map.GetPixelSpan();
+            var lap = new double[intensities.Length];
 
             for (int y = 1; y < h - 1; y++)
             {
@@ -326,9 +327,21 @@ namespace DocQualityChecker
                 for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    span[idx] = (byte)Math.Clamp(Math.Abs(lap), 0, 255);
+                    lap[idx] = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
                 }
+            }
+
+            return lap;
+        }
+
+        private static SKBitmap CreateBlurHeatmap(double[] laplacian, int w, int h)
+        {
+            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
+            var span = map.GetPixelSpan();
+
+            for (int i = 0; i < laplacian.Length; i++)
+            {
+                span[i] = (byte)Math.Clamp(Math.Abs(laplacian[i]), 0, 255);
             }
 
             return map;
@@ -336,22 +349,16 @@ namespace DocQualityChecker
 
         private static List<SKRectI> FindBlurRegions(double[] intensities, int w, int h, double threshold)
         {
-            var mask = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
-            var span = mask.GetPixelSpan();
+            var lap = BuildLaplacian(intensities, w, h);
+            var mask = new byte[lap.Length];
 
-            for (int y = 1; y < h - 1; y++)
+            for (int i = 0; i < lap.Length; i++)
             {
-                int row = y * w;
-                for (int x = 1; x < w - 1; x++)
-                {
-                    int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    double val = lap * lap;
-                    span[idx] = val < threshold ? (byte)255 : (byte)0;
-                }
+                double val = lap[i] * lap[i];
+                mask[i] = val < threshold ? (byte)255 : (byte)0;
             }
 
-            return FindConnectedComponents(mask);
+            return FindConnectedComponents(mask, w, h);
         }
 
         private static double ComputeNoise(double[] intensities, int w, int h)
@@ -434,23 +441,33 @@ namespace DocQualityChecker
             return glareArea > areaThreshold;
         }
 
-        private static SKBitmap CreateGlareHeatmap(double[] intensities, int w, int h, int brightThreshold)
+        private static byte[] BuildGlareMask(double[] intensities, int brightThreshold)
         {
-            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
-            var span = map.GetPixelSpan();
-
+            var mask = new byte[intensities.Length];
             for (int i = 0; i < intensities.Length; i++)
             {
-                span[i] = intensities[i] >= brightThreshold ? (byte)255 : (byte)0;
+                mask[i] = intensities[i] >= brightThreshold ? (byte)255 : (byte)0;
             }
+            return mask;
+        }
 
+        private static SKBitmap CreateGlareHeatmap(byte[] mask, int w, int h)
+        {
+            var map = new SKBitmap(w, h, SKColorType.Gray8, SKAlphaType.Opaque);
+            mask.AsSpan().CopyTo(map.GetPixelSpan());
             return map;
+        }
+
+        private static SKBitmap CreateGlareHeatmap(double[] intensities, int w, int h, int brightThreshold)
+        {
+            var mask = BuildGlareMask(intensities, brightThreshold);
+            return CreateGlareHeatmap(mask, w, h);
         }
 
         private static List<SKRectI> FindGlareRegions(double[] intensities, int w, int h, int brightThreshold)
         {
-            var mask = CreateGlareHeatmap(intensities, w, h, brightThreshold);
-            return FindConnectedComponents(mask);
+            var mask = BuildGlareMask(intensities, brightThreshold);
+            return FindConnectedComponents(mask, w, h);
         }
 
         private static double Intensity(SKColor p)
@@ -504,24 +521,22 @@ namespace DocQualityChecker
             return FindGlareRegions(intensities, image.Width, image.Height, brightThreshold);
         }
 
-        private static List<SKRectI> FindConnectedComponents(SKBitmap mask)
+        private static List<SKRectI> FindConnectedComponents(byte[] mask, int w, int h)
         {
-            var visited = new bool[mask.Width, mask.Height];
+            var visited = new bool[w, h];
             var rects = new List<SKRectI>();
 
             int[] dx = new[] { 1, -1, 0, 0 };
             int[] dy = new[] { 0, 0, 1, -1 };
-            var span = mask.GetPixelSpan();
-            int w = mask.Width;
 
-            for (int y = 0; y < mask.Height; y++)
+            for (int y = 0; y < h; y++)
             {
                 int row = y * w;
-                for (int x = 0; x < mask.Width; x++)
+                for (int x = 0; x < w; x++)
                 {
                     int idx = row + x;
                     if (visited[x, y]) continue;
-                    if (span[idx] == 0) continue;
+                    if (mask[idx] == 0) continue;
 
                     int minX = x, minY = y, maxX = x, maxY = y;
                     var queue = new Queue<(int X, int Y)>();
@@ -535,12 +550,12 @@ namespace DocQualityChecker
                         {
                             int nx = cx + dx[dir];
                             int ny = cy + dy[dir];
-                            if (nx < 0 || ny < 0 || nx >= mask.Width || ny >= mask.Height)
+                            if (nx < 0 || ny < 0 || nx >= w || ny >= h)
                                 continue;
                             if (visited[nx, ny])
                                 continue;
                             int nidx = ny * w + nx;
-                            if (span[nidx] == 0)
+                            if (mask[nidx] == 0)
                                 continue;
                             visited[nx, ny] = true;
                             queue.Enqueue((nx, ny));
@@ -593,10 +608,21 @@ namespace DocQualityChecker
 
             if (settings.GenerateHeatmaps)
             {
-                result.BlurHeatmap = CreateBlurHeatmap(intensities, w, h);
-                result.GlareHeatmap = CreateGlareHeatmap(intensities, w, h, settings.BrightThreshold);
-                result.BlurRegions = FindBlurRegions(intensities, w, h, settings.BlurThreshold);
-                result.GlareRegions = FindGlareRegions(intensities, w, h, settings.BrightThreshold);
+                var lap = BuildLaplacian(intensities, w, h);
+                var glareMask = BuildGlareMask(intensities, settings.BrightThreshold);
+
+                result.BlurHeatmap = CreateBlurHeatmap(lap, w, h);
+                result.GlareHeatmap = CreateGlareHeatmap(glareMask, w, h);
+
+                var blurMask = new byte[lap.Length];
+                for (int i = 0; i < lap.Length; i++)
+                {
+                    double val = lap[i] * lap[i];
+                    blurMask[i] = val < settings.BlurThreshold ? (byte)255 : (byte)0;
+                }
+
+                result.BlurRegions = FindConnectedComponents(blurMask, w, h);
+                result.GlareRegions = FindConnectedComponents(glareMask, w, h);
             }
 
             result.IsValidDocument = result.BrisqueScore <= settings.BrisqueMax &&
