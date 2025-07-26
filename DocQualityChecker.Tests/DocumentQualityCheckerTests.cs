@@ -111,5 +111,86 @@ namespace DocQualityChecker.Tests
             Assert.True(pixel.Red > 0);
             Assert.NotEmpty(result.BlurRegions!);
         }
+
+        [Fact]
+        public void UnderExposedImage_IsInvalid()
+        {
+            using var img = new SKBitmap(200, 200);
+            using (var canvas = new SKCanvas(img))
+            {
+                canvas.Clear(new SKColor(20, 20, 20));
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.False(result.IsValidDocument);
+            Assert.False(result.IsWellExposed);
+        }
+
+        [Fact]
+        public void LowContrastImage_IsInvalid()
+        {
+            using var img = new SKBitmap(200, 200);
+            using (var canvas = new SKCanvas(img))
+            using (var paint = new SKPaint { Color = new SKColor(120, 120, 120) })
+            {
+                canvas.Clear(new SKColor(125, 125, 125));
+                canvas.DrawRect(new SKRect(40, 80, 160, 120), paint);
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.False(result.IsValidDocument);
+            Assert.True(result.HasLowContrast);
+        }
+
+        [Fact]
+        public void DominantColorImage_IsInvalid()
+        {
+            using var img = new SKBitmap(200, 200);
+            using (var canvas = new SKCanvas(img))
+            {
+                canvas.Clear(new SKColor(255, 0, 0));
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.False(result.IsValidDocument);
+            Assert.True(result.HasColorDominance);
+        }
+
+        [Fact]
+        public void NoisyImage_IsInvalid()
+        {
+            using var img = CreateBaseImage();
+            var rnd = new Random(0);
+            for (int y = 0; y < img.Height; y++)
+            {
+                for (int x = 0; x < img.Width; x++)
+                {
+                    if (rnd.NextDouble() < 0.3)
+                    {
+                        byte val = (byte)rnd.Next(256);
+                        img.SetPixel(x, y, new SKColor(val, val, val));
+                    }
+                }
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.False(result.IsValidDocument);
+            Assert.True(result.HasNoise);
+        }
     }
 }
