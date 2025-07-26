@@ -15,5 +15,11 @@ namespace DocQualityChecker
         public int BrightThreshold { get; set; } = 240;
         /// <summary>Area threshold for glare detection.</summary>
         public int AreaThreshold { get; set; } = 500;
+
+        /// <summary>
+        /// When true the checker will generate heatmaps for blur and glare
+        /// detection. These maps can be used to locate problematic areas.
+        /// </summary>
+        public bool GenerateHeatmaps { get; set; } = false;
     }
 }

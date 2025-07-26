@@ -73,5 +73,40 @@ namespace DocQualityChecker.Tests
             var result = checker.CheckQuality(img, settings);
             Assert.False(result.IsValidDocument);
         }
+
+        [Fact]
+        public void Heatmaps_AreGenerated_WhenRequested()
+        {
+            using var img = CreateBaseImage();
+            using (var canvas = new SKCanvas(img))
+            using (var paint = new SKPaint { Color = SKColors.White })
+            {
+                canvas.DrawRect(new SKRect(60, 60, 110, 110), paint);
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings { GenerateHeatmaps = true };
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.NotNull(result.BlurHeatmap);
+            Assert.NotNull(result.GlareHeatmap);
+            var glarePixel = result.GlareHeatmap!.GetPixel(80, 80);
+            Assert.Equal(255, glarePixel.Red);
+        }
+
+        [Fact]
+        public void BlurHeatmap_HasValues()
+        {
+            using var img = CreateBaseImage();
+            var checker = CreateChecker();
+            var settings = new QualitySettings { GenerateHeatmaps = true };
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.NotNull(result.BlurHeatmap);
+            // Expect some edge values around the drawn rectangle
+            var pixel = result.BlurHeatmap!.GetPixel(40, 100);
+            Assert.True(pixel.Red > 0);
+        }
     }
 }
