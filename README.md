@@ -63,6 +63,19 @@ La classe `QualitySettings` consente di personalizzare le soglie utilizzate nei 
 | `BandingThreshold` | Soglia sul rapporto di varianza delle righe/colonne per individuare bande. | `0.5` | Aumentare se si vogliono rilevare solo bande marcate. |
 | `GenerateHeatmaps` | Se `true` produce le mappe di calore e le coordinate delle aree problematiche. | `false` | Utile in fase di debug o per applicazioni che devono mostrare i punti da correggere. |
 
+## API REST
+
+Il progetto `DocQualityChecker.Api` espone un endpoint `POST /quality/check` per
+eseguire i controlli via HTTP. L'input è un form con i campi:
+
+- `image` (file) immagine da analizzare
+- `checks` (opzionale) lista di controlli da eseguire
+- `settings` (opzionale) oggetto `QualitySettings` per personalizzare le soglie
+
+Se `settings.generateHeatmaps` è impostato a `true` la risposta includerà le
+mappe di calore in formato base64 (`BlurHeatmap` e `GlareHeatmap`) e le
+relative regioni (`BlurRegions`, `GlareRegions`).
+
 ## Esecuzione dei test
 
 1. Installare lo SDK .NET 8 (se non presente).
