@@ -93,6 +93,8 @@ namespace DocQualityChecker.Tests
             Assert.NotNull(result.GlareHeatmap);
             var glarePixel = result.GlareHeatmap!.GetPixel(80, 80);
             Assert.Equal(255, glarePixel.Red);
+            Assert.NotEmpty(result.GlareRegions!);
+            Assert.NotEmpty(result.BlurRegions!);
         }
 
         [Fact]
@@ -107,6 +109,7 @@ namespace DocQualityChecker.Tests
             // Expect some edge values around the drawn rectangle
             var pixel = result.BlurHeatmap!.GetPixel(40, 100);
             Assert.True(pixel.Red > 0);
+            Assert.NotEmpty(result.BlurRegions!);
         }
     }
 }
