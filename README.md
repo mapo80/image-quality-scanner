@@ -5,7 +5,7 @@ L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la
 
 ## Requisiti
 
-- .NET 8 SDK
+ - .NET 9 SDK
 
 Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di build/test.
 
@@ -78,7 +78,7 @@ relative regioni (`BlurRegions`, `GlareRegions`).
 
 ## Esecuzione dei test
 
-1. Installare lo SDK .NET 8 (se non presente).
+1. Installare lo SDK .NET 9 (se non presente).
 2. Dalla cartella del progetto eseguire:
 
 ```bash
