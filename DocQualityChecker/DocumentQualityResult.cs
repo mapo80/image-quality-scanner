@@ -1,3 +1,5 @@
+using SkiaSharp;
+
 namespace DocQualityChecker
 {
     /// <summary>
@@ -11,5 +13,15 @@ namespace DocQualityChecker
         public bool HasGlare { get; set; }
         public int GlareArea { get; set; }
         public bool IsValidDocument { get; set; }
+
+        /// <summary>
+        /// Optional blur heatmap if generated.
+        /// </summary>
+        public SKBitmap? BlurHeatmap { get; set; }
+
+        /// <summary>
+        /// Optional glare heatmap if generated.
+        /// </summary>
+        public SKBitmap? GlareHeatmap { get; set; }
     }
 }
