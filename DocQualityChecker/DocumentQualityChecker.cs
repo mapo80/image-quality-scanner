@@ -83,6 +83,41 @@ namespace DocQualityChecker
         }
 
         /// <summary>
+        /// Estimates motion blur by comparing horizontal and vertical gradient energy.
+        /// Values far from 1 indicate strong directional blur.
+        /// </summary>
+        public double ComputeMotionBlurScore(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            double sumX = 0, sumY = 0;
+
+            for (int y = 1; y < image.Height - 1; y++)
+            {
+                for (int x = 1; x < image.Width - 1; x++)
+                {
+                    double i1 = Intensity(image.GetPixel(x + 1, y));
+                    double i2 = Intensity(image.GetPixel(x - 1, y));
+                    double i3 = Intensity(image.GetPixel(x, y + 1));
+                    double i4 = Intensity(image.GetPixel(x, y - 1));
+
+                    sumX += Math.Abs(i1 - i2);
+                    sumY += Math.Abs(i3 - i4);
+                }
+            }
+
+            double max = Math.Max(sumX, sumY);
+            double min = Math.Min(sumX, sumY) + 1e-5;
+            return max / min;
+        }
+
+        public bool HasMotionBlur(SKBitmap image, double threshold, out double score)
+        {
+            score = ComputeMotionBlurScore(image);
+            return score > threshold;
+        }
+
+        /// <summary>
         /// Generates a heatmap representing the amount of blur for each pixel.
         /// White pixels represent areas with high blur.
         /// </summary>
@@ -278,6 +313,62 @@ namespace DocQualityChecker
             return noise > threshold;
         }
 
+        /// <summary>
+        /// Computes a normalized variance of row/column averages to detect banding.
+        /// Values above 0.5 generally indicate visible stripes.
+        /// </summary>
+        public double ComputeBandingScore(SKBitmap image)
+        {
+            if (image == null) throw new ArgumentNullException(nameof(image));
+
+            int w = image.Width;
+            int h = image.Height;
+            var rowMeans = new double[h];
+            var colMeans = new double[w];
+            double sum = 0, sumSq = 0;
+
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    double val = Intensity(image.GetPixel(x, y));
+                    rowMeans[y] += val;
+                    colMeans[x] += val;
+                    sum += val;
+                    sumSq += val * val;
+                }
+            }
+
+            for (int i = 0; i < h; i++) rowMeans[i] /= w;
+            for (int i = 0; i < w; i++) colMeans[i] /= h;
+
+            double mean = sum / (w * h);
+            double var = sumSq / (w * h) - mean * mean + 1e-5;
+
+            double rowVar = 0, colVar = 0;
+            for (int i = 0; i < h; i++)
+            {
+                double d = rowMeans[i] - mean;
+                rowVar += d * d;
+            }
+            rowVar /= h;
+            for (int i = 0; i < w; i++)
+            {
+                double d = colMeans[i] - mean;
+                colVar += d * d;
+            }
+            colVar /= w;
+
+            double bandVar = Math.Max(rowVar, colVar);
+            return bandVar / var;
+        }
+
+        public bool HasBanding(SKBitmap image, double threshold, out double score)
+        {
+            score = ComputeBandingScore(image);
+            return score > threshold;
+        }
+
         private static double Intensity(SKColor p)
         {
             return (p.Red + p.Green + p.Blue) / 3.0;
@@ -408,6 +499,8 @@ namespace DocQualityChecker
                 BrisqueScore = ComputeBrisqueScore(image),
                 IsBlurry = IsBlurry(image, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
+                HasMotionBlur = HasMotionBlur(image, settings.MotionBlurThreshold, out var mblur),
+                MotionBlurScore = mblur,
                 HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area),
                 GlareArea = area,
                 IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
@@ -417,7 +510,9 @@ namespace DocQualityChecker
                 HasColorDominance = HasColorDominance(image, settings.DominanceThreshold, out var dom),
                 ColorDominance = dom,
                 HasNoise = HasNoise(image, settings.NoiseThreshold, out var noise),
-                Noise = noise
+                Noise = noise,
+                HasBanding = HasBanding(image, settings.BandingThreshold, out var band),
+                BandingScore = band
             };
 
             if (settings.GenerateHeatmaps)
@@ -434,7 +529,9 @@ namespace DocQualityChecker
                                      result.IsWellExposed &&
                                      !result.HasLowContrast &&
                                      !result.HasColorDominance &&
-                                     !result.HasNoise;
+                                     !result.HasNoise &&
+                                     !result.HasMotionBlur &&
+                                     !result.HasBanding;
 
             return result;
         }

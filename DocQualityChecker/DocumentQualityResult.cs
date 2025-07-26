@@ -26,6 +26,12 @@ namespace DocQualityChecker
         public double Noise { get; set; }
         public bool HasNoise { get; set; }
 
+        public double MotionBlurScore { get; set; }
+        public bool HasMotionBlur { get; set; }
+
+        public double BandingScore { get; set; }
+        public bool HasBanding { get; set; }
+
         /// <summary>
         /// Optional blur heatmap if generated.
         /// </summary>

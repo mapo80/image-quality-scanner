@@ -1,6 +1,8 @@
 using DocQualityChecker;
 using SkiaSharp;
 using Xunit;
+using System;
+using System.IO;
 
 namespace DocQualityChecker.Tests
 {
@@ -24,7 +26,7 @@ namespace DocQualityChecker.Tests
         {
             using var img = CreateBaseImage();
             var checker = CreateChecker();
-            var settings = new QualitySettings();
+            var settings = new QualitySettings { BandingThreshold = 10.0 };
             var result = checker.CheckQuality(img, settings);
             Assert.True(result.IsValidDocument);
         }
@@ -191,6 +193,60 @@ namespace DocQualityChecker.Tests
 
             Assert.False(result.IsValidDocument);
             Assert.True(result.HasNoise);
+        }
+
+        [Fact]
+        public void MotionBlur_IsDetected()
+        {
+            using var img = CreateBaseImage();
+            using var blurred = new SKBitmap(img.Width, img.Height);
+            using (var canvas = new SKCanvas(blurred))
+            using (var paint = new SKPaint { ImageFilter = SKImageFilter.CreateBlur(12, 1) })
+            {
+                canvas.DrawBitmap(img, 0, 0, paint);
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings { MotionBlurThreshold = 1.5 };
+            var result = checker.CheckQuality(blurred, settings);
+
+            Assert.True(result.HasMotionBlur);
+            Assert.False(result.IsValidDocument);
+        }
+
+        [Fact]
+        public void Banding_IsDetected()
+        {
+            using var img = new SKBitmap(200, 200);
+            using (var canvas = new SKCanvas(img))
+            {
+                for (int y = 0; y < 200; y += 10)
+                {
+                    var color = (y / 10) % 2 == 0 ? new SKColor(120, 120, 120) : new SKColor(180, 180, 180);
+                    using var paint = new SKPaint { Color = color };
+                    canvas.DrawRect(new SKRect(0, y, 200, y + 10), paint);
+                }
+                canvas.Flush();
+            }
+
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.True(result.HasBanding);
+            Assert.False(result.IsValidDocument);
+        }
+
+        [Fact]
+        public void DatasetImage_Processable()
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "docs", "dataset_samples", "93_HONOR-7X.png");
+            using var img = SKBitmap.Decode(path);
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(img, settings);
+            Assert.NotEqual(0, result.BrisqueScore);
         }
     }
 }

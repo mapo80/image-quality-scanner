@@ -31,6 +31,12 @@ namespace DocQualityChecker
         /// <summary>Maximum acceptable noise level.</summary>
         public double NoiseThreshold { get; set; } = 500.0;
 
+        /// <summary>Threshold for directional blur ratio.</summary>
+        public double MotionBlurThreshold { get; set; } = 3.0;
+
+        /// <summary>Threshold for banding detection.</summary>
+        public double BandingThreshold { get; set; } = 0.5;
+
         /// <summary>
         /// When true the checker will generate heatmaps for blur and glare
         /// detection. These maps can be used to locate problematic areas.
