@@ -729,7 +729,7 @@ Con queste ottimizzazioni i tempi di esecuzione per le immagini del dataset `gla
 L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma i tempi complessivi oscillano tra circa 23 e 71 ms a seconda dell'immagine.
 
 ### Analisi campione cartella `docs/images/glare`
-Per verificare le cause di alcune lentezze riscontrate nello script sono state analizzate due immagini di esempio (`0.jpg` e `10.jpg`). Per ciascun file sono state misurate le tempistiche dei singoli controlli e generati gli heatmap.
+Per verificare le cause di alcune lentezze riscontrate nello script sono state analizzate tre immagini di esempio (`0.jpg`, `10.jpg` e `1001.jpg`). Per ciascun file sono state misurate le tempistiche dei singoli controlli e generati gli heatmap.
 
 L'analisi completa di tutte le immagini è disponibile in [docs/images/glare/README.md](docs/images/glare/README.md).
 #### 0.jpg
@@ -811,8 +811,6 @@ GlareRegions: 268.8
 Total: 8738.2
 ```
 
-Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individuazione delle regioni (in particolare `FindBlurRegions`) impiegano la maggior parte del tempo a causa di doppi cicli annidati su tutti i pixel. Inoltre alcune metriche venivano ricalcolate più volte all'interno di `CheckQuality`. Ottimizzando questi passaggi e memorizzando i risultati di `ComputeMotionBlurScore`, `ComputeNoise` e `ComputeBandingScore` il tempo complessivo è stato ridotto di circa il 20‑30 % su entrambe le immagini.
-
 #### 1001.jpg
 
 ![Originale](docs/images/glare/1001.jpg)
@@ -839,6 +837,7 @@ IsValidDocument: False
 ```
 
 Tempi di esecuzione (ms):
+
 ```
 {
   "Brisque": 243.9552,
@@ -856,31 +855,39 @@ Tempi di esecuzione (ms):
   "GlareRegions": 352.5871,
   "Total": 3083.5516
 }```
-### Tempi di esecuzione cartella `docs/images/glare`
-| File | Tempo totale (ms) |
-|------|------------------|
-| 0.jpg | 86.65 |
-| 1001.jpg | 389.43 |
-| 1004.jpg | 394.21 |
-| 1005.jpg | 459.39 |
-| 10.jpg | 239.21 |
-| 22.jpg | 159.32 |
-| 242.jpg | 390.12 |
-| 266.jpg | 122.37 |
-| 275.jpg | 345.94 |
-| 279.jpg | 323.84 |
-| 281.jpg | 320.29 |
-| 293.jpg | 367.28 |
-| 313.jpg | 260.76 |
-| 326.jpg | 325.11 |
-| 447.jpg | 349.19 |
-| 482.jpg | 218.53 |
-| 497.jpg | 235.31 |
-| 523.jpg | 204.80 |
-| 65.jpg | 347.04 |
-| 743.jpg | 406.61 |
-| 988.jpg | 441.65 |
-| 997.jpg | 411.61 |
+
+La tabella seguente riassume i tempi totali di esecuzione per tutte le immagini presenti in `docs/images/glare`.
+
+| Immagine | Tempo totale (ms) |
+|----------|------------------|
+| 0.jpg | 154.33 |
+| 10.jpg | 352.64 |
+| 1001.jpg | 629.43 |
+| 1004.jpg | 628.21 |
+| 1005.jpg | 585.75 |
+| 22.jpg | 191.94 |
+| 242.jpg | 509.52 |
+| 266.jpg | 143.27 |
+| 275.jpg | 235.62 |
+| 279.jpg | 460.50 |
+| 281.jpg | 478.75 |
+| 293.jpg | 520.03 |
+| 313.jpg | 328.38 |
+| 326.jpg | 487.76 |
+| 447.jpg | 470.26 |
+| 482.jpg | 284.83 |
+| 497.jpg | 292.72 |
+| 523.jpg | 316.69 |
+| 65.jpg | 481.15 |
+| 743.jpg | 547.07 |
+| 988.jpg | 576.09 |
+| 997.jpg | 591.75 |
+
+Per l'elenco completo delle analisi consultare [docs/images/glare/README_full.md](docs/images/glare/README_full.md).
+
+Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individuazione delle regioni (in particolare `FindBlurRegions`) impiegano la maggior parte del tempo a causa di doppi cicli annidati su tutti i pixel. Inoltre alcune metriche venivano ricalcolate più volte all'interno di `CheckQuality`. Ottimizzando questi passaggi e memorizzando i risultati di `ComputeMotionBlurScore`, `ComputeNoise` e `ComputeBandingScore` il tempo complessivo è stato ridotto di circa il 20‑30 % su entrambe le immagini.
+
+Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
 Per testarlo occorre prima avviare l'API:
 
 ```bash
