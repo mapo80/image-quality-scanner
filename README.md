@@ -662,23 +662,24 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 13.73 |
-| blur/img1.jpg | 42.22 |
-| blur/img2.jpg | 47.62 |
-| blur/img3.jpg | 30.32 |
-| glare/img1.jpg | 13.73 |
-| glare/img2.jpg | 12.86 |
-| glare/img3.jpg | 13.53 |
+| 93_HONOR-7X.png | 55.06 |
+| blur/img1.jpg | 140.02 |
+| blur/img2.jpg | 97.86 |
+| blur/img3.jpg | 96.13 |
+| glare/img1.jpg | 33.59 |
+| glare/img2.jpg | 44.60 |
+| glare/img3.jpg | 39.18 |
+| **Media** | 72.35 |
 
-| Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
-|----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 63.03 | 13.73 | 78.21 |
-| blur/img1.jpg | 80.94 | 42.22 | 47.84 |
-| blur/img2.jpg | 80.59 | 47.62 | 40.91 |
-| blur/img3.jpg | 86.80 | 30.32 | 65.07 |
-| glare/img1.jpg | 28.23 | 13.73 | 51.36 |
-| glare/img2.jpg | 59.06 | 12.86 | 78.23 |
-| glare/img3.jpg | 27.48 | 13.53 | 50.78 |
+| Immagine | Prima (ms) | Dopo (ms) | Variazione % |
+|----------|-----------|----------|--------------|
+| 93_HONOR-7X.png | 63.03 | 55.06 | -12.64 |
+| blur/img1.jpg | 80.94 | 140.02 | 72.99 |
+| blur/img2.jpg | 80.59 | 97.86 | 21.43 |
+| blur/img3.jpg | 86.80 | 96.13 | 10.75 |
+| glare/img1.jpg | 28.23 | 33.59 | 18.99 |
+| glare/img2.jpg | 59.06 | 44.60 | -24.48 |
+| glare/img3.jpg | 27.48 | 39.18 | 42.58 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
@@ -779,30 +780,31 @@ Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individua
 ### Analisi completa delle immagini della cartella `docs/images/glare`
 Di seguito sono riportati i risultati ottenuti eseguendo la libreria su tutte le immagini del dataset. Per ogni file vengono mostrati i valori dei singoli controlli, i tempi di esecuzione e le heatmap generate.
 
-| File | Prima (s) | Release (s) | Release 0.5x (s) |
-|------|-----------|-------------|------------------|
-| 0.jpg | 0.18 | 0.05 | 0.05 |
-| 10.jpg | 1.64 | 0.61 | 0.41 |
-| 22.jpg | 0.78 | 0.29 | 0.28 |
-| 65.jpg | 2.68 | 0.96 | 0.66 |
-| 242.jpg | 2.96 | 1.17 | 0.72 |
-| 266.jpg | 0.20 | 0.07 | 0.07 |
-| 275.jpg | 0.86 | 0.27 | 0.26 |
-| 279.jpg | 2.48 | 0.84 | 0.61 |
-| 281.jpg | 2.32 | 0.75 | 0.57 |
-| 293.jpg | 2.71 | 0.94 | 0.73 |
-| 313.jpg | 1.57 | 0.96 | 0.43 |
-| 326.jpg | 3.06 | 0.89 | 0.60 |
-| 447.jpg | 2.45 | 0.96 | 0.63 |
-| 482.jpg | 1.34 | 0.45 | 0.36 |
-| 497.jpg | 1.42 | 0.49 | 0.36 |
-| 523.jpg | 1.36 | 0.45 | 0.37 |
-| 743.jpg | 3.09 | 1.10 | 0.74 |
-| 988.jpg | 3.12 | 1.15 | 0.77 |
-| 997.jpg | 3.10 | 1.17 | 0.76 |
-| 1001.jpg | 3.08 | 1.15 | 0.78 |
-| 1004.jpg | 3.05 | 1.14 | 0.76 |
-| 1005.jpg | 3.08 | 1.19 | 0.75 |
+| File | Prima (ms) | Release (ms) | Release 0.5x (ms) | Variazione % |
+|------|-----------|-------------|------------------|-------------|
+| 0.jpg | 180 | 50 | 50 | -72.22 |
+| 10.jpg | 1640 | 610 | 410 | -62.80 |
+| 22.jpg | 780 | 290 | 280 | -62.82 |
+| 65.jpg | 2680 | 960 | 660 | -64.18 |
+| 242.jpg | 2960 | 1170 | 720 | -60.47 |
+| 266.jpg | 200 | 70 | 70 | -65.00 |
+| 275.jpg | 860 | 270 | 260 | -68.60 |
+| 279.jpg | 2480 | 840 | 610 | -66.13 |
+| 281.jpg | 2320 | 750 | 570 | -67.67 |
+| 293.jpg | 2710 | 940 | 730 | -65.31 |
+| 313.jpg | 1570 | 960 | 430 | -38.85 |
+| 326.jpg | 3060 | 890 | 600 | -70.92 |
+| 447.jpg | 2450 | 960 | 630 | -60.82 |
+| 482.jpg | 1340 | 450 | 360 | -66.42 |
+| 497.jpg | 1420 | 490 | 360 | -65.49 |
+| 523.jpg | 1360 | 450 | 370 | -66.91 |
+| 743.jpg | 3090 | 1100 | 740 | -64.40 |
+| 988.jpg | 3120 | 1150 | 770 | -63.14 |
+| 997.jpg | 3100 | 1170 | 760 | -62.26 |
+| 1001.jpg | 3080 | 1150 | 780 | -62.66 |
+| 1004.jpg | 3050 | 1140 | 760 | -62.62 |
+| 1005.jpg | 3080 | 1190 | 750 | -61.36 |
+| **Media** | - | 775 | - | -63.68 |
 
 Riducendo la risoluzione di analisi a 0.5 (il risultato viene poi
 riportato alla dimensione originale) il tempo di elaborazione del file
