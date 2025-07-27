@@ -9,8 +9,8 @@ Contrast: 50.77
 HasLowContrast: False
 ColorDominance: 1.06
 HasColorDominance: False
-Noise: 5.81
+Noise: 5.89
 HasNoise: False
 BandingScore: 0.41
 HasBanding: False
-IsValidDocument: False
+IsValidDocument: True

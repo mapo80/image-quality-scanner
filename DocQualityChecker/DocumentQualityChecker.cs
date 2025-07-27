@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using SkiaSharp;
 
 namespace DocQualityChecker
@@ -169,29 +170,8 @@ namespace DocQualityChecker
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            double sum = 0;
-            int count = 0;
-            var pixels = image.Pixels;
-            int w = image.Width;
-            for (int y = 1; y < image.Height - 1; y++)
-            {
-                int row = y * w;
-                for (int x = 1; x < image.Width - 1; x++)
-                {
-                    int idx = row + x;
-                    double center = Intensity(pixels[idx]);
-                    double neighborSum = 0;
-                    for (int j = -1; j <= 1; j++)
-                        for (int i = -1; i <= 1; i++)
-                            if (i != 0 || j != 0)
-                                neighborSum += Intensity(pixels[idx + i + j * w]);
-                    double mean = neighborSum / 8.0;
-                    double diff = center - mean;
-                    sum += diff * diff;
-                    count++;
-                }
-            }
-            return sum / count;
+            var intensities = GetIntensityBuffer(image);
+            return ComputeNoise(intensities, image.Width, image.Height);
         }
 
         public bool HasNoise(SKBitmap image, double threshold, out double noise)
@@ -296,8 +276,11 @@ namespace DocQualityChecker
         private static double ComputeMotionBlurScore(double[] intensities, int w, int h)
         {
             double sumX = 0, sumY = 0;
-            for (int y = 1; y < h - 1; y++)
+            object sync = new object();
+
+            Parallel.For(1, h - 1, y =>
             {
+                double localX = 0, localY = 0;
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
@@ -307,10 +290,16 @@ namespace DocQualityChecker
                     double up = intensities[idx - w];
                     double down = intensities[idx + w];
 
-                    sumX += Math.Abs(right - left);
-                    sumY += Math.Abs(down - up);
+                    localX += Math.Abs(right - left);
+                    localY += Math.Abs(down - up);
                 }
-            }
+
+                lock (sync)
+                {
+                    sumX += localX;
+                    sumY += localY;
+                }
+            });
 
             double max = Math.Max(sumX, sumY);
             double min = Math.Min(sumX, sumY) + 1e-5;
@@ -321,7 +310,7 @@ namespace DocQualityChecker
         {
             var lap = new double[intensities.Length];
 
-            for (int y = 1; y < h - 1; y++)
+            Parallel.For(1, h - 1, y =>
             {
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
@@ -329,7 +318,7 @@ namespace DocQualityChecker
                     int idx = row + x;
                     lap[idx] = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
                 }
-            }
+            });
 
             return lap;
         }
@@ -363,27 +352,46 @@ namespace DocQualityChecker
 
         private static double ComputeNoise(double[] intensities, int w, int h)
         {
+            // Sample pixels to speed up computation on very large images
+            int step = Math.Max(1, Math.Min(w, h) / 512);
+
             double sum = 0;
             int count = 0;
-            for (int y = 1; y < h - 1; y++)
+            object sync = new object();
+
+            Parallel.For(1, h - 1, y =>
             {
+                if ((y - 1) % step != 0)
+                    return;
+
+                double localSum = 0;
+                int localCount = 0;
                 int row = y * w;
-                for (int x = 1; x < w - 1; x++)
+                for (int x = 1; x < w - 1; x += step)
                 {
                     int idx = row + x;
                     double center = intensities[idx];
+
                     double neighborSum = 0;
                     for (int j = -1; j <= 1; j++)
                         for (int i = -1; i <= 1; i++)
                             if (i != 0 || j != 0)
                                 neighborSum += intensities[idx + i + j * w];
+
                     double mean = neighborSum / 8.0;
                     double diff = center - mean;
-                    sum += diff * diff;
-                    count++;
+                    localSum += diff * diff;
+                    localCount++;
                 }
-            }
-            return sum / count;
+
+                lock (sync)
+                {
+                    sum += localSum;
+                    count += localCount;
+                }
+            });
+
+            return count > 0 ? sum / count : 0;
         }
 
         private static double ComputeBandingScore(double[] intensities, int w, int h)
@@ -475,14 +483,27 @@ namespace DocQualityChecker
             return (p.Red + p.Green + p.Blue) / 3.0;
         }
 
-        private static double[] GetIntensityBuffer(SKBitmap image)
+        private static double[] GetIntensityBuffer(SKBitmap image, int step = 1)
         {
             var pixels = image.Pixels;
-            var buffer = new double[pixels.Length];
-            for (int i = 0; i < pixels.Length; i++)
+            int w = image.Width;
+            int h = image.Height;
+            int w2 = (w + step - 1) / step;
+            int h2 = (h + step - 1) / step;
+            var buffer = new double[w2 * h2];
+
+            Parallel.For(0, h2, y =>
             {
-                buffer[i] = Intensity(pixels[i]);
-            }
+                int srcY = Math.Min(y * step, h - 1);
+                int row = srcY * w;
+                int dst = y * w2;
+                for (int x = 0; x < w2; x++)
+                {
+                    int srcX = Math.Min(x * step, w - 1);
+                    buffer[dst + x] = Intensity(pixels[row + srcX]);
+                }
+            });
+
             return buffer;
         }
 
@@ -581,9 +602,10 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (settings == null) throw new ArgumentNullException(nameof(settings));
 
-            var intensities = GetIntensityBuffer(image);
-            int w = image.Width;
-            int h = image.Height;
+            int downStep = Math.Max(1, Math.Min(image.Width, image.Height) / 512);
+            var intensities = GetIntensityBuffer(image, downStep);
+            int w = (image.Width + downStep - 1) / downStep;
+            int h = (image.Height + downStep - 1) / downStep;
 
             double motionScore = ComputeMotionBlurScore(intensities, w, h);
             double noiseScore = ComputeNoise(intensities, w, h);

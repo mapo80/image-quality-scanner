@@ -22,7 +22,8 @@ IEnumerable<string> images;
 if (File.Exists(path))
     images = new[] { path };
 else if (Directory.Exists(path))
-    images = Directory.EnumerateFiles(path).Where(f => f.EndsWith(".jpg") || f.EndsWith(".png"));
+    images = Directory.EnumerateFiles(path)
+        .Where(f => f.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase));
 else
 {
     Console.WriteLine($"Path not found: {path}");
