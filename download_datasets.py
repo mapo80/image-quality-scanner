@@ -1,8 +1,14 @@
 import os
 from roboflow import download_dataset
 
-API_KEY = "tcaZqJkWcEENQPa2p2H1"
-os.environ["ROBOFLOW_API_KEY"] = API_KEY
+# The API key is read from the ROBOFLOW_API_KEY environment variable.
+# This avoids storing credentials in the repository.
+api_key = os.environ.get("ROBOFLOW_API_KEY")
+if not api_key:
+    raise EnvironmentError(
+        "Please set the ROBOFLOW_API_KEY environment variable before running this script."
+    )
+os.environ["ROBOFLOW_API_KEY"] = api_key
 
 def main():
     datasets = [

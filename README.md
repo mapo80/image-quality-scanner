@@ -149,7 +149,7 @@ IsValidDocument: False
 ## Valutazione con il dataset Roboflow
 
 Per testare il rilevamento dei riflessi su immagini reali è possibile utilizzare il dataset [glare](https://universe.roboflow.com/pradeep-singh/glare-xw4ce) (49 immagini annotate) e il dataset [blur](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n) per la sfocatura.
-I dataset possono essere scaricati con la chiave API `tcaZqJkWcEENQPa2p2H1` tramite lo script `download_datasets.py` presente nel repository:
+I dataset possono essere scaricati impostando la variabile d'ambiente `ROBOFLOW_API_KEY` ed eseguendo lo script `download_datasets.py` presente nel repository:
 
 ```bash
 python download_datasets.py
