@@ -724,6 +724,13 @@ Le ultime versioni della libreria includono alcune migliorie mirate a ridurre dr
 - **Risultati memorizzati**: i valori di motion blur, rumore e banding vengono calcolati una sola volta all'interno di `CheckQuality` e riutilizzati, evitando ricalcoli costosi.
 - **Sampler più rapido**: lo strumento `PerformanceSampler` ignora le immagini PNG di output e processa solo i file `.jpg`, prevenendo elaborazioni accidentali.
 
+### Dettagli tecnici delle ottimizzazioni
+
+- Diversi cicli nidificati sono stati sostituiti con `Parallel.For` in modo da sfruttare tutte le CPU disponibili.
+- `GetIntensityBuffer` accetta un parametro di passo che consente di ottenere un buffer ridotto quando le dimensioni dell'immagine superano i 512 px.
+- `ComputeNoise` utilizza un campionamento adattativo dei pixel, riducendo drasticamente il numero di iterazioni senza perdere precisione.
+- In `CheckQuality` i punteggi di motion blur, rumore e banding vengono calcolati una sola volta e riutilizzati nelle verifiche successive.
+
 Con queste ottimizzazioni i tempi di esecuzione per le immagini del dataset `glare` sono scesi ben al di sotto del secondo anche su file di grandi dimensioni.
 
 ### Considerazioni sui tempi di risposta
