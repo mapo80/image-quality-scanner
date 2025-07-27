@@ -9,7 +9,7 @@ Contrast: 39.59
 HasLowContrast: False
 ColorDominance: 1.03
 HasColorDominance: False
-Noise: 13.56
+Noise: 12.26
 HasNoise: False
 BandingScore: 0.50
 HasBanding: True
