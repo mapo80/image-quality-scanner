@@ -62,6 +62,7 @@ La classe `QualitySettings` consente di personalizzare le soglie utilizzate nei 
 | `MotionBlurThreshold` | Rapporto massimo tra gradienti orizzontali e verticali prima di considerare il movimento. | `3.0` | Valori più bassi rendono il controllo più severo. |
 | `BandingThreshold` | Soglia sul rapporto di varianza delle righe/colonne per individuare bande. | `0.5` | Aumentare se si vogliono rilevare solo bande marcate. |
 | `GenerateHeatmaps` | Se `true` produce le mappe di calore e le coordinate delle aree problematiche. | `false` | Utile in fase di debug o per applicazioni che devono mostrare i punti da correggere. |
+| `ProcessingScale` | Fattore di scala applicato prima dell'elaborazione per ridurre i tempi. Valori inferiori a 1 ridimensionano l'immagine. | `1.0` | Le heatmap e le coordinate vengono riportate alla risoluzione originale. |
 
 ## API REST
 
@@ -160,13 +161,13 @@ Lo script salva le cartelle `glare_dataset` e `blur_dataset`. Da queste è suffi
 Dopo aver estratto le immagini, è disponibile il programma `DatasetEvaluator` che stampa i valori calcolati dalla libreria e salva la mappa di calore dei riflessi accanto all'immagine esaminata:
 
 ```bash
-dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj <percorso immagine>
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj -c Release <percorso immagine>
 ```
 
 Esempio eseguendo il tool sul file `docs/dataset_samples/glare/img1.jpg` fornito nel repository:
 
 ```bash
-dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj docs/dataset_samples/glare/img1.jpg
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj -c Release docs/dataset_samples/glare/img1.jpg
 ```
 
 Output ottenuto:
@@ -340,7 +341,7 @@ IsValidDocument: False
 Analizzando alcune immagini del dataset [blur](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n) è possibile verificare la rilevazione della sfocatura. Di seguito l'output generato su `docs/dataset_samples/blur/img1.jpg`:
 
 ```bash
-dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj docs/dataset_samples/blur/img1.jpg
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj -c Release docs/dataset_samples/blur/img1.jpg
 ```
 
 Esempio di risultato:
@@ -661,23 +662,23 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 26.00 |
-| blur/img1.jpg | 79.33 |
-| blur/img2.jpg | 88.80 |
-| blur/img3.jpg | 81.59 |
-| glare/img1.jpg | 34.31 |
-| glare/img2.jpg | 33.58 |
-| glare/img3.jpg | 34.40 |
+| 93_HONOR-7X.png | 13.73 |
+| blur/img1.jpg | 42.22 |
+| blur/img2.jpg | 47.62 |
+| blur/img3.jpg | 30.32 |
+| glare/img1.jpg | 13.73 |
+| glare/img2.jpg | 12.86 |
+| glare/img3.jpg | 13.53 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 26.00 | 94.77 |
-| blur/img1.jpg | 485.03 | 79.33 | 83.64 |
-| blur/img2.jpg | 464.82 | 88.80 | 80.90 |
-| blur/img3.jpg | 480.09 | 81.59 | 83.01 |
-| glare/img1.jpg | 205.37 | 34.31 | 83.29 |
-| glare/img2.jpg | 203.91 | 33.58 | 83.53 |
-| glare/img3.jpg | 206.94 | 34.40 | 83.38 |
+| 93_HONOR-7X.png | 63.03 | 13.73 | 78.21 |
+| blur/img1.jpg | 80.94 | 42.22 | 47.84 |
+| blur/img2.jpg | 80.59 | 47.62 | 40.91 |
+| blur/img3.jpg | 86.80 | 30.32 | 65.07 |
+| glare/img1.jpg | 28.23 | 13.73 | 51.36 |
+| glare/img2.jpg | 59.06 | 12.86 | 78.23 |
+| glare/img3.jpg | 27.48 | 13.53 | 50.78 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
@@ -689,7 +690,7 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | glare/img2 | 5.36 | 5.36 | 205.19 | 205.19 | 391 | 391 | 95.60 | 95.60 | 60.30 | 60.30 |
 | glare/img3 | 5.05 | 5.05 | 551.69 | 551.69 | 1424 | 1424 | 114.82 | 114.82 | 58.15 | 58.15 |
 ### Considerazioni sui tempi di risposta
-L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma i tempi complessivi oscillano tra circa 23 e 71 ms a seconda dell'immagine.
+L'esecuzione dei controlli base (BRISQUE, sfocatura, glare, esposizione e simili) richiede ora una frazione di secondo. La generazione delle heatmap e delle regioni resta l'operazione più onerosa ma i tempi complessivi oscillano tra circa 14 e 48 ms a seconda dell'immagine.
 
 ### Analisi campione cartella `docs/images/glare`
 Per verificare le cause di alcune lentezze riscontrate nello script sono state analizzate due immagini di esempio (`0.jpg` e `10.jpg`). Per ciascun file sono state misurate le tempistiche dei singoli controlli e generati gli heatmap.
@@ -778,6 +779,34 @@ Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individua
 ### Analisi completa delle immagini della cartella `docs/images/glare`
 Di seguito sono riportati i risultati ottenuti eseguendo la libreria su tutte le immagini del dataset. Per ogni file vengono mostrati i valori dei singoli controlli, i tempi di esecuzione e le heatmap generate.
 
+| File | Prima (s) | Release (s) | Release 0.5x (s) |
+|------|-----------|-------------|------------------|
+| 0.jpg | 0.18 | 0.05 | 0.05 |
+| 10.jpg | 1.64 | 0.61 | 0.41 |
+| 22.jpg | 0.78 | 0.29 | 0.28 |
+| 65.jpg | 2.68 | 0.96 | 0.66 |
+| 242.jpg | 2.96 | 1.17 | 0.72 |
+| 266.jpg | 0.20 | 0.07 | 0.07 |
+| 275.jpg | 0.86 | 0.27 | 0.26 |
+| 279.jpg | 2.48 | 0.84 | 0.61 |
+| 281.jpg | 2.32 | 0.75 | 0.57 |
+| 293.jpg | 2.71 | 0.94 | 0.73 |
+| 313.jpg | 1.57 | 0.96 | 0.43 |
+| 326.jpg | 3.06 | 0.89 | 0.60 |
+| 447.jpg | 2.45 | 0.96 | 0.63 |
+| 482.jpg | 1.34 | 0.45 | 0.36 |
+| 497.jpg | 1.42 | 0.49 | 0.36 |
+| 523.jpg | 1.36 | 0.45 | 0.37 |
+| 743.jpg | 3.09 | 1.10 | 0.74 |
+| 988.jpg | 3.12 | 1.15 | 0.77 |
+| 997.jpg | 3.10 | 1.17 | 0.76 |
+| 1001.jpg | 3.08 | 1.15 | 0.78 |
+| 1004.jpg | 3.05 | 1.14 | 0.76 |
+| 1005.jpg | 3.08 | 1.19 | 0.75 |
+
+Riducendo la risoluzione di analisi a 0.5 (il risultato viene poi
+riportato alla dimensione originale) il tempo di elaborazione del file
+`1005.jpg` è passato da circa 1.2 s a 0.75 s in modalità Release.
 
 #### 0.jpg
 

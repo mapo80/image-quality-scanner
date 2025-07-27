@@ -248,5 +248,19 @@ namespace DocQualityChecker.Tests
             var result = checker.CheckQuality(img, settings);
             Assert.NotEqual(0, result.BrisqueScore);
         }
+
+        [Fact]
+        public void DownsampledProcessing_RescalesHeatmaps()
+        {
+            using var img = CreateBaseImage();
+            var checker = CreateChecker();
+            var settings = new QualitySettings { GenerateHeatmaps = true, ProcessingScale = 0.5 };
+            var result = checker.CheckQuality(img, settings);
+
+            Assert.Equal(img.Width, result.BlurHeatmap!.Width);
+            Assert.Equal(img.Height, result.BlurHeatmap.Height);
+            Assert.All(result.BlurRegions!, r => Assert.InRange(r.Right, 1, img.Width));
+            Assert.All(result.GlareRegions!, r => Assert.InRange(r.Bottom, 1, img.Height));
+        }
     }
 }

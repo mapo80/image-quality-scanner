@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using SkiaSharp;
 
 namespace DocQualityChecker
@@ -277,15 +278,20 @@ namespace DocQualityChecker
 
         private static bool IsBlurry(double[] intensities, int w, int h, double threshold, out double blurScore)
         {
+            BuildLaplacian(intensities, w, h, out blurScore);
+            return blurScore < threshold;
+        }
+
+        private static bool IsBlurryFromLaplacian(double[] laplacian, int w, int h, double threshold, out double blurScore)
+        {
             double sumSq = 0;
             for (int y = 1; y < h - 1; y++)
             {
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
-                    int idx = row + x;
-                    double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    sumSq += lap * lap;
+                    double val = laplacian[row + x];
+                    sumSq += val * val;
                 }
             }
 
@@ -317,22 +323,38 @@ namespace DocQualityChecker
             return max / min;
         }
 
-        private static double[] BuildLaplacian(double[] intensities, int w, int h)
+        private static double[] BuildLaplacian(double[] intensities, int w, int h, out double variance)
         {
             var lap = new double[intensities.Length];
+            double sumSq = 0;
 
-            for (int y = 1; y < h - 1; y++)
+            object lockObj = new object();
+            Parallel.For(1, h - 1, () => 0.0, (y, _, local) =>
             {
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
-                    lap[idx] = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
+                    double val = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
+                    lap[idx] = val;
+                    local += val * val;
                 }
-            }
 
+                return local;
+            }, local =>
+            {
+                lock (lockObj)
+                {
+                    sumSq += local;
+                }
+            });
+
+            variance = sumSq / ((w - 2) * (h - 2));
             return lap;
         }
+
+        private static double[] BuildLaplacian(double[] intensities, int w, int h)
+            => BuildLaplacian(intensities, w, h, out _);
 
         private static SKBitmap CreateBlurHeatmap(double[] laplacian, int w, int h)
         {
@@ -347,17 +369,21 @@ namespace DocQualityChecker
             return map;
         }
 
+        private static byte[] BuildBlurMask(double[] laplacian, double threshold)
+        {
+            var mask = new byte[laplacian.Length];
+            Parallel.For(0, laplacian.Length, i =>
+            {
+                double val = laplacian[i] * laplacian[i];
+                mask[i] = val < threshold ? (byte)255 : (byte)0;
+            });
+            return mask;
+        }
+
         private static List<SKRectI> FindBlurRegions(double[] intensities, int w, int h, double threshold)
         {
             var lap = BuildLaplacian(intensities, w, h);
-            var mask = new byte[lap.Length];
-
-            for (int i = 0; i < lap.Length; i++)
-            {
-                double val = lap[i] * lap[i];
-                mask[i] = val < threshold ? (byte)255 : (byte)0;
-            }
-
+            var mask = BuildBlurMask(lap, threshold);
             return FindConnectedComponents(mask, w, h);
         }
 
@@ -365,24 +391,35 @@ namespace DocQualityChecker
         {
             double sum = 0;
             int count = 0;
-            for (int y = 1; y < h - 1; y++)
+
+            object lockObj = new object();
+            Parallel.For(1, h - 1, () => (localSum: 0.0, localCount: 0), (y, _, local) =>
             {
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
                     double center = intensities[idx];
-                    double neighborSum = 0;
-                    for (int j = -1; j <= 1; j++)
-                        for (int i = -1; i <= 1; i++)
-                            if (i != 0 || j != 0)
-                                neighborSum += intensities[idx + i + j * w];
+                    double neighborSum =
+                        intensities[idx - w - 1] + intensities[idx - w] + intensities[idx - w + 1] +
+                        intensities[idx - 1] + intensities[idx + 1] +
+                        intensities[idx + w - 1] + intensities[idx + w] + intensities[idx + w + 1];
                     double mean = neighborSum / 8.0;
                     double diff = center - mean;
-                    sum += diff * diff;
-                    count++;
+                    local.localSum += diff * diff;
+                    local.localCount++;
                 }
-            }
+
+                return local;
+            }, local =>
+            {
+                lock (lockObj)
+                {
+                    sum += local.localSum;
+                    count += local.localCount;
+                }
+            });
+
             return sum / count;
         }
 
@@ -431,10 +468,16 @@ namespace DocQualityChecker
 
         private static bool HasGlare(double[] intensities, int brightThreshold, int areaThreshold, out int glareArea)
         {
+            var mask = BuildGlareMask(intensities, brightThreshold);
+            return HasGlare(mask, areaThreshold, out glareArea);
+        }
+
+        private static bool HasGlare(byte[] mask, int areaThreshold, out int glareArea)
+        {
             int count = 0;
-            foreach (double val in intensities)
+            foreach (byte b in mask)
             {
-                if (val >= brightThreshold)
+                if (b != 0)
                     count++;
             }
             glareArea = count;
@@ -444,10 +487,10 @@ namespace DocQualityChecker
         private static byte[] BuildGlareMask(double[] intensities, int brightThreshold)
         {
             var mask = new byte[intensities.Length];
-            for (int i = 0; i < intensities.Length; i++)
+            Parallel.For(0, intensities.Length, i =>
             {
                 mask[i] = intensities[i] >= brightThreshold ? (byte)255 : (byte)0;
-            }
+            });
             return mask;
         }
 
@@ -479,10 +522,10 @@ namespace DocQualityChecker
         {
             var pixels = image.Pixels;
             var buffer = new double[pixels.Length];
-            for (int i = 0; i < pixels.Length; i++)
+            Parallel.For(0, pixels.Length, i =>
             {
                 buffer[i] = Intensity(pixels[i]);
-            }
+            });
             return buffer;
         }
 
@@ -519,6 +562,27 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
             var intensities = GetIntensityBuffer(image);
             return FindGlareRegions(intensities, image.Width, image.Height, brightThreshold);
+        }
+
+        private static SKBitmap Resize(SKBitmap src, int width, int height)
+        {
+            var resized = new SKBitmap(width, height, src.ColorType, src.AlphaType);
+            src.ScalePixels(resized, SKFilterQuality.Medium);
+            return resized;
+        }
+
+        private static List<SKRectI> ScaleRects(IReadOnlyList<SKRectI> rects, double scaleX, double scaleY)
+        {
+            var scaled = new List<SKRectI>(rects.Count);
+            foreach (var r in rects)
+            {
+                scaled.Add(new SKRectI(
+                    (int)Math.Round(r.Left * scaleX),
+                    (int)Math.Round(r.Top * scaleY),
+                    (int)Math.Round(r.Right * scaleX),
+                    (int)Math.Round(r.Bottom * scaleY)));
+            }
+            return scaled;
         }
 
         private static List<SKRectI> FindConnectedComponents(byte[] mask, int w, int h)
@@ -581,9 +645,16 @@ namespace DocQualityChecker
             if (image == null) throw new ArgumentNullException(nameof(image));
             if (settings == null) throw new ArgumentNullException(nameof(settings));
 
-            var intensities = GetIntensityBuffer(image);
-            int w = image.Width;
-            int h = image.Height;
+            double scale = Math.Clamp(settings.ProcessingScale, 0.1, 1.0);
+            using var scaled = scale < 1.0 ? Resize(image, (int)(image.Width * scale), (int)(image.Height * scale)) : null;
+            var src = scaled ?? image;
+
+            var intensities = GetIntensityBuffer(src);
+            int w = src.Width;
+            int h = src.Height;
+
+            var lap = BuildLaplacian(intensities, w, h, out double blurScore);
+            var glareMask = BuildGlareMask(intensities, settings.BrightThreshold);
 
             double motionScore = ComputeMotionBlurScore(intensities, w, h);
             double noiseScore = ComputeNoise(intensities, w, h);
@@ -592,17 +663,17 @@ namespace DocQualityChecker
             var result = new DocumentQualityResult
             {
                 BrisqueScore = ComputeBrisqueScore(intensities),
-                IsBlurry = IsBlurry(intensities, w, h, settings.BlurThreshold, out var blurScore),
+                IsBlurry = blurScore < settings.BlurThreshold,
                 BlurScore = blurScore,
                 HasMotionBlur = motionScore > settings.MotionBlurThreshold,
                 MotionBlurScore = motionScore,
-                HasGlare = HasGlare(intensities, settings.BrightThreshold, settings.AreaThreshold, out var area),
+                HasGlare = HasGlare(glareMask, settings.AreaThreshold, out var area),
                 GlareArea = area,
-                IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
+                IsWellExposed = IsWellExposed(src, settings.ExposureMin, settings.ExposureMax, out var exposure),
                 Exposure = exposure,
-                HasLowContrast = HasLowContrast(image, settings.ContrastMin, out var contrast),
+                HasLowContrast = HasLowContrast(src, settings.ContrastMin, out var contrast),
                 Contrast = contrast,
-                HasColorDominance = HasColorDominance(image, settings.DominanceThreshold, out var dom),
+                HasColorDominance = HasColorDominance(src, settings.DominanceThreshold, out var dom),
                 ColorDominance = dom,
                 HasNoise = noiseScore > settings.NoiseThreshold,
                 Noise = noiseScore,
@@ -612,21 +683,23 @@ namespace DocQualityChecker
 
             if (settings.GenerateHeatmaps)
             {
-                var lap = BuildLaplacian(intensities, w, h);
-                var glareMask = BuildGlareMask(intensities, settings.BrightThreshold);
-
                 result.BlurHeatmap = CreateBlurHeatmap(lap, w, h);
                 result.GlareHeatmap = CreateGlareHeatmap(glareMask, w, h);
 
-                var blurMask = new byte[lap.Length];
-                for (int i = 0; i < lap.Length; i++)
-                {
-                    double val = lap[i] * lap[i];
-                    blurMask[i] = val < settings.BlurThreshold ? (byte)255 : (byte)0;
-                }
+                var blurMask = BuildBlurMask(lap, settings.BlurThreshold);
 
                 result.BlurRegions = FindConnectedComponents(blurMask, w, h);
                 result.GlareRegions = FindConnectedComponents(glareMask, w, h);
+
+                if (scale < 1.0)
+                {
+                    result.BlurHeatmap = Resize(result.BlurHeatmap, image.Width, image.Height);
+                    result.GlareHeatmap = Resize(result.GlareHeatmap, image.Width, image.Height);
+                    double sx = image.Width / (double)w;
+                    double sy = image.Height / (double)h;
+                    result.BlurRegions = ScaleRects(result.BlurRegions!, sx, sy);
+                    result.GlareRegions = ScaleRects(result.GlareRegions!, sx, sy);
+                }
             }
 
             result.IsValidDocument = result.BrisqueScore <= settings.BrisqueMax &&

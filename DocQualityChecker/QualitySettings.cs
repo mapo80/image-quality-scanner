@@ -55,5 +55,13 @@ namespace DocQualityChecker
         /// </summary>
         [DefaultValue(false)]
         public bool GenerateHeatmaps { get; set; } = false;
+
+        /// <summary>
+        /// Optional scale factor applied before processing. Values below 1
+        /// downsample the image to speed up computations. Heatmaps and
+        /// regions are rescaled back to the original resolution.
+        /// </summary>
+        [DefaultValue(1.0)]
+        public double ProcessingScale { get; set; } = 1.0;
     }
 }

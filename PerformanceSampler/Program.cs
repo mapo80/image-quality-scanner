@@ -9,13 +9,14 @@ using SkiaSharp;
 
 if (args.Length < 1)
 {
-    Console.WriteLine("Usage: PerformanceSampler <image|directory>");
+    Console.WriteLine("Usage: PerformanceSampler <image|directory> [scale]");
     return;
 }
 
 string path = args[0];
+double scale = args.Length > 1 && double.TryParse(args[1], out var s) ? s : 1.0;
 var checker = new DocumentQualityChecker();
-var settings = new QualitySettings { GenerateHeatmaps = true };
+var settings = new QualitySettings { GenerateHeatmaps = true, ProcessingScale = scale };
 var sw = new Stopwatch();
 
 IEnumerable<string> images;
