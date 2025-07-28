@@ -536,148 +536,148 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 14.48 |
-| Blur | 8.47 |
-| MotionBlur | 13.92 |
-| Glare | 6.39 |
-| Exposure | 3.41 |
-| Contrast | 3.95 |
-| ColorDominance | 0.94 |
-| Noise | 27.20 |
-| Banding | 2.94 |
-| BlurHeatmap | 6.88 |
-| GlareHeatmap | 29.45 |
-| BlurRegions | 9.21 |
-| GlareRegions | 2.54 |
-| Total | 29.40 |
+| Brisque | 4.33 |
+| Blur | 6.90 |
+| MotionBlur | 3.37 |
+| Glare | 2.19 |
+| Exposure | 2.18 |
+| Contrast | 2.04 |
+| ColorDominance | 1.53 |
+| Noise | 3.84 |
+| Banding | 2.29 |
+| BlurHeatmap | 4.81 |
+| GlareHeatmap | 2.02 |
+| BlurRegions | 9.89 |
+| GlareRegions | 5.90 |
+| Total | 23.28 |
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 33.53 |
-| Blur | 14.37 |
-| MotionBlur | 25.73 |
-| Glare | 3.17 |
-| Exposure | 11.69 |
-| Contrast | 10.94 |
-| ColorDominance | 10.71 |
-| Noise | 88.02 |
-| Banding | 11.23 |
-| BlurHeatmap | 62.98 |
-| GlareHeatmap | 6.51 |
-| BlurRegions | 50.96 |
-| GlareRegions | 25.46 |
-| Total | 63.83 |
+| Brisque | 7.64 |
+| Blur | 7.04 |
+| MotionBlur | 9.62 |
+| Glare | 7.50 |
+| Exposure | 6.66 |
+| Contrast | 4.62 |
+| ColorDominance | 4.23 |
+| Noise | 22.96 |
+| Banding | 6.70 |
+| BlurHeatmap | 9.48 |
+| GlareHeatmap | 6.96 |
+| BlurRegions | 35.03 |
+| GlareRegions | 13.82 |
+| Total | 76.75 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 20.03 |
-| Blur | 13.04 |
-| MotionBlur | 4.88 |
-| Glare | 10.80 |
-| Exposure | 3.23 |
-| Contrast | 2.63 |
-| ColorDominance | 9.99 |
-| Noise | 145.17 |
-| Banding | 3.02 |
-| BlurHeatmap | 22.99 |
-| GlareHeatmap | 24.26 |
-| BlurRegions | 16.32 |
-| GlareRegions | 30.24 |
-| Total | 70.89 |
+| Brisque | 5.41 |
+| Blur | 19.53 |
+| MotionBlur | 12.14 |
+| Glare | 6.34 |
+| Exposure | 4.41 |
+| Contrast | 3.88 |
+| ColorDominance | 3.95 |
+| Noise | 14.10 |
+| Banding | 8.85 |
+| BlurHeatmap | 11.12 |
+| GlareHeatmap | 6.61 |
+| BlurRegions | 31.43 |
+| GlareRegions | 8.46 |
+| Total | 65.13 |
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 20.01 |
-| Blur | 5.00 |
-| MotionBlur | 4.12 |
-| Glare | 10.80 |
-| Exposure | 3.47 |
-| Contrast | 2.59 |
-| ColorDominance | 9.79 |
-| Noise | 68.58 |
-| Banding | 3.01 |
-| BlurHeatmap | 23.18 |
-| GlareHeatmap | 23.95 |
-| BlurRegions | 16.48 |
-| GlareRegions | 32.42 |
-| Total | 68.00 |
+| Brisque | 4.76 |
+| Blur | 8.14 |
+| MotionBlur | 7.35 |
+| Glare | 4.31 |
+| Exposure | 3.91 |
+| Contrast | 4.31 |
+| ColorDominance | 4.32 |
+| Noise | 9.10 |
+| Banding | 6.16 |
+| BlurHeatmap | 11.04 |
+| GlareHeatmap | 9.80 |
+| BlurRegions | 34.79 |
+| GlareRegions | 7.82 |
+| Total | 66.11 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.39 |
-| Blur | 8.72 |
-| MotionBlur | 10.19 |
-| Glare | 1.15 |
-| Exposure | 1.02 |
-| Contrast | 1.16 |
-| ColorDominance | 1.64 |
-| Noise | 30.88 |
-| Banding | 1.26 |
-| BlurHeatmap | 9.95 |
-| GlareHeatmap | 1.24 |
-| BlurRegions | 21.93 |
-| GlareRegions | 2.11 |
-| Total | 24.59 |
+| Brisque | 1.99 |
+| Blur | 2.38 |
+| MotionBlur | 2.06 |
+| Glare | 1.85 |
+| Exposure | 1.52 |
+| Contrast | 1.70 |
+| ColorDominance | 1.68 |
+| Noise | 3.87 |
+| Banding | 2.65 |
+| BlurHeatmap | 4.36 |
+| GlareHeatmap | 2.37 |
+| BlurRegions | 11.99 |
+| GlareRegions | 3.69 |
+| Total | 31.05 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.29 |
-| Blur | 8.22 |
-| MotionBlur | 4.27 |
-| Glare | 1.10 |
-| Exposure | 1.90 |
-| Contrast | 1.23 |
-| ColorDominance | 0.94 |
-| Noise | 24.86 |
-| Banding | 1.30 |
-| BlurHeatmap | 9.95 |
-| GlareHeatmap | 1.67 |
-| BlurRegions | 8.52 |
-| GlareRegions | 7.41 |
-| Total | 23.29 |
+| Brisque | 5.57 |
+| Blur | 4.89 |
+| MotionBlur | 1.82 |
+| Glare | 1.72 |
+| Exposure | 3.32 |
+| Contrast | 7.97 |
+| ColorDominance | 1.69 |
+| Noise | 5.57 |
+| Banding | 3.78 |
+| BlurHeatmap | 4.46 |
+| GlareHeatmap | 3.45 |
+| BlurRegions | 12.04 |
+| GlareRegions | 3.10 |
+| Total | 28.53 |
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 8.08 |
-| Blur | 4.35 |
-| MotionBlur | 1.55 |
-| Glare | 3.34 |
-| Exposure | 1.09 |
-| Contrast | 1.08 |
-| ColorDominance | 0.99 |
-| Noise | 24.90 |
-| Banding | 3.19 |
-| BlurHeatmap | 4.83 |
-| GlareHeatmap | 2.36 |
-| BlurRegions | 13.64 |
-| GlareRegions | 1.71 |
-| Total | 27.28 |
+| Brisque | 2.49 |
+| Blur | 4.00 |
+| MotionBlur | 2.55 |
+| Glare | 2.02 |
+| Exposure | 2.21 |
+| Contrast | 1.69 |
+| ColorDominance | 1.63 |
+| Noise | 4.70 |
+| Banding | 3.45 |
+| BlurHeatmap | 4.11 |
+| GlareHeatmap | 3.16 |
+| BlurRegions | 12.22 |
+| GlareRegions | 3.53 |
+| Total | 29.28 |
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 15.68 |
-| blur/img1.jpg | 39.29 |
-| blur/img2.jpg | 44.29 |
-| blur/img3.jpg | 30.87 |
-| glare/img1.jpg | 18.52 |
-| glare/img2.jpg | 14.57 |
-| glare/img3.jpg | 14.82 |
+| 93_HONOR-7X.png | 23.28 |
+| blur/img1.jpg | 76.75 |
+| blur/img2.jpg | 65.13 |
+| blur/img3.jpg | 66.11 |
+| glare/img1.jpg | 31.05 |
+| glare/img2.jpg | 28.53 |
+| glare/img3.jpg | 29.28 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 15.68 | 96.85 |
-| blur/img1.jpg | 485.03 | 39.29 | 91.90 |
-| blur/img2.jpg | 464.82 | 44.29 | 90.47 |
-| blur/img3.jpg | 480.09 | 30.87 | 93.57 |
-| glare/img1.jpg | 205.37 | 18.52 | 90.98 |
-| glare/img2.jpg | 203.91 | 14.57 | 92.85 |
-| glare/img3.jpg | 206.94 | 14.82 | 92.83 |
+| 93_HONOR-7X.png | 497.05 | 23.28 | 95.32 |
+| blur/img1.jpg | 485.03 | 76.75 | 84.18 |
+| blur/img2.jpg | 464.82 | 65.13 | 85.99 |
+| blur/img3.jpg | 480.09 | 66.11 | 86.23 |
+| glare/img1.jpg | 205.37 | 31.05 | 84.88 |
+| glare/img2.jpg | 203.91 | 28.53 | 86.01 |
+| glare/img3.jpg | 206.94 | 29.28 | 85.85 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
@@ -912,6 +912,26 @@ npm run dev
 
 La webapp presuppone che l'API sia raggiungibile su `http://localhost:5274` e consente di caricare un'immagine tramite drag&drop, regolare alcune soglie e inviare la richiesta all'endpoint `/quality/check`. Il risultato viene mostrato a video e, se richiesto, anche le heatmap generate.
 
+## Docker
+
+È disponibile un'immagine Docker che contiene sia l'API sia la webapp compilata.
+Per crearla eseguire dalla cartella radice:
+
+```bash
+docker build -t image-quality-scanner .
+```
+
+Avvio del container:
+
+```bash
+docker run -p 8080:8080 image-quality-scanner
+```
+
+Sia la webapp che le API saranno raggiungibili su `http://localhost:8080`.
+L'endpoint principale è `POST http://localhost:8080/quality/check`. Con la
+variabile `ASPNETCORE_ENVIRONMENT=Development` è possibile visualizzare la
+documentazione Swagger aprendo `http://localhost:8080/swagger`.
+
 ## Test di integrazione con Chrome Headless
 
 L'esecuzione della suite Playwright avvia automaticamente l'API e la webapp.
@@ -927,6 +947,19 @@ cd webapp
 npm install
 npx playwright install --with-deps
 npm test --silent
+```
+
+### Esecuzione con Docker
+
+In alternativa è possibile eseguire la suite sfruttando l'immagine Docker che
+contiene sia l'API che la webapp. Dopo aver costruito e avviato il container con
+la porta `8080` è sufficiente impostare la variabile `USE_DOCKER` per
+Playwright:
+
+```bash
+docker build -t image-quality-scanner .
+docker run -d -p 8080:8080 image-quality-scanner
+USE_DOCKER=true BASE_URL=http://localhost:8080 npm test --silent
 ```
 
 Copia quindi la cartella `webapp/test-results` dentro `docs/integration_test_run`

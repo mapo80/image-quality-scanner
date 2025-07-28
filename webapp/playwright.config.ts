@@ -1,7 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
+const useDocker = process.env.USE_DOCKER === 'true';
+
 export default defineConfig({
-  webServer: [
+  webServer: useDocker ? undefined : [
     {
       command: '$HOME/dotnet/dotnet run --project ../DocQualityChecker.Api/DocQualityChecker.Api.csproj --urls http://localhost:5274',
       port: 5274,
@@ -18,7 +20,7 @@ export default defineConfig({
   ],
   testDir: './tests',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: process.env.BASE_URL || (useDocker ? 'http://localhost:8080' : 'http://localhost:5173'),
     headless: true,
     video: 'on',
     screenshot: 'on',
