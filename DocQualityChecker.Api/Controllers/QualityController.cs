@@ -18,14 +18,11 @@ namespace DocQualityChecker.Api.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Check([FromForm] QualityCheckRequest request)
         {
-            if (request.Image == null || request.Image.Length == 0)
-                return BadRequest("Image is required");
-
-            using var ms = new MemoryStream();
-            await request.Image.CopyToAsync(ms);
-            using var bitmap = SKBitmap.Decode(ms.ToArray());
-            if (bitmap == null)
-                return BadRequest("Invalid image");
+            if ((request.Image == null && request.Pdf == null) ||
+                (request.Image != null && request.Pdf != null))
+            {
+                return BadRequest("Provide an image or a PDF file");
+            }
 
             var settings = request.Settings ?? new QualitySettings();
             var checks = request.Checks ?? new List<string>();
@@ -34,90 +31,103 @@ namespace DocQualityChecker.Api.Controllers
                 checks = new List<string> { "Brisque", "Blur", "Glare", "Exposure", "Contrast", "ColorDominance", "Noise", "MotionBlur", "Banding" };
             }
 
+            if (request.Image != null)
+            {
+                using var ms = new MemoryStream();
+                await request.Image.CopyToAsync(ms);
+                using var bitmap = SKBitmap.Decode(ms.ToArray());
+                if (bitmap == null)
+                    return BadRequest("Invalid image");
+
+                var result = _checker.CheckQuality(bitmap, settings);
+                var response = MapResult(result, checks, settings);
+                return Ok(response);
+            }
+
+            using (var ms = new MemoryStream())
+            {
+                await request.Pdf!.CopyToAsync(ms);
+                ms.Position = 0;
+                var responses = new List<QualityCheckResponse>();
+                foreach (var result in _checker.CheckQuality(ms, settings, request.PageIndex))
+                {
+                    responses.Add(MapResult(result, checks, settings));
+                }
+                return Ok(responses);
+            }
+        }
+
+        private static QualityCheckResponse MapResult(DocumentQualityResult data, List<string> checks, QualitySettings settings)
+        {
             var response = new QualityCheckResponse();
 
-            var needBlurHeatmap = settings.GenerateHeatmaps &&
-                                   checks.Any(c => c.Equals("blur", StringComparison.InvariantCultureIgnoreCase));
-            var needGlareHeatmap = settings.GenerateHeatmaps &&
-                                    checks.Any(c => c.Equals("glare", StringComparison.InvariantCultureIgnoreCase));
+            bool needBlurHeatmap = settings.GenerateHeatmaps &&
+                                    checks.Any(c => c.Equals("blur", StringComparison.InvariantCultureIgnoreCase));
+            bool needGlareHeatmap = settings.GenerateHeatmaps &&
+                                     checks.Any(c => c.Equals("glare", StringComparison.InvariantCultureIgnoreCase));
 
             foreach (var c in checks)
             {
                 switch (c.ToLowerInvariant())
                 {
                     case "brisque":
-                        double brisque = _checker.ComputeBrisqueScore(bitmap);
-                        response.Results["BrisqueScore"] = brisque;
-                        response.Results["BrisqueValid"] = brisque <= settings.BrisqueMax;
-                        response.Explanations["Brisque"] = $"Varianza normalizzata {brisque:F2} (soglia {settings.BrisqueMax})";
+                        response.Results["BrisqueScore"] = data.BrisqueScore;
+                        response.Results["BrisqueValid"] = data.BrisqueScore <= settings.BrisqueMax;
+                        response.Explanations["Brisque"] = $"Varianza normalizzata {data.BrisqueScore:F2} (soglia {settings.BrisqueMax})";
                         break;
                     case "blur":
-                        bool blurry = _checker.IsBlurry(bitmap, settings.BlurThreshold, out var blurScore);
-                        response.Results["BlurScore"] = blurScore;
-                        response.Results["IsBlurry"] = blurry;
-                        response.Explanations["Blur"] = $"Varianza Laplaciano {blurScore:F2} (soglia {settings.BlurThreshold})";
-                        if (needBlurHeatmap)
+                        response.Results["BlurScore"] = data.BlurScore;
+                        response.Results["IsBlurry"] = data.IsBlurry;
+                        response.Explanations["Blur"] = $"Varianza Laplaciano {data.BlurScore:F2} (soglia {settings.BlurThreshold})";
+                        if (needBlurHeatmap && data.BlurHeatmap != null)
                         {
-                            using var map = _checker.CreateBlurHeatmap(bitmap);
-                            using var data = map.Encode(SKEncodedImageFormat.Png, 100);
-                            response.BlurHeatmap = Convert.ToBase64String(data.ToArray());
-                            var regions = _checker.FindBlurRegions(bitmap, settings.BlurThreshold)
-                                                 .Select(r => new RegionDto { X = r.Left, Y = r.Top, Width = r.Width, Height = r.Height })
-                                                 .ToList();
-                            response.BlurRegions = regions;
+                            using var mapData = data.BlurHeatmap.Encode(SKEncodedImageFormat.Png, 100);
+                            response.BlurHeatmap = Convert.ToBase64String(mapData.ToArray());
+                            if (data.BlurRegions != null)
+                                response.BlurRegions = data.BlurRegions.Select(r => new RegionDto { X = r.Left, Y = r.Top, Width = r.Width, Height = r.Height }).ToList();
                         }
                         break;
                     case "glare":
-                        bool glare = _checker.HasGlare(bitmap, settings.BrightThreshold, settings.AreaThreshold, out var glareArea);
-                        response.Results["GlareArea"] = glareArea;
-                        response.Results["HasGlare"] = glare;
-                        response.Explanations["Glare"] = $"Area pixel luminosi {glareArea} (soglia {settings.AreaThreshold})";
-                        if (needGlareHeatmap)
+                        response.Results["GlareArea"] = data.GlareArea;
+                        response.Results["HasGlare"] = data.HasGlare;
+                        response.Explanations["Glare"] = $"Area pixel luminosi {data.GlareArea} (soglia {settings.AreaThreshold})";
+                        if (needGlareHeatmap && data.GlareHeatmap != null)
                         {
-                            using var map = _checker.CreateGlareHeatmap(bitmap, settings.BrightThreshold);
-                            using var data = map.Encode(SKEncodedImageFormat.Png, 100);
-                            response.GlareHeatmap = Convert.ToBase64String(data.ToArray());
-                            var regions = _checker.FindGlareRegions(bitmap, settings.BrightThreshold)
-                                                 .Select(r => new RegionDto { X = r.Left, Y = r.Top, Width = r.Width, Height = r.Height })
-                                                 .ToList();
-                            response.GlareRegions = regions;
+                            using var glareData = data.GlareHeatmap.Encode(SKEncodedImageFormat.Png, 100);
+                            response.GlareHeatmap = Convert.ToBase64String(glareData.ToArray());
+                            if (data.GlareRegions != null)
+                                response.GlareRegions = data.GlareRegions.Select(r => new RegionDto { X = r.Left, Y = r.Top, Width = r.Width, Height = r.Height }).ToList();
                         }
                         break;
                     case "exposure":
-                        bool exposed = _checker.IsWellExposed(bitmap, settings.ExposureMin, settings.ExposureMax, out var exposure);
-                        response.Results["Exposure"] = exposure;
-                        response.Results["IsWellExposed"] = exposed;
-                        response.Explanations["Exposure"] = $"Luminanza media {exposure:F2} (range {settings.ExposureMin}-{settings.ExposureMax})";
+                        response.Results["Exposure"] = data.Exposure;
+                        response.Results["IsWellExposed"] = data.IsWellExposed;
+                        response.Explanations["Exposure"] = $"Luminanza media {data.Exposure:F2} (range {settings.ExposureMin}-{settings.ExposureMax})";
                         break;
                     case "contrast":
-                        bool lowContrast = _checker.HasLowContrast(bitmap, settings.ContrastMin, out var contrast);
-                        response.Results["Contrast"] = contrast;
-                        response.Results["HasLowContrast"] = lowContrast;
-                        response.Explanations["Contrast"] = $"Deviazione standard {contrast:F2} (min {settings.ContrastMin})";
+                        response.Results["Contrast"] = data.Contrast;
+                        response.Results["HasLowContrast"] = data.HasLowContrast;
+                        response.Explanations["Contrast"] = $"Deviazione standard {data.Contrast:F2} (min {settings.ContrastMin})";
                         break;
                     case "colordominance":
-                        bool dom = _checker.HasColorDominance(bitmap, settings.DominanceThreshold, out var dominance);
-                        response.Results["ColorDominance"] = dominance;
-                        response.Results["HasColorDominance"] = dom;
-                        response.Explanations["ColorDominance"] = $"Rapporto canale dominante {dominance:F2} (soglia {settings.DominanceThreshold})";
+                        response.Results["ColorDominance"] = data.ColorDominance;
+                        response.Results["HasColorDominance"] = data.HasColorDominance;
+                        response.Explanations["ColorDominance"] = $"Rapporto canale dominante {data.ColorDominance:F2} (soglia {settings.DominanceThreshold})";
                         break;
                     case "noise":
-                        bool hasNoise = _checker.HasNoise(bitmap, settings.NoiseThreshold, out var noise);
-                        response.Results["Noise"] = noise;
-                        response.Results["HasNoise"] = hasNoise;
-                        response.Explanations["Noise"] = $"Livello di rumore {noise:F2} (soglia {settings.NoiseThreshold})";
+                        response.Results["Noise"] = data.Noise;
+                        response.Results["HasNoise"] = data.HasNoise;
+                        response.Explanations["Noise"] = $"Livello di rumore {data.Noise:F2} (soglia {settings.NoiseThreshold})";
                         break;
                     case "motionblur":
-                        bool motionBlur = _checker.HasMotionBlur(bitmap, settings.MotionBlurThreshold, out var mbScore);
-                        response.Results["MotionBlurScore"] = mbScore;
-                        response.Results["HasMotionBlur"] = motionBlur;
-                        response.Explanations["MotionBlur"] = $"Rapporto gradienti {mbScore:F2} (soglia {settings.MotionBlurThreshold})";
+                        response.Results["MotionBlurScore"] = data.MotionBlurScore;
+                        response.Results["HasMotionBlur"] = data.HasMotionBlur;
+                        response.Explanations["MotionBlur"] = $"Rapporto gradienti {data.MotionBlurScore:F2} (soglia {settings.MotionBlurThreshold})";
                         break;
                     case "banding":
-                        bool band = _checker.HasBanding(bitmap, settings.BandingThreshold, out var bscore);
-                        response.Results["BandingScore"] = bscore;
-                        response.Results["HasBanding"] = band;
-                        response.Explanations["Banding"] = $"Varianza bande {bscore:F2} (soglia {settings.BandingThreshold})";
+                        response.Results["BandingScore"] = data.BandingScore;
+                        response.Results["HasBanding"] = data.HasBanding;
+                        response.Explanations["Banding"] = $"Varianza bande {data.BandingScore:F2} (soglia {settings.BandingThreshold})";
                         break;
                 }
             }
@@ -134,13 +144,20 @@ namespace DocQualityChecker.Api.Controllers
             if (response.Results.TryGetValue("HasBanding", out var ba) && ba is bool bab && bab) isValid = false;
 
             response.IsValidDocument = isValid;
-            return Ok(response);
+            return response;
         }
     }
 
     public class QualityCheckRequest
     {
         public IFormFile? Image { get; set; }
+        public IFormFile? Pdf { get; set; }
+
+        /// <summary>
+        /// Zero based index of the PDF page to process. If null all pages are
+        /// analysed.
+        /// </summary>
+        public int? PageIndex { get; set; }
 
         /// <summary>
         /// List of checks to execute. Possible values: Brisque, Blur, Glare, Exposure,

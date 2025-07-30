@@ -2,6 +2,7 @@
 
 Questa libreria fornisce semplici controlli di qualità su immagini di documenti tramite API gestite.
 L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la manipolazione delle immagini.
+È inoltre possibile analizzare documenti **PDF** grazie alla libreria [PDFtoImage](https://www.nuget.org/packages/PDFtoImage). Il metodo `CheckQuality(Stream, QualitySettings, int? pageIndex)` elabora la singola pagina indicata o, in assenza di parametro, tutte le pagine del file.
 
 ## Requisiti
 
@@ -69,8 +70,14 @@ Il progetto `DocQualityChecker.Api` espone un endpoint `POST /quality/check` per
 eseguire i controlli via HTTP. L'input è un form con i campi:
 
 - `image` (file) immagine da analizzare
+- `pdf` (file, opzionale) documento PDF da cui estrarre le pagine
+- `pageIndex` (opzionale) indice della pagina PDF da elaborare. Se omesso sono
+  processate tutte le pagine
 - `checks` (opzionale) lista di controlli da eseguire
 - `settings` (opzionale) oggetto `QualitySettings` per personalizzare le soglie
+
+Quando viene caricato un file PDF l'endpoint restituisce un array di risultati,
+uno per ciascuna pagina elaborata.
 
 Se `settings.generateHeatmaps` è impostato a `true` la risposta includerà le
 mappe di calore in formato base64 (`BlurHeatmap` e `GlareHeatmap`) e le
@@ -156,6 +163,12 @@ python download_datasets.py
 ```
 
 Lo script salva le cartelle `glare_dataset` e `blur_dataset`. Da queste è sufficiente prelevare alcune immagini (massimo 20) da analizzare con il programma `DatasetEvaluator` che stampa i valori calcolati e salva la heatmap accanto all'immagine esaminata:
+
+Per generare documenti PDF a partire dalle immagini presenti in `docs/dataset_samples` è disponibile lo script `generate_dataset_pdfs.py`:
+
+```bash
+python generate_dataset_pdfs.py
+```
 
 Dopo aver estratto le immagini, è disponibile il programma `DatasetEvaluator` che stampa i valori calcolati dalla libreria e salva la mappa di calore dei riflessi accanto all'immagine esaminata:
 

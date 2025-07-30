@@ -3,6 +3,7 @@ using SkiaSharp;
 using Xunit;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace DocQualityChecker.Tests
 {
@@ -246,6 +247,69 @@ namespace DocQualityChecker.Tests
             var checker = CreateChecker();
             var settings = new QualitySettings();
             var result = checker.CheckQuality(img, settings);
+            Assert.NotEqual(0, result.BrisqueScore);
+        }
+
+        [Fact]
+        public void Pdf_AllPages_AreProcessed()
+        {
+            using var stream = new MemoryStream();
+            using (var doc = SKDocument.CreatePdf(stream))
+            {
+                using (var canvas = doc.BeginPage(200, 200))
+                using (var paint = new SKPaint { Color = SKColors.Black })
+                {
+                    canvas.Clear(SKColors.White);
+                    canvas.DrawRect(new SKRect(40, 80, 160, 120), paint);
+                    doc.EndPage();
+                }
+
+                using (var canvas = doc.BeginPage(200, 200))
+                using (var paint = new SKPaint { Color = SKColors.Black })
+                {
+                    canvas.Clear(SKColors.White);
+                    canvas.DrawRect(new SKRect(60, 60, 140, 140), paint);
+                    doc.EndPage();
+                }
+
+                doc.Close();
+            }
+
+            stream.Position = 0;
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var results = checker.CheckQuality(stream, settings).ToList();
+            Assert.Equal(2, results.Count);
+            Assert.All(results, r => Assert.NotEqual(0, r.BrisqueScore));
+        }
+
+        [Fact]
+        public void Pdf_SinglePage_IsProcessed()
+        {
+            using var stream = new MemoryStream();
+            using (var doc = SKDocument.CreatePdf(stream))
+            {
+                using (var canvas = doc.BeginPage(100, 100))
+                {
+                    canvas.Clear(SKColors.White);
+                    doc.EndPage();
+                }
+
+                using (var canvas = doc.BeginPage(100, 100))
+                using (var paint = new SKPaint { Color = SKColors.Black })
+                {
+                    canvas.Clear(SKColors.White);
+                    canvas.DrawCircle(50, 50, 30, paint);
+                    doc.EndPage();
+                }
+
+                doc.Close();
+            }
+
+            stream.Position = 0;
+            var checker = CreateChecker();
+            var settings = new QualitySettings();
+            var result = checker.CheckQuality(stream, settings, 1).Single();
             Assert.NotEqual(0, result.BrisqueScore);
         }
     }

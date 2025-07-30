@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.IO;
+using PDFtoImage;
 using SkiaSharp;
 
 namespace DocQualityChecker
@@ -12,6 +15,20 @@ namespace DocQualityChecker
     /// </summary>
     public class DocumentQualityChecker
     {
+        /// <summary>
+        /// Renders the specified PDF page to a bitmap that can be processed
+        /// by the quality checks.
+        /// </summary>
+        /// <param name="pdfStream">Stream containing the PDF file.</param>
+        /// <param name="pageIndex">Zero based index of the page to render.</param>
+        /// <param name="options">Rendering options.</param>
+        public static SKBitmap LoadPdfPage(Stream pdfStream, int pageIndex = 0, RenderOptions options = default)
+        {
+            if (pdfStream == null) throw new ArgumentNullException(nameof(pdfStream));
+
+            return Conversion.ToImage(pdfStream, new Index(pageIndex), false, null, options);
+        }
+
         /// <summary>
         /// Computes a simple quality score based on pixel intensity variance.
         /// </summary>
@@ -662,6 +679,32 @@ namespace DocQualityChecker
                                      !result.HasBanding;
 
             return result;
+        }
+
+        /// <summary>
+        /// Loads one or more PDF pages and executes all quality checks.
+        /// If <paramref name="pageIndex"/> is <see langword="null"/> all pages
+        /// are processed.
+        /// </summary>
+        public IEnumerable<DocumentQualityResult> CheckQuality(Stream pdfStream, QualitySettings settings, int? pageIndex = null)
+        {
+            if (pdfStream == null) throw new ArgumentNullException(nameof(pdfStream));
+            if (settings == null) throw new ArgumentNullException(nameof(settings));
+
+            if (pageIndex.HasValue)
+            {
+                using var bmp = LoadPdfPage(pdfStream, pageIndex.Value);
+                yield return CheckQuality(bmp, settings);
+                yield break;
+            }
+
+            foreach (var bmp in Conversion.ToImages(pdfStream))
+            {
+                using (bmp)
+                {
+                    yield return CheckQuality(bmp, settings);
+                }
+            }
         }
     }
 }
