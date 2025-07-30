@@ -153,6 +153,40 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Analisi dei PDF del dataset
+
+Di seguito i risultati ottenuti elaborando i documenti presenti in `docs/dataset_samples/pdf` con `DocumentQualityChecker`.
+
+### blur.pdf
+| Pagina | BlurScore | Blurry | GlareArea | HasGlare |
+|-------:|----------:|:------:|----------:|:-------:|
+| 1 | 131.46 | False | 52997 | True |
+| 2 | 190.63 | False | 0 | False |
+| 3 | 993.39 | False | 52924 | True |
+| 4 | 25.37 | True | 0 | False |
+| 5 | 24.75 | True | 0 | False |
+| 6 | 0.00 | True | 0 | False |
+| 7 | 462.01 | False | 3655 | True |
+| 8 | 1260.26 | False | 125 | False |
+| 9 | 1616.03 | False | 3623 | True |
+
+Totale pagine: 9, Pagine blur: 3, Pagine glare: 4, Blur medio: 522.66
+
+### glare.pdf
+| Pagina | BlurScore | Blurry | GlareArea | HasGlare |
+|-------:|----------:|:------:|----------:|:-------:|
+| 1 | 171.33 | False | 3016 | True |
+| 2 | 428.69 | False | 3 | False |
+| 3 | 3228.25 | False | 2825 | True |
+| 4 | 159.39 | False | 777 | True |
+| 5 | 625.54 | False | 21 | False |
+| 6 | 700.75 | False | 736 | True |
+| 7 | 376.89 | False | 2701 | True |
+| 8 | 1953.58 | False | 446 | False |
+| 9 | 2389.04 | False | 2642 | True |
+
+Totale pagine: 9, Pagine blur: 0, Pagine glare: 6, Blur medio: 1114.83
+
 ## Valutazione con il dataset Roboflow
 
 Per testare il rilevamento dei riflessi su immagini reali è possibile utilizzare il dataset [glare](https://universe.roboflow.com/pradeep-singh/glare-xw4ce) (49 immagini annotate) e il dataset [blur](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n) per la sfocatura.
