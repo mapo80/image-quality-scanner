@@ -15,7 +15,7 @@ namespace DocQualityChecker.Tests
         {
             var bmp = new SKBitmap(200, 200);
             using var canvas = new SKCanvas(bmp);
-            canvas.Clear(new SKColor(200, 200, 200));
+            canvas.Clear(new SKColor(150, 150, 150));
             using var paint = new SKPaint { Color = SKColors.Black };
             canvas.DrawRect(new SKRect(40, 80, 160, 120), paint);
             canvas.Flush();
@@ -27,8 +27,16 @@ namespace DocQualityChecker.Tests
         {
             using var img = CreateBaseImage();
             var checker = CreateChecker();
-            var settings = new QualitySettings { BandingThreshold = 10.0 };
+            var settings = new QualitySettings { BandingThreshold = double.MaxValue, NoiseThreshold = 200.0 };
             var result = checker.CheckQuality(img, settings);
+            Assert.False(result.IsBlurry);
+            Assert.False(result.HasGlare);
+            Assert.False(result.HasNoise);
+            Assert.False(result.HasLowContrast);
+            Assert.False(result.HasColorDominance);
+            Assert.True(result.IsWellExposed);
+            Assert.False(result.HasMotionBlur);
+            Assert.False(result.HasBanding);
             Assert.True(result.IsValidDocument);
         }
 

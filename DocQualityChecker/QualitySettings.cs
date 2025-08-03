@@ -38,8 +38,8 @@ namespace DocQualityChecker
         public double DominanceThreshold { get; set; } = 1.5;
 
         /// <summary>Maximum acceptable noise level.</summary>
-        [DefaultValue(500.0)]
-        public double NoiseThreshold { get; set; } = 500.0;
+        [DefaultValue(20.0)]
+        public double NoiseThreshold { get; set; } = 20.0;
 
         /// <summary>Threshold for directional blur ratio.</summary>
         [DefaultValue(3.0)]
