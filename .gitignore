@@ -1,13 +1,5 @@
-bin/
-obj/
-**/bin/
-**/obj/
-
-**/.playwright
-
-# dataset & artefatti temporanei
-/data/midv500/
-
+# dataset e file binari generati
+/data/
 **/*.mp4
 **/*.zip
 *.parquet

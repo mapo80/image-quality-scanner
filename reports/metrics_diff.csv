@@ -1,0 +1,17 @@
+Metric,Type,MeanRelError/DisagreeRate,Threshold,Status,CountCompared
+BlurScore,numeric,0.8235489430840539,0.1,FAIL,150
+MotionBlurScore,numeric,0.24871527619886544,0.1,FAIL,150
+GlareArea,numeric,0.9640518910782343,0.1,FAIL,150
+Exposure,numeric,0.0001157783158374191,0.1,OK,150
+Contrast,numeric,0.00011835804029471038,0.1,OK,150
+Noise,numeric,0.4638321783388531,0.1,FAIL,150
+ColorDominance,numeric,7.927864236091191e-08,0.1,OK,150
+BandingScore,numeric,0.999609913713779,0.1,FAIL,150
+BrisqueScore,numeric,,0.1,OK,0
+ElapsedMs,numeric,0.4301726559720205,0.1,FAIL,150
+IsBlurry,bool,0.5866666666666667,0.1,FAIL,150
+HasGlare,bool,0.32666666666666666,0.1,FAIL,150
+HasNoise,bool,1.0,0.1,FAIL,150
+HasLowContrast,bool,0.0,0.1,OK,150
+HasColorDominance,bool,0.0,0.1,OK,150
+IsWellExposed,bool,0.0,0.1,OK,150
