@@ -11,6 +11,19 @@ L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la
 Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di build/test.
 
 
+
+## Quick Python smoke-test
+
+```bash
+pip install -r requirements.txt
+dotnet publish DocQualityChecker -c Release -o bin/DocQualityChecker
+# esporta il token di Hugging Face (opzionale)
+export HF_TOKEN=<token>
+# scarica il dataset (o genera campione sintetico)
+python tools/download_midv500.py
+# lancia il quality check via pythonnet
+python run_smoke_test.py
+
 ## Quick .NET smoke-test
 
 ```bash
@@ -21,6 +34,26 @@ dotnet run --project DocQualitySmoke -- --sample docs/dataset_samples/sample_pat
 Esempio di output:
 
 ```
+shape: (3, 7)
+┌─────────────────────────────────────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┐
+│ path                                    ┆ BlurScor ┆ IsBlurry ┆ GlareAre ┆ HasGlare ┆ Exposure ┆ IsWellExpose │
+│                                         ┆ e        ┆          ┆ a        ┆          ┆          ┆ d            │
+╞═════════════════════════════════════════╪══════════╪══════════╪══════════╪══════════╪══════════╪══════════════╡
+│ data/midv500/synthetic_00/000.jpg       ┆ 123.4    ┆ false    ┆ 0        ┆ false    ┆ 120.1    ┆ true         │
+│ …                                       ┆ …        ┆ …        ┆ …        ┆ …        ┆ …        ┆ …            │
+└─────────────────────────────────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────────┘
+Aggregated metrics saved to data/smoke_metrics.csv
+```
+
+## Quick .NET smoke-test
+
+```bash
+python tools/download_midv500.py
+dotnet run --project DocQualitySmoke -- --encode
+```
+
+I file `.base64` delle immagini elaborate saranno salvati in `data/encoded_samples/`.
+
 Metric,PassRate,Mean,Std,Min,Max
 IsBlurry,0.7142857142857143,,,,
 HasGlare,0.2857142857142857,,,,
@@ -614,6 +647,33 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Valutazione del subset MIDV-500
+
+Per una valutazione preliminare è stato utilizzato un sottoinsieme di 20 immagini del dataset [MIDV-500](https://huggingface.co/datasets/Noaman/midv500). Le annotazioni includono una maschera del documento da cui è stata ricavata la percentuale di area occupata rispetto al frame. Le metriche ottenute da DocQualitySmoke sono riportate nella tabella seguente.
+
+| Metric | PassRate | Mean | Std | Min | Max |
+|---|---|---|---|---|---|
+| IsBlurry | 0.95 |  |  |  |  |
+| HasGlare | 0.35 |  |  |  |  |
+| HasNoise | 1.00 |  |  |  |  |
+| HasLowContrast | 1.00 |  |  |  |  |
+| HasColorDominance | 1.00 |  |  |  |  |
+| !IsWellExposed | 1.00 |  |  |  |  |
+| BlurScore |  | 475.80 | 250.47 | 83.23 | 861.61 |
+| MotionBlurScore |  | 1.05 | 0.07 | 1.00 | 1.30 |
+| GlareArea |  | 6977.25 | 6635.07 | 52.00 | 18497.00 |
+| Exposure |  | 133.46 | 11.28 | 117.72 | 146.28 |
+| Contrast |  | 54.41 | 2.51 | 51.19 | 59.46 |
+| Noise |  | 42.04 | 25.17 | 8.23 | 84.44 |
+| ColorDominance |  | 1.24 | 0.10 | 1.15 | 1.39 |
+| BandingScore |  | 0.38 | 0.15 | 0.27 | 0.80 |
+| BrisqueScore |  | 4.50 | 0.36 | 4.11 | 5.36 |
+| AvgProcessingTimeMs |  | 269.77 |  |  |  |
+| DocumentAreaRatio |  | 0.22 | 0.04 | 0.14 | 0.27 |
+
+Il rapporto tra area del documento e immagine è in media ~22%; considerando un fotogramma da 1920×1080 px ciò corrisponde a circa 4.5×10⁵ px. Il glare copre mediamente 6977 px (circa l'1.6% dell'area del documento).
+
+
 ## Tempi di esecuzione dei controlli
 
 Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciascun controllo su ogni immagine del dataset.
@@ -637,9 +697,11 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | GlareRegions | 18.91 |
 | Total | 73.68 |
 
+
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
+
 | Brisque | 48.38 |
 | Blur | 43.56 |
 | MotionBlur | 65.09 |
