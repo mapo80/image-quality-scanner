@@ -882,23 +882,23 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 73.68 |
-| blur/img1.jpg | 235.62 |
-| blur/img2.jpg | 150.18 |
-| blur/img3.jpg | 110.25 |
-| glare/img1.jpg | 73.58 |
-| glare/img2.jpg | 86.71 |
-| glare/img3.jpg | 45.33 |
+| 93_HONOR-7X.png | 38.43 |
+| blur/img1.jpg | 290.24 |
+| blur/img2.jpg | 85.76 |
+| blur/img3.jpg | 120.80 |
+| glare/img1.jpg | 55.36 |
+| glare/img2.jpg | 31.43 |
+| glare/img3.jpg | 41.74 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 73.68 | 85.18 |
-| blur/img1.jpg | 485.03 | 235.62 | 51.42 |
-| blur/img2.jpg | 464.82 | 150.18 | 67.69 |
-| blur/img3.jpg | 480.09 | 110.25 | 77.04 |
-| glare/img1.jpg | 205.37 | 73.58 | 64.17 |
-| glare/img2.jpg | 203.91 | 86.71 | 57.48 |
-| glare/img3.jpg | 206.94 | 45.33 | 78.10 |
+| 93_HONOR-7X.png | 497.05 | 38.43 | 92.27 |
+| blur/img1.jpg | 485.03 | 290.24 | 40.16 |
+| blur/img2.jpg | 464.82 | 85.76 | 81.55 |
+| blur/img3.jpg | 480.09 | 120.80 | 74.84 |
+| glare/img1.jpg | 205.37 | 55.36 | 73.04 |
+| glare/img2.jpg | 203.91 | 31.43 | 84.58 |
+| glare/img3.jpg | 206.94 | 41.74 | 79.83 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
