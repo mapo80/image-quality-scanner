@@ -11,6 +11,28 @@ L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la
 Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di build/test.
 
 
+## Quick .NET smoke-test
+
+```bash
+# Scarica dataset e campione
+pip install -r requirements.txt
+python tools/download_midv500.py
+
+# Compila e lancia il test
+dotnet run --project DocQualitySmoke -- --encode
+```
+
+Esempio di output:
+
+```
+Metric,PassRate,Mean,Std,Min,Max
+IsBlurry,0.98,,,,
+HasGlare,1.0,,,,
+...
+AvgProcessingTimeMs,,12.3,,,
+```
+
+
 ## Controlli di qualità
 La classe `DocumentQualityChecker` esegue diversi controlli sull'immagine:
 

@@ -4,3 +4,11 @@ obj/
 **/obj/
 
 **/.playwright
+
+# dataset & artefatti temporanei
+/data/midv500/
+**/*.mp4
+**/*.zip
+*.parquet
+!**/*.jpg.base64
+!**/*.png.base64
