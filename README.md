@@ -214,6 +214,22 @@ Esecuzione con **ground-truth** sintetico:
 | HasGlare  | 0.90       | 1.00      |
 ```
 
+### Confronto sul dataset sintetico
+
+Il confronto sulle 10 immagini generate artificialmente mette in luce notevoli discrepanze dell'implementazione .NET rispetto a Python:
+
+| Metric          | MeanRelError | Status |
+|-----------------|--------------|--------|
+| MotionBlurScore | 0.80         | FAIL   |
+| GlareArea       | 0.27         | FAIL   |
+| Contrast        | 0.60         | FAIL   |
+| Noise           | 0.18         | FAIL   |
+| BandingScore    | 0.30         | FAIL   |
+| ElapsedMs       | 0.21         | FAIL   |
+| HasNoise        | 0.20         | FAIL   |
+
+Il ground-truth conferma scarti elevati della pipeline .NET, in particolare per *MotionBlurScore* (MAE ≈5.08e9) e *GlareArea* (MAE ≈7770), mentre l'implementazione Python coincide con i valori attesi in tutte le metriche.
+
 ### Valutazione qualitativa
 
 Sul campione di 150 fotogrammi le due implementazioni risultano quasi
