@@ -169,6 +169,45 @@ dotnet test DocQualityChecker.Tests/DocQualityChecker.Tests.csproj -c Release
 
 I test creeranno alcune immagini di prova e verificheranno le funzioni di blur, glare, esposizione, contrasto, dominante colore e rumore.
 
+## Verifica corrispondenza .NET vs Python
+
+Per assicurarsi che l'implementazione Python produca gli stessi risultati di quella .NET è disponibile una piccola pipeline di verifica.
+
+```bash
+# 1) Dataset & sample
+python tools/download_midv500.py
+
+# 2) .NET metrics
+dotnet build DocQualityChecker -c Release
+dotnet run --project DocQualitySmoke
+
+# 3) Python metrics
+pip install -r requirements.txt
+python tools/compute_metrics_py.py
+
+# 4) Confronto
+python tools/compare_metrics.py
+```
+
+Esempio di output:
+
+```text
+| Metric    | MeanRelError/DisagreeRate | Status |
+|-----------|---------------------------|--------|
+| BlurScore | 0.02                      | OK     |
+| Exposure  | 0.01                      | OK     |
+| IsBlurry  | 0.00                      | OK     |
+```
+
+### Valutazione qualitativa
+
+Sul campione di 150 fotogrammi le due implementazioni risultano quasi
+identiche per esposizione, contrasto, dominanza del colore e corretta
+esposizione. Persistono invece scostamenti rilevanti su blur, motion blur,
+riflessi, rumore, banding e tempi di elaborazione, con tassi di disaccordo
+superiori al 25 % per i relativi flag. Ciò suggerisce che l'algoritmo Python
+necessiti di ulteriori ottimizzazioni per allinearsi alla versione .NET.
+
 
 ## Esempi di output dei test
 
