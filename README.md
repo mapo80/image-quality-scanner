@@ -682,150 +682,150 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 22.09 |
-| Blur | 12.94 |
-| MotionBlur | 17.58 |
-| Glare | 9.33 |
-| Exposure | 5.67 |
-| Contrast | 7.43 |
-| ColorDominance | 7.24 |
-| Noise | 14.29 |
-| Banding | 3.30 |
-| BlurHeatmap | 20.87 |
-| GlareHeatmap | 6.51 |
-| BlurRegions | 16.22 |
-| GlareRegions | 17.07 |
-| Total | 78.46 |
+| Brisque | 21.90 |
+| Blur | 26.35 |
+| MotionBlur | 10.03 |
+| Glare | 11.37 |
+| Exposure | 9.82 |
+| Contrast | 2.13 |
+| ColorDominance | 1.95 |
+| Noise | 11.40 |
+| Banding | 3.14 |
+| BlurHeatmap | 12.37 |
+| GlareHeatmap | 6.35 |
+| BlurRegions | 15.35 |
+| GlareRegions | 18.91 |
+| Total | 73.68 |
+
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 60.69 |
-| Blur | 40.59 |
-| MotionBlur | 61.16 |
-| Glare | 22.00 |
-| Exposure | 8.47 |
-| Contrast | 6.60 |
-| ColorDominance | 6.93 |
-| Noise | 31.07 |
-| Banding | 35.32 |
-| BlurHeatmap | 42.05 |
-| GlareHeatmap | 48.31 |
-| BlurRegions | 113.75 |
-| GlareRegions | 47.04 |
-| Total | 273.97 |
+
+| Brisque | 48.38 |
+| Blur | 43.56 |
+| MotionBlur | 65.09 |
+| Glare | 11.48 |
+| Exposure | 7.49 |
+| Contrast | 6.42 |
+| ColorDominance | 5.91 |
+| Noise | 30.31 |
+| Banding | 9.83 |
+| BlurHeatmap | 125.59 |
+| GlareHeatmap | 21.20 |
+| BlurRegions | 79.54 |
+| GlareRegions | 38.17 |
+| Total | 235.62 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 36.66 |
-| Blur | 57.01 |
-| MotionBlur | 39.02 |
-| Glare | 53.86 |
-| Exposure | 14.00 |
-| Contrast | 5.80 |
-| ColorDominance | 6.04 |
-| Noise | 49.57 |
-| Banding | 18.83 |
-| BlurHeatmap | 36.49 |
-| GlareHeatmap | 43.60 |
-| BlurRegions | 151.45 |
-| GlareRegions | 67.53 |
-| Total | 182.05 |
-
+| Brisque | 45.17 |
+| Blur | 51.26 |
+| MotionBlur | 47.33 |
+| Glare | 25.42 |
+| Exposure | 8.13 |
+| Contrast | 6.57 |
+| ColorDominance | 5.91 |
+| Noise | 33.59 |
+| Banding | 9.11 |
+| BlurHeatmap | 21.06 |
+| GlareHeatmap | 17.32 |
+| BlurRegions | 106.43 |
+| GlareRegions | 17.43 |
+| Total | 150.18 |
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 37.46 |
-| Blur | 27.14 |
-| MotionBlur | 39.27 |
-| Glare | 28.22 |
-| Exposure | 10.63 |
-| Contrast | 11.09 |
-| ColorDominance | 10.97 |
-| Noise | 45.38 |
-| Banding | 18.33 |
-| BlurHeatmap | 25.37 |
-| GlareHeatmap | 10.78 |
-| BlurRegions | 45.65 |
-| GlareRegions | 14.06 |
-| Total | 113.63 |
+| Brisque | 10.20 |
+| Blur | 13.70 |
+| MotionBlur | 7.77 |
+| Glare | 6.67 |
+| Exposure | 5.06 |
+| Contrast | 6.60 |
+| ColorDominance | 5.48 |
+| Noise | 16.68 |
+| Banding | 8.31 |
+| BlurHeatmap | 13.07 |
+| GlareHeatmap | 7.41 |
+| BlurRegions | 40.25 |
+| GlareRegions | 23.19 |
+| Total | 110.25 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.87 |
-| Blur | 3.53 |
-| MotionBlur | 3.58 |
-| Glare | 6.24 |
-| Exposure | 4.50 |
-| Contrast | 4.89 |
-| ColorDominance | 4.89 |
-| Noise | 12.08 |
-| Banding | 5.99 |
-| BlurHeatmap | 12.46 |
-| GlareHeatmap | 9.70 |
-| BlurRegions | 25.92 |
-| GlareRegions | 14.76 |
-| Total | 76.14 |
+| Brisque | 6.25 |
+| Blur | 6.18 |
+| MotionBlur | 8.01 |
+| Glare | 5.54 |
+| Exposure | 4.34 |
+| Contrast | 2.40 |
+| ColorDominance | 2.29 |
+| Noise | 7.10 |
+| Banding | 3.55 |
+| BlurHeatmap | 6.84 |
+| GlareHeatmap | 4.68 |
+| BlurRegions | 18.92 |
+| GlareRegions | 10.17 |
+| Total | 73.58 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 3.31 |
-| Blur | 3.90 |
-| MotionBlur | 3.62 |
-| Glare | 7.38 |
-| Exposure | 2.21 |
-| Contrast | 2.49 |
-| ColorDominance | 2.41 |
-| Noise | 9.22 |
-| Banding | 3.60 |
-| BlurHeatmap | 4.92 |
-| GlareHeatmap | 5.82 |
-| BlurRegions | 21.61 |
-| GlareRegions | 9.79 |
-| Total | 59.36 |
-
+| Brisque | 15.04 |
+| Blur | 5.52 |
+| MotionBlur | 7.75 |
+| Glare | 4.02 |
+| Exposure | 2.23 |
+| Contrast | 2.47 |
+| ColorDominance | 2.47 |
+| Noise | 13.32 |
+| Banding | 3.80 |
+| BlurHeatmap | 7.15 |
+| GlareHeatmap | 12.20 |
+| BlurRegions | 41.43 |
+| GlareRegions | 15.41 |
+| Total | 86.71 |
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.98 |
-| Blur | 3.84 |
-| MotionBlur | 3.39 |
-| Glare | 2.84 |
-| Exposure | 5.77 |
-| Contrast | 2.48 |
-| ColorDominance | 2.31 |
-| Noise | 7.16 |
-| Banding | 3.54 |
-| BlurHeatmap | 6.09 |
-| GlareHeatmap | 3.38 |
-| BlurRegions | 17.08 |
-| GlareRegions | 4.58 |
-| Total | 46.69 |
+| Brisque | 4.55 |
+| Blur | 5.59 |
+| MotionBlur | 6.60 |
+| Glare | 8.20 |
+| Exposure | 2.39 |
+| Contrast | 3.11 |
+| ColorDominance | 2.37 |
+| Noise | 13.32 |
+| Banding | 7.15 |
+| BlurHeatmap | 19.62 |
+| GlareHeatmap | 13.38 |
+| BlurRegions | 22.02 |
+| GlareRegions | 5.19 |
+| Total | 45.33 |
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 65.17 |
-| blur/img1.jpg | 149.62 |
-| blur/img2.jpg | 122.23 |
-| blur/img3.jpg | 100.50 |
-| glare/img1.jpg | 49.31 |
-| glare/img2.jpg | 29.31 |
-| glare/img3.jpg | 30.78 |
+| 93_HONOR-7X.png | 73.68 |
+| blur/img1.jpg | 235.62 |
+| blur/img2.jpg | 150.18 |
+| blur/img3.jpg | 110.25 |
+| glare/img1.jpg | 73.58 |
+| glare/img2.jpg | 86.71 |
+| glare/img3.jpg | 45.33 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 65.17 | 86.89 |
-| blur/img1.jpg | 485.03 | 149.62 | 69.15 |
-| blur/img2.jpg | 464.82 | 122.23 | 73.70 |
-| blur/img3.jpg | 480.09 | 100.50 | 79.07 |
-| glare/img1.jpg | 205.37 | 49.31 | 75.99 |
-| glare/img2.jpg | 203.91 | 29.31 | 85.63 |
-| glare/img3.jpg | 206.94 | 30.78 | 85.13 |
+| 93_HONOR-7X.png | 497.05 | 73.68 | 85.18 |
+| blur/img1.jpg | 485.03 | 235.62 | 51.42 |
+| blur/img2.jpg | 464.82 | 150.18 | 67.69 |
+| blur/img3.jpg | 480.09 | 110.25 | 77.04 |
+| glare/img1.jpg | 205.37 | 73.58 | 64.17 |
+| glare/img2.jpg | 203.91 | 86.71 | 57.48 |
+| glare/img3.jpg | 206.94 | 45.33 | 78.10 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
