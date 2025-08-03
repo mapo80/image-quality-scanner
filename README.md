@@ -614,6 +614,33 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Valutazione del subset MIDV-500
+
+Per una valutazione preliminare è stato utilizzato un sottoinsieme di 20 immagini del dataset [MIDV-500](https://huggingface.co/datasets/Noaman/midv500). Le annotazioni includono una maschera del documento da cui è stata ricavata la percentuale di area occupata rispetto al frame. Le metriche ottenute da DocQualitySmoke sono riportate nella tabella seguente.
+
+| Metric | PassRate | Mean | Std | Min | Max |
+|---|---|---|---|---|---|
+| IsBlurry | 0.95 |  |  |  |  |
+| HasGlare | 0.35 |  |  |  |  |
+| HasNoise | 1.00 |  |  |  |  |
+| HasLowContrast | 1.00 |  |  |  |  |
+| HasColorDominance | 1.00 |  |  |  |  |
+| !IsWellExposed | 1.00 |  |  |  |  |
+| BlurScore |  | 475.80 | 250.47 | 83.23 | 861.61 |
+| MotionBlurScore |  | 1.05 | 0.07 | 1.00 | 1.30 |
+| GlareArea |  | 6977.25 | 6635.07 | 52.00 | 18497.00 |
+| Exposure |  | 133.46 | 11.28 | 117.72 | 146.28 |
+| Contrast |  | 54.41 | 2.51 | 51.19 | 59.46 |
+| Noise |  | 42.04 | 25.17 | 8.23 | 84.44 |
+| ColorDominance |  | 1.24 | 0.10 | 1.15 | 1.39 |
+| BandingScore |  | 0.38 | 0.15 | 0.27 | 0.80 |
+| BrisqueScore |  | 4.50 | 0.36 | 4.11 | 5.36 |
+| AvgProcessingTimeMs |  | 269.77 |  |  |  |
+| DocumentAreaRatio |  | 0.22 | 0.04 | 0.14 | 0.27 |
+
+Il rapporto tra area del documento e immagine è in media ~22%; considerando un fotogramma da 1920×1080 px ciò corrisponde a circa 4.5×10⁵ px. Il glare copre mediamente 6977 px (circa l'1.6% dell'area del documento).
+
+
 ## Tempi di esecuzione dei controlli
 
 Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciascun controllo su ogni immagine del dataset.
@@ -622,185 +649,128 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 4.33 |
-| Blur | 6.90 |
-| MotionBlur | 3.37 |
-| Glare | 2.19 |
-| Exposure | 2.18 |
-| Contrast | 2.04 |
-| ColorDominance | 1.53 |
-| Noise | 3.84 |
-| Banding | 2.29 |
-| BlurHeatmap | 4.81 |
-| GlareHeatmap | 2.02 |
-| BlurRegions | 9.89 |
-| GlareRegions | 5.90 |
-| Total | 23.28 |
+| Brisque | 22.09 |
+| Blur | 12.94 |
+| MotionBlur | 17.58 |
+| Glare | 9.33 |
+| Exposure | 5.67 |
+| Contrast | 7.43 |
+| ColorDominance | 7.24 |
+| Noise | 14.29 |
+| Banding | 3.30 |
+| BlurHeatmap | 20.87 |
+| GlareHeatmap | 6.51 |
+| BlurRegions | 16.22 |
+| GlareRegions | 17.07 |
+| Total | 78.46 |
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 7.64 |
-| Blur | 7.04 |
-| MotionBlur | 9.62 |
-| Glare | 7.50 |
-| Exposure | 6.66 |
-| Contrast | 4.62 |
-| ColorDominance | 4.23 |
-| Noise | 22.96 |
-| Banding | 6.70 |
-| BlurHeatmap | 9.48 |
-| GlareHeatmap | 6.96 |
-| BlurRegions | 35.03 |
-| GlareRegions | 13.82 |
-| Total | 76.75 |
+| Brisque | 60.69 |
+| Blur | 40.59 |
+| MotionBlur | 61.16 |
+| Glare | 22.00 |
+| Exposure | 8.47 |
+| Contrast | 6.60 |
+| ColorDominance | 6.93 |
+| Noise | 31.07 |
+| Banding | 35.32 |
+| BlurHeatmap | 42.05 |
+| GlareHeatmap | 48.31 |
+| BlurRegions | 113.75 |
+| GlareRegions | 47.04 |
+| Total | 273.97 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 5.41 |
-| Blur | 19.53 |
-| MotionBlur | 12.14 |
-| Glare | 6.34 |
-| Exposure | 4.41 |
-| Contrast | 3.88 |
-| ColorDominance | 3.95 |
-| Noise | 14.10 |
-| Banding | 8.85 |
-| BlurHeatmap | 11.12 |
-| GlareHeatmap | 6.61 |
-| BlurRegions | 31.43 |
-| GlareRegions | 8.46 |
-| Total | 65.13 |
+| Brisque | 36.66 |
+| Blur | 57.01 |
+| MotionBlur | 39.02 |
+| Glare | 53.86 |
+| Exposure | 14.00 |
+| Contrast | 5.80 |
+| ColorDominance | 6.04 |
+| Noise | 49.57 |
+| Banding | 18.83 |
+| BlurHeatmap | 36.49 |
+| GlareHeatmap | 43.60 |
+| BlurRegions | 151.45 |
+| GlareRegions | 67.53 |
+| Total | 182.05 |
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 4.76 |
-| Blur | 8.14 |
-| MotionBlur | 7.35 |
-| Glare | 4.31 |
-| Exposure | 3.91 |
-| Contrast | 4.31 |
-| ColorDominance | 4.32 |
-| Noise | 9.10 |
-| Banding | 6.16 |
-| BlurHeatmap | 11.04 |
-| GlareHeatmap | 9.80 |
-| BlurRegions | 34.79 |
-| GlareRegions | 7.82 |
-| Total | 66.11 |
+| Brisque | 37.46 |
+| Blur | 27.14 |
+| MotionBlur | 39.27 |
+| Glare | 28.22 |
+| Exposure | 10.63 |
+| Contrast | 11.09 |
+| ColorDominance | 10.97 |
+| Noise | 45.38 |
+| Banding | 18.33 |
+| BlurHeatmap | 25.37 |
+| GlareHeatmap | 10.78 |
+| BlurRegions | 45.65 |
+| GlareRegions | 14.06 |
+| Total | 113.63 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.99 |
-| Blur | 2.38 |
-| MotionBlur | 2.06 |
-| Glare | 1.85 |
-| Exposure | 1.52 |
-| Contrast | 1.70 |
-| ColorDominance | 1.68 |
-| Noise | 3.87 |
-| Banding | 2.65 |
-| BlurHeatmap | 4.36 |
-| GlareHeatmap | 2.37 |
-| BlurRegions | 11.99 |
-| GlareRegions | 3.69 |
-| Total | 31.05 |
+| Brisque | 2.87 |
+| Blur | 3.53 |
+| MotionBlur | 3.58 |
+| Glare | 6.24 |
+| Exposure | 4.50 |
+| Contrast | 4.89 |
+| ColorDominance | 4.89 |
+| Noise | 12.08 |
+| Banding | 5.99 |
+| BlurHeatmap | 12.46 |
+| GlareHeatmap | 9.70 |
+| BlurRegions | 25.92 |
+| GlareRegions | 14.76 |
+| Total | 76.14 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 5.57 |
-| Blur | 4.89 |
-| MotionBlur | 1.82 |
-| Glare | 1.72 |
-| Exposure | 3.32 |
-| Contrast | 7.97 |
-| ColorDominance | 1.69 |
-| Noise | 5.57 |
-| Banding | 3.78 |
-| BlurHeatmap | 4.46 |
-| GlareHeatmap | 3.45 |
-| BlurRegions | 12.04 |
-| GlareRegions | 3.10 |
-| Total | 28.53 |
+| Brisque | 3.31 |
+| Blur | 3.90 |
+| MotionBlur | 3.62 |
+| Glare | 7.38 |
+| Exposure | 2.21 |
+| Contrast | 2.49 |
+| ColorDominance | 2.41 |
+| Noise | 9.22 |
+| Banding | 3.60 |
+| BlurHeatmap | 4.92 |
+| GlareHeatmap | 5.82 |
+| BlurRegions | 21.61 |
+| GlareRegions | 9.79 |
+| Total | 59.36 |
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.49 |
-| Blur | 4.00 |
-| MotionBlur | 2.55 |
-| Glare | 2.02 |
-| Exposure | 2.21 |
-| Contrast | 1.69 |
-| ColorDominance | 1.63 |
-| Noise | 4.70 |
-| Banding | 3.45 |
-| BlurHeatmap | 4.11 |
-| GlareHeatmap | 3.16 |
-| BlurRegions | 12.22 |
-| GlareRegions | 3.53 |
-| Total | 29.28 |
-
-| Immagine | Tempo totale (ms) |
-|----------|------------------|
-| 93_HONOR-7X.png | 23.28 |
-| blur/img1.jpg | 76.75 |
-| blur/img2.jpg | 65.13 |
-| blur/img3.jpg | 66.11 |
-| glare/img1.jpg | 31.05 |
-| glare/img2.jpg | 28.53 |
-| glare/img3.jpg | 29.28 |
-
-| Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
-|----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 23.28 | 95.32 |
-| blur/img1.jpg | 485.03 | 76.75 | 84.18 |
-| blur/img2.jpg | 464.82 | 65.13 | 85.99 |
-| blur/img3.jpg | 480.09 | 66.11 | 86.23 |
-| glare/img1.jpg | 205.37 | 31.05 | 84.88 |
-| glare/img2.jpg | 203.91 | 28.53 | 86.01 |
-| glare/img3.jpg | 206.94 | 29.28 | 85.85 |
-
-| Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
-|------|------|------|------|------|------|------|------|------|------|------|
-| 93_HONOR-7X | 14.94 | 14.94 | 1900.95 | 1900.95 | 30889 | 30889 | 124.03 | 124.03 | 98.01 | 98.01 |
-| blur/img1 | 6.36 | 6.36 | 79.86 | 79.86 | 76139 | 76139 | 152.23 | 152.23 | 64.61 | 64.61 |
-| blur/img2 | 5.28 | 5.28 | 12.08 | 12.08 | 0 | 0 | 84.98 | 84.98 | 58.27 | 58.27 |
-| blur/img3 | 2.40 | 2.40 | 324.15 | 324.15 | 5458 | 5458 | 31.92 | 31.92 | 36.84 | 36.84 |
-| glare/img1 | 13.42 | 13.42 | 213.15 | 213.15 | 1540 | 1540 | 105.08 | 105.08 | 94.68 | 94.68 |
-| glare/img2 | 5.36 | 5.36 | 205.19 | 205.19 | 391 | 391 | 95.60 | 95.60 | 60.30 | 60.30 |
-| glare/img3 | 5.05 | 5.05 | 551.69 | 551.69 | 1424 | 1424 | 114.82 | 114.82 | 58.15 | 58.15 |
-
-| Image | Brisque pre | Brisque post | Blur pre | Blur post | MotionBlur pre | MotionBlur post | Glare pre | Glare post | Exposure pre | Exposure post | Contrast pre | Contrast post | ColorDominance pre | ColorDominance post | Noise pre | Noise post | Banding pre | Banding post | BlurHeatmap pre | BlurHeatmap post | GlareHeatmap pre | GlareHeatmap post | BlurRegions pre | BlurRegions post | GlareRegions pre | GlareRegions post | Total pre | Total post | Diff % |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 0.jpg | 15.7 | 24.8 | 19.1 | 16.5 | 20.8 | 12.4 | 15.2 | 13.3 | 9.0 | 12.2 | 9.8 | 12.8 | 10.5 | 13.0 | 177.7 | 26.4 | 14.6 | 21.6 | 24.3 | 20.9 | 23.5 | 13.7 | 80.0 | 89.5 | 24.1 | 29.1 | 184.5 | 194.1 | 5.2 |
-| 10.jpg | 125.1 | 107.6 | 158.1 | 138.6 | 186.3 | 110.7 | 129.7 | 103.3 | 70.3 | 116.8 | 82.3 | 144.5 | 104.5 | 127.7 | 1472.7 | 102.1 | 144.3 | 167.7 | 233.4 | 170.1 | 137.2 | 143.4 | 796.8 | 905.8 | 193.8 | 179.5 | 1640.5 | 528.7 | -67.8 |
-| 1001.jpg | 244.0 | 189.8 | 296.2 | 240.7 | 301.2 | 187.0 | 212.5 | 196.4 | 136.1 | 181.5 | 158.9 | 202.4 | 156.9 | 200.7 | 2743.9 | 165.2 | 229.0 | 309.2 | 424.5 | 298.9 | 244.2 | 245.8 | 1461.8 | 1727.3 | 352.6 | 380.2 | 3083.6 | 836.8 | -72.9 |
-| 1004.jpg | 252.1 | 332.9 | 288.7 | 859.3 | 295.0 | 501.6 | 214.5 | 221.5 | 139.9 | 187.1 | 153.4 | 207.5 | 160.7 | 206.2 | 2736.4 | 169.6 | 226.8 | 378.2 | 446.4 | 380.3 | 263.0 | 306.3 | 1461.6 | 1934.2 | 373.3 | 439.9 | 3053.1 | 1104.9 | -63.8 |
-| 1005.jpg | 223.6 | 191.6 | 280.2 | 258.2 | 302.2 | 200.4 | 218.4 | 180.6 | 145.9 | 185.4 | 189.1 | 214.2 | 197.4 | 217.5 | 2813.8 | 140.0 | 226.2 | 298.6 | 447.7 | 314.4 | 275.0 | 231.0 | 1501.1 | 1717.3 | 404.1 | 387.5 | 3079.8 | 747.2 | -75.7 |
-| 22.jpg | 68.3 | 67.5 | 77.4 | 96.1 | 89.0 | 59.5 | 63.7 | 50.3 | 48.8 | 73.1 | 45.8 | 64.9 | 53.9 | 72.7 | 804.7 | 46.7 | 82.8 | 104.7 | 123.9 | 99.1 | 76.7 | 84.8 | 331.9 | 364.1 | 122.2 | 120.3 | 777.2 | 294.6 | -62.1 |
-| 242.jpg | 491.0 | 190.9 | 430.6 | 241.2 | 274.7 | 168.0 | 209.9 | 180.2 | 128.8 | 192.8 | 135.7 | 206.7 | 139.6 | 207.6 | 2500.5 | 128.2 | 227.1 | 284.0 | 403.3 | 300.4 | 253.5 | 209.2 | 1388.7 | 1672.3 | 497.3 | 515.5 | 2962.2 | 741.6 | -75.0 |
-| 266.jpg | 18.9 | 31.2 | 23.1 | 21.9 | 29.0 | 18.4 | 19.9 | 15.3 | 11.6 | 16.4 | 12.8 | 19.0 | 12.6 | 16.4 | 216.9 | 29.2 | 18.7 | 29.9 | 36.3 | 24.5 | 22.9 | 20.2 | 68.6 | 81.9 | 28.7 | 33.2 | 201.4 | 205.6 | 2.1 |
-| 275.jpg | 79.8 | 92.3 | 91.8 | 97.3 | 101.1 | 56.5 | 75.2 | 62.2 | 45.4 | 63.3 | 54.3 | 94.1 | 52.8 | 80.3 | 912.4 | 61.6 | 78.9 | 114.4 | 136.7 | 103.7 | 88.4 | 96.1 | 303.5 | 447.4 | 128.1 | 191.1 | 862.1 | 337.6 | -60.8 |
-| 279.jpg | 271.7 | 312.6 | 239.4 | 366.8 | 239.1 | 316.1 | 181.7 | 157.6 | 106.0 | 147.4 | 118.9 | 165.0 | 119.5 | 162.9 | 2202.4 | 95.8 | 193.5 | 237.1 | 326.9 | 263.5 | 222.6 | 213.5 | 1118.1 | 1311.6 | 300.7 | 303.5 | 2482.6 | 672.1 | -72.9 |
-| 281.jpg | 194.8 | 148.8 | 229.9 | 204.8 | 243.2 | 141.1 | 191.8 | 152.6 | 105.0 | 163.6 | 117.1 | 179.7 | 125.9 | 171.2 | 2211.8 | 116.8 | 189.7 | 250.2 | 357.3 | 243.2 | 202.1 | 202.5 | 1032.1 | 1198.2 | 321.7 | 300.5 | 2324.8 | 646.8 | -72.2 |
-| 293.jpg | 283.0 | 172.4 | 295.5 | 236.5 | 291.7 | 164.2 | 215.4 | 191.4 | 125.5 | 204.6 | 142.6 | 217.3 | 136.4 | 192.4 | 2514.2 | 130.1 | 201.5 | 276.6 | 401.7 | 281.6 | 234.7 | 207.7 | 1206.2 | 1460.4 | 327.7 | 367.8 | 2707.6 | 674.8 | -75.1 |
-| 313.jpg | 129.1 | 124.0 | 150.5 | 133.7 | 158.9 | 110.8 | 113.4 | 101.7 | 76.3 | 109.7 | 81.3 | 121.2 | 88.0 | 117.0 | 1528.6 | 71.3 | 171.6 | 157.0 | 286.2 | 161.3 | 132.9 | 141.2 | 692.0 | 828.6 | 190.8 | 186.1 | 1574.1 | 483.1 | -69.3 |
-| 326.jpg | 282.9 | 151.5 | 439.9 | 209.0 | 310.1 | 137.0 | 172.3 | 147.9 | 114.2 | 151.8 | 120.4 | 161.9 | 119.8 | 167.6 | 2377.0 | 112.2 | 185.3 | 264.2 | 344.0 | 242.7 | 220.5 | 179.2 | 1390.4 | 1398.1 | 311.7 | 293.2 | 3060.3 | 623.5 | -79.6 |
-| 447.jpg | 188.3 | 149.0 | 223.3 | 202.0 | 238.7 | 134.0 | 177.1 | 143.5 | 131.3 | 150.0 | 140.0 | 179.8 | 129.9 | 201.5 | 2189.4 | 145.3 | 178.6 | 303.7 | 312.5 | 285.3 | 217.9 | 199.8 | 1145.5 | 1413.4 | 283.6 | 281.1 | 2451.5 | 678.8 | -72.3 |
-| 482.jpg | 114.0 | 101.3 | 128.1 | 130.6 | 145.6 | 81.9 | 116.3 | 95.1 | 70.2 | 99.4 | 70.8 | 110.0 | 71.2 | 110.7 | 1289.4 | 77.2 | 112.3 | 138.4 | 186.4 | 139.5 | 118.3 | 115.8 | 584.7 | 674.5 | 186.3 | 197.5 | 1342.8 | 391.0 | -70.9 |
-| 497.jpg | 115.1 | 113.9 | 155.7 | 147.6 | 142.8 | 98.7 | 112.2 | 87.7 | 66.7 | 96.0 | 73.6 | 106.2 | 73.9 | 107.9 | 1302.9 | 80.4 | 106.5 | 144.8 | 209.8 | 174.5 | 119.7 | 118.4 | 614.4 | 721.2 | 215.3 | 260.5 | 1418.2 | 437.4 | -69.2 |
-| 523.jpg | 102.1 | 99.6 | 141.9 | 122.3 | 142.1 | 83.8 | 103.7 | 97.0 | 68.3 | 88.8 | 69.2 | 96.6 | 75.9 | 102.8 | 1274.9 | 69.4 | 113.3 | 147.3 | 200.1 | 140.9 | 135.5 | 104.8 | 570.5 | 662.5 | 191.8 | 193.7 | 1360.0 | 524.2 | -61.5 |
-| 65.jpg | 189.5 | 170.2 | 238.3 | 254.5 | 287.9 | 145.3 | 320.6 | 170.1 | 124.6 | 194.9 | 128.6 | 233.0 | 126.4 | 245.5 | 2363.7 | 186.1 | 188.7 | 270.5 | 373.5 | 285.3 | 229.8 | 211.1 | 1187.3 | 1537.7 | 320.8 | 323.7 | 2679.1 | 688.4 | -74.3 |
-| 743.jpg | 247.5 | 193.5 | 272.1 | 258.3 | 335.5 | 183.5 | 230.2 | 177.4 | 143.6 | 183.7 | 160.9 | 206.6 | 152.8 | 217.6 | 2807.3 | 180.1 | 229.3 | 319.3 | 403.2 | 328.1 | 282.9 | 234.6 | 1433.9 | 1691.7 | 361.9 | 388.8 | 3094.0 | 726.5 | -76.5 |
-| 988.jpg | 225.1 | 210.3 | 278.2 | 256.1 | 313.3 | 171.3 | 225.7 | 191.7 | 139.2 | 204.6 | 153.2 | 220.3 | 152.8 | 226.3 | 2709.9 | 140.1 | 233.9 | 332.1 | 437.8 | 396.0 | 261.3 | 244.9 | 1440.4 | 1791.9 | 360.6 | 402.8 | 3122.0 | 907.5 | -70.9 |
-| 997.jpg | 222.8 | 191.6 | 263.5 | 285.3 | 312.8 | 218.3 | 232.7 | 225.9 | 145.5 | 188.6 | 150.2 | 205.4 | 145.8 | 227.4 | 2713.5 | 144.3 | 231.5 | 296.0 | 424.6 | 325.3 | 265.8 | 253.2 | 1397.9 | 1678.4 | 418.8 | 378.7 | 3100.8 | 763.4 | -75.4 |
-| Average | 185.7 | 153.1 | 214.6 | 217.2 | 216.4 | 150.0 | 161.5 | 134.7 | 97.8 | 136.9 | 107.7 | 153.1 | 109.4 | 154.2 | 1902.9 | 109.9 | 162.9 | 220.2 | 297.3 | 226.3 | 183.1 | 171.7 | 964.0 | 1150.4 | 268.9 | 279.7 | 2116.5 | 600.4 | -71.6 |
-
+| Brisque | 2.98 |
+| Blur | 3.84 |
+| MotionBlur | 3.39 |
+| Glare | 2.84 |
+| Exposure | 5.77 |
+| Contrast | 2.48 |
+| ColorDominance | 2.31 |
+| Noise | 7.16 |
+| Banding | 3.54 |
+| BlurHeatmap | 6.09 |
+| GlareHeatmap | 3.38 |
+| BlurRegions | 17.08 |
+| GlareRegions | 4.58 |
+| Total | 46.69 |
 ## Ottimizzazioni delle performance
 
 Le ultime versioni della libreria includono alcune migliorie mirate a ridurre drasticamente i tempi di analisi:
