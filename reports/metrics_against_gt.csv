@@ -1,0 +1,17 @@
+Metric,Type,NetMAE,PyMAE,CountCompared,NetAccuracy,PyAccuracy
+BlurScore,numeric,138.1440388062935,0.0,10,,
+IsBlurry,bool,,,10,1.0,1.0
+MotionBlurScore,numeric,5080000000.697065,0.0,10,,
+GlareArea,numeric,7770.4,0.0,10,,
+HasGlare,bool,,,10,0.9,1.0
+Exposure,numeric,0.0028322036769509395,0.0,10,,
+IsWellExposed,bool,,,10,1.0,1.0
+Contrast,numeric,0.00025694997295738173,0.0,10,,
+HasLowContrast,bool,,,10,1.0,1.0
+Noise,numeric,14.276436603085818,0.0,10,,
+HasNoise,bool,,,10,0.8,1.0
+ColorDominance,numeric,7.826983043912605e-08,0.0,10,,
+HasColorDominance,bool,,,10,1.0,1.0
+BandingScore,numeric,103.51988945699168,0.0,10,,
+BrisqueScore,numeric,,,0,,
+ElapsedMs,numeric,13.932347133483884,5.251741409301758,10,,
