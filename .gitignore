@@ -6,3 +6,13 @@ obj/
 webapp/node_modules
 webapp/test-results
 **/.playwright
+
+# dataset & artefatti temporanei
+/data/
+**/*.jpg
+**/*.png
+**/*.mp4
+**/*.zip
+*.parquet
+!**/*.jpg.base64
+!**/*.png.base64

@@ -11,6 +11,43 @@ L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la
 Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di build/test.
 
 
+## Quick Python smoke-test
+
+```bash
+pip install -r requirements.txt
+dotnet publish DocQualityChecker -c Release -o bin/DocQualityChecker
+# esporta il token di Hugging Face (opzionale)
+export HF_TOKEN=<token>
+# scarica il dataset (o genera campione sintetico)
+python tools/download_midv500.py
+# lancia il quality check via pythonnet
+python run_smoke_test.py
+```
+
+Esempio di output:
+
+```
+shape: (3, 7)
+┌─────────────────────────────────────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┐
+│ path                                    ┆ BlurScor ┆ IsBlurry ┆ GlareAre ┆ HasGlare ┆ Exposure ┆ IsWellExpose │
+│                                         ┆ e        ┆          ┆ a        ┆          ┆          ┆ d            │
+╞═════════════════════════════════════════╪══════════╪══════════╪══════════╪══════════╪══════════╪══════════════╡
+│ data/midv500/synthetic_00/000.jpg       ┆ 123.4    ┆ false    ┆ 0        ┆ false    ┆ 120.1    ┆ true         │
+│ …                                       ┆ …        ┆ …        ┆ …        ┆ …        ┆ …        ┆ …            │
+└─────────────────────────────────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────────┘
+Aggregated metrics saved to data/smoke_metrics.csv
+```
+
+## Quick .NET smoke-test
+
+```bash
+python tools/download_midv500.py
+dotnet run --project DocQualitySmoke -- --encode
+```
+
+I file `.base64` delle immagini elaborate saranno salvati in `data/encoded_samples/`.
+
+
 ## Controlli di qualità
 La classe `DocumentQualityChecker` esegue diversi controlli sull'immagine:
 
