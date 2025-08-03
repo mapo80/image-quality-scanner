@@ -35,6 +35,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    @if (Model.Settings.GenerateHeatmaps && !string.IsNullOrEmpty(Model.BlurHeatmap))
+                    {
+                        <img class="img-fluid mt-3" src="@Model.BlurHeatmap" alt="Blur heatmap" />
+                    }
                 </div>
             </div>
         </div>
@@ -69,6 +73,10 @@
                             </tr>
                         </tbody>
                     </table>
+                    @if (Model.Settings.GenerateHeatmaps && !string.IsNullOrEmpty(Model.GlareHeatmap))
+                    {
+                        <img class="img-fluid mt-3" src="@Model.GlareHeatmap" alt="Glare heatmap" />
+                    }
                 </div>
             </div>
         </div>

@@ -64,6 +64,32 @@ public class IndexModelTests
         Assert.IsType<PageResult>(actionResult);
         Assert.True(model.ModelState.IsValid);
         Assert.NotNull(model.Result);
+        Assert.Null(model.BlurHeatmap);
+        Assert.Null(model.GlareHeatmap);
+    }
+
+    [Fact]
+    public void OnPost_WithHeatmaps_GeneratesImages()
+    {
+        var model = CreateModel();
+        model.Settings.GenerateHeatmaps = true;
+
+        using var bmp = CreateBaseImage();
+        using var img = SKImage.FromBitmap(bmp);
+        using var data = img.Encode(SKEncodedImageFormat.Png, 100);
+        using var ms = new MemoryStream();
+        data.SaveTo(ms);
+        ms.Position = 0;
+
+        model.Image = new FormFile(ms, 0, ms.Length, "Image", "test.png");
+
+        var actionResult = model.OnPost();
+
+        Assert.IsType<PageResult>(actionResult);
+        Assert.True(model.ModelState.IsValid);
+        Assert.NotNull(model.Result);
+        Assert.False(string.IsNullOrEmpty(model.BlurHeatmap));
+        Assert.False(string.IsNullOrEmpty(model.GlareHeatmap));
     }
 }
 

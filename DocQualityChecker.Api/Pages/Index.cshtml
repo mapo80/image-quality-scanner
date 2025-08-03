@@ -46,6 +46,10 @@
             <input class="form-control" asp-for="Image" type="file" />
             <span class="text-danger" asp-validation-for="Image"></span>
         </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" asp-for="Settings.GenerateHeatmaps" />
+            <label class="form-check-label" asp-for="Settings.GenerateHeatmaps">Generate heatmaps</label>
+        </div>
         <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
             <div class="col">
                 <label asp-for="Settings.BrisqueMax" class="form-label">BRISQUE max
