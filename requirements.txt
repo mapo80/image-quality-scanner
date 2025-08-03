@@ -1,2 +1,8 @@
 midv500>=0.2
+pythonnet>=3.0
+polars>=0.20
 tqdm>=4.0
+huggingface_hub>=0.23
+
+tqdm>=4.0
+
