@@ -107,7 +107,7 @@ relative regioni (`BlurRegions`, `GlareRegions`).
 
 ## Interfaccia web
 
-Il progetto `DocQualityChecker.Web` mette a disposizione una pagina Razor per
+Il progetto `DocQualityChecker.Api` include una pagina Razor per
 analizzare le immagini direttamente dal browser. Il form consente di
 personalizzare tutte le soglie dei controlli tramite **slider** e accanto a
 ogni etichetta è presente un'icona con maggiori informazioni sul relativo
@@ -614,148 +614,148 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 4.33 |
-| Blur | 6.90 |
-| MotionBlur | 3.37 |
-| Glare | 2.19 |
-| Exposure | 2.18 |
-| Contrast | 2.04 |
-| ColorDominance | 1.53 |
-| Noise | 3.84 |
-| Banding | 2.29 |
-| BlurHeatmap | 4.81 |
-| GlareHeatmap | 2.02 |
-| BlurRegions | 9.89 |
-| GlareRegions | 5.90 |
-| Total | 23.28 |
+| Brisque | 12.41 |
+| Blur | 3.54 |
+| MotionBlur | 5.17 |
+| Glare | 2.30 |
+| Exposure | 3.20 |
+| Contrast | 3.07 |
+| ColorDominance | 1.41 |
+| Noise | 10.15 |
+| Banding | 2.27 |
+| BlurHeatmap | 12.33 |
+| GlareHeatmap | 8.48 |
+| BlurRegions | 26.77 |
+| GlareRegions | 15.64 |
+| Total | 65.17 |
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 7.64 |
-| Blur | 7.04 |
-| MotionBlur | 9.62 |
-| Glare | 7.50 |
-| Exposure | 6.66 |
-| Contrast | 4.62 |
-| ColorDominance | 4.23 |
-| Noise | 22.96 |
-| Banding | 6.70 |
-| BlurHeatmap | 9.48 |
-| GlareHeatmap | 6.96 |
-| BlurRegions | 35.03 |
-| GlareRegions | 13.82 |
-| Total | 76.75 |
+| Brisque | 29.40 |
+| Blur | 16.70 |
+| MotionBlur | 10.96 |
+| Glare | 10.02 |
+| Exposure | 4.34 |
+| Contrast | 4.77 |
+| ColorDominance | 4.25 |
+| Noise | 22.03 |
+| Banding | 6.66 |
+| BlurHeatmap | 13.10 |
+| GlareHeatmap | 52.82 |
+| BlurRegions | 55.70 |
+| GlareRegions | 49.70 |
+| Total | 149.62 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 5.41 |
-| Blur | 19.53 |
-| MotionBlur | 12.14 |
-| Glare | 6.34 |
-| Exposure | 4.41 |
-| Contrast | 3.88 |
-| ColorDominance | 3.95 |
-| Noise | 14.10 |
-| Banding | 8.85 |
-| BlurHeatmap | 11.12 |
-| GlareHeatmap | 6.61 |
-| BlurRegions | 31.43 |
-| GlareRegions | 8.46 |
-| Total | 65.13 |
+| Brisque | 22.72 |
+| Blur | 36.49 |
+| MotionBlur | 19.31 |
+| Glare | 9.97 |
+| Exposure | 3.64 |
+| Contrast | 4.05 |
+| ColorDominance | 4.30 |
+| Noise | 21.80 |
+| Banding | 6.81 |
+| BlurHeatmap | 37.71 |
+| GlareHeatmap | 31.33 |
+| BlurRegions | 51.72 |
+| GlareRegions | 32.12 |
+| Total | 122.23 |
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 4.76 |
-| Blur | 8.14 |
-| MotionBlur | 7.35 |
-| Glare | 4.31 |
-| Exposure | 3.91 |
-| Contrast | 4.31 |
-| ColorDominance | 4.32 |
-| Noise | 9.10 |
-| Banding | 6.16 |
-| BlurHeatmap | 11.04 |
-| GlareHeatmap | 9.80 |
-| BlurRegions | 34.79 |
-| GlareRegions | 7.82 |
-| Total | 66.11 |
+| Brisque | 18.92 |
+| Blur | 18.40 |
+| MotionBlur | 18.12 |
+| Glare | 16.08 |
+| Exposure | 9.56 |
+| Contrast | 10.04 |
+| ColorDominance | 10.40 |
+| Noise | 19.11 |
+| Banding | 8.86 |
+| BlurHeatmap | 21.13 |
+| GlareHeatmap | 21.42 |
+| BlurRegions | 41.26 |
+| GlareRegions | 19.86 |
+| Total | 100.50 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 1.99 |
-| Blur | 2.38 |
-| MotionBlur | 2.06 |
-| Glare | 1.85 |
-| Exposure | 1.52 |
-| Contrast | 1.70 |
-| ColorDominance | 1.68 |
-| Noise | 3.87 |
-| Banding | 2.65 |
-| BlurHeatmap | 4.36 |
-| GlareHeatmap | 2.37 |
-| BlurRegions | 11.99 |
-| GlareRegions | 3.69 |
-| Total | 31.05 |
+| Brisque | 2.11 |
+| Blur | 2.70 |
+| MotionBlur | 10.24 |
+| Glare | 2.04 |
+| Exposure | 1.62 |
+| Contrast | 2.88 |
+| ColorDominance | 1.69 |
+| Noise | 8.21 |
+| Banding | 2.44 |
+| BlurHeatmap | 3.98 |
+| GlareHeatmap | 2.79 |
+| BlurRegions | 12.72 |
+| GlareRegions | 3.77 |
+| Total | 49.31 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 5.57 |
-| Blur | 4.89 |
-| MotionBlur | 1.82 |
-| Glare | 1.72 |
-| Exposure | 3.32 |
-| Contrast | 7.97 |
-| ColorDominance | 1.69 |
-| Noise | 5.57 |
-| Banding | 3.78 |
-| BlurHeatmap | 4.46 |
-| GlareHeatmap | 3.45 |
-| BlurRegions | 12.04 |
-| GlareRegions | 3.10 |
-| Total | 28.53 |
+| Brisque | 8.00 |
+| Blur | 7.82 |
+| MotionBlur | 5.08 |
+| Glare | 4.94 |
+| Exposure | 1.62 |
+| Contrast | 8.02 |
+| ColorDominance | 1.79 |
+| Noise | 6.27 |
+| Banding | 2.63 |
+| BlurHeatmap | 5.68 |
+| GlareHeatmap | 2.47 |
+| BlurRegions | 12.17 |
+| GlareRegions | 3.62 |
+| Total | 29.31 |
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.49 |
-| Blur | 4.00 |
-| MotionBlur | 2.55 |
-| Glare | 2.02 |
-| Exposure | 2.21 |
-| Contrast | 1.69 |
-| ColorDominance | 1.63 |
-| Noise | 4.70 |
-| Banding | 3.45 |
-| BlurHeatmap | 4.11 |
-| GlareHeatmap | 3.16 |
-| BlurRegions | 12.22 |
-| GlareRegions | 3.53 |
-| Total | 29.28 |
+| Brisque | 2.30 |
+| Blur | 4.47 |
+| MotionBlur | 4.41 |
+| Glare | 5.55 |
+| Exposure | 3.25 |
+| Contrast | 3.39 |
+| ColorDominance | 3.23 |
+| Noise | 10.08 |
+| Banding | 4.07 |
+| BlurHeatmap | 9.86 |
+| GlareHeatmap | 8.71 |
+| BlurRegions | 25.26 |
+| GlareRegions | 6.94 |
+| Total | 30.78 |
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 23.28 |
-| blur/img1.jpg | 76.75 |
-| blur/img2.jpg | 65.13 |
-| blur/img3.jpg | 66.11 |
-| glare/img1.jpg | 31.05 |
-| glare/img2.jpg | 28.53 |
-| glare/img3.jpg | 29.28 |
+| 93_HONOR-7X.png | 65.17 |
+| blur/img1.jpg | 149.62 |
+| blur/img2.jpg | 122.23 |
+| blur/img3.jpg | 100.50 |
+| glare/img1.jpg | 49.31 |
+| glare/img2.jpg | 29.31 |
+| glare/img3.jpg | 30.78 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 23.28 | 95.32 |
-| blur/img1.jpg | 485.03 | 76.75 | 84.18 |
-| blur/img2.jpg | 464.82 | 65.13 | 85.99 |
-| blur/img3.jpg | 480.09 | 66.11 | 86.23 |
-| glare/img1.jpg | 205.37 | 31.05 | 84.88 |
-| glare/img2.jpg | 203.91 | 28.53 | 86.01 |
-| glare/img3.jpg | 206.94 | 29.28 | 85.85 |
+| 93_HONOR-7X.png | 497.05 | 65.17 | 86.89 |
+| blur/img1.jpg | 485.03 | 149.62 | 69.15 |
+| blur/img2.jpg | 464.82 | 122.23 | 73.70 |
+| blur/img3.jpg | 480.09 | 100.50 | 79.07 |
+| glare/img1.jpg | 205.37 | 49.31 | 75.99 |
+| glare/img2.jpg | 203.91 | 29.31 | 85.63 |
+| glare/img3.jpg | 206.94 | 30.78 | 85.13 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
@@ -975,18 +975,18 @@ Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individua
 
 ## Web app
 
-Il progetto `DocQualityChecker.Web` fornisce una semplice interfaccia Razor Pages per verificare la qualità delle immagini.
+Il progetto `DocQualityChecker.Api` fornisce una semplice interfaccia Razor Pages per verificare la qualità delle immagini insieme agli endpoint API.
 Per avviarla:
 
 ```bash
-dotnet run --project DocQualityChecker.Web/DocQualityChecker.Web.csproj
+dotnet run --project DocQualityChecker.Api/DocQualityChecker.Api.csproj
 ```
 
 L'applicazione consente di caricare un file e mostrare i risultati dei controlli direttamente nel browser.
 
 ## Docker
 
-È disponibile un'immagine Docker che esegue l'applicazione Razor.
+È disponibile un'immagine Docker che esegue l'applicazione con le pagine Razor integrate.
 Per crearla eseguire dalla cartella radice:
 
 ```bash

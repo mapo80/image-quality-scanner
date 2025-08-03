@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SkiaSharp;
 
-namespace DocQualityChecker.Web.Pages;
+namespace DocQualityChecker.Api.Pages;
 
 public class IndexModel : PageModel
 {
