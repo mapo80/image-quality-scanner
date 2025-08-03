@@ -14,22 +14,30 @@ Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di buil
 ## Quick .NET smoke-test
 
 ```bash
-# Scarica dataset e campione
-pip install -r requirements.txt
-python tools/download_midv500.py
-
-# Compila e lancia il test
-dotnet run --project DocQualitySmoke -- --encode
+# Esegue la verifica sulle immagini di esempio incluse nel repository
+dotnet run --project DocQualitySmoke -- --sample docs/dataset_samples/sample_paths.txt --outDir docs/dataset_samples
 ```
 
 Esempio di output:
 
 ```
 Metric,PassRate,Mean,Std,Min,Max
-IsBlurry,0.98,,,,
-HasGlare,1.0,,,,
-...
-AvgProcessingTimeMs,,12.3,,,
+IsBlurry,0.7142857142857143,,,,
+HasGlare,0.2857142857142857,,,,
+HasNoise,1,,,,
+HasLowContrast,1,,,,
+HasColorDominance,1,,,,
+!IsWellExposed,0.8571428571428571,,,,
+BlurScore,,469.5819390324641,606.3415857057887,12.083860439875183,1900.9480864891982
+MotionBlurScore,,1.6441650588457253,0.3958955466749499,1.0845224315216333,2.137096895459947
+GlareArea,,16548.714285714286,26372.604972987112,0,76139
+Exposure,,101.23882303584115,34.68380465029075,31.917161313477436,152.2304183349869
+Contrast,,67.26729606314137,20.149811660004996,36.84231229212407,98.00959641261856
+Noise,,51.77051048588495,71.93903769019506,1.3806768919125847,225.22447996952982
+ColorDominance,,1.1064445543082895,0.1356355749016192,1.0173745016509697,1.4340195181818864
+BandingScore,,0.4239158740468216,0.15385741277968495,0.23885059549006077,0.737141010482198
+BrisqueScore,,7.544447107577828,4.363001807733202,2.400555034423491,14.943234274733666
+AvgProcessingTimeMs,,55.1192,,,
 ```
 
 
