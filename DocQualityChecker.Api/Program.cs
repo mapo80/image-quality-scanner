@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -18,10 +19,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseDefaultFiles();
-app.UseStaticFiles();
-app.MapControllers();
+app.UseRouting();
 
-app.MapFallbackToFile("index.html");
+app.UseAuthorization();
+
+app.MapControllers();
+app.MapStaticAssets();
+app.MapRazorPages().WithStaticAssets();
 
 app.Run();
+
+public partial class Program { }

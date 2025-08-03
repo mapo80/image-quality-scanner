@@ -3,14 +3,11 @@ obj/
 **/bin/
 **/obj/
 
-webapp/node_modules
-webapp/test-results
 **/.playwright
 
 # dataset & artefatti temporanei
-/data/
-**/*.jpg
-**/*.png
+/data/midv500/
+
 **/*.mp4
 **/*.zip
 *.parquet
