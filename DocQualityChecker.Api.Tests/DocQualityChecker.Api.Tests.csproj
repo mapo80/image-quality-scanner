@@ -13,7 +13,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DocQualityChecker.Web\DocQualityChecker.Web.csproj" />
+    <ProjectReference Include="..\DocQualityChecker.Api\DocQualityChecker.Api.csproj" />
     <ProjectReference Include="..\DocQualityChecker\DocQualityChecker.csproj" />
   </ItemGroup>
   <ItemGroup>

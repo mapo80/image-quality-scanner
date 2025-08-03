@@ -11,6 +11,19 @@ L'implementazione utilizza [SkiaSharp](https://github.com/mono/SkiaSharp) per la
 Le dipendenze NuGet vengono ripristinate automaticamente durante la fase di build/test.
 
 
+
+## Quick Python smoke-test
+
+```bash
+pip install -r requirements.txt
+dotnet publish DocQualityChecker -c Release -o bin/DocQualityChecker
+# esporta il token di Hugging Face (opzionale)
+export HF_TOKEN=<token>
+# scarica il dataset (o genera campione sintetico)
+python tools/download_midv500.py
+# lancia il quality check via pythonnet
+python run_smoke_test.py
+
 ## Quick .NET smoke-test
 
 ```bash
@@ -21,6 +34,26 @@ dotnet run --project DocQualitySmoke -- --sample docs/dataset_samples/sample_pat
 Esempio di output:
 
 ```
+shape: (3, 7)
+┌─────────────────────────────────────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┐
+│ path                                    ┆ BlurScor ┆ IsBlurry ┆ GlareAre ┆ HasGlare ┆ Exposure ┆ IsWellExpose │
+│                                         ┆ e        ┆          ┆ a        ┆          ┆          ┆ d            │
+╞═════════════════════════════════════════╪══════════╪══════════╪══════════╪══════════╪══════════╪══════════════╡
+│ data/midv500/synthetic_00/000.jpg       ┆ 123.4    ┆ false    ┆ 0        ┆ false    ┆ 120.1    ┆ true         │
+│ …                                       ┆ …        ┆ …        ┆ …        ┆ …        ┆ …        ┆ …            │
+└─────────────────────────────────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────────┘
+Aggregated metrics saved to data/smoke_metrics.csv
+```
+
+## Quick .NET smoke-test
+
+```bash
+python tools/download_midv500.py
+dotnet run --project DocQualitySmoke -- --encode
+```
+
+I file `.base64` delle immagini elaborate saranno salvati in `data/encoded_samples/`.
+
 Metric,PassRate,Mean,Std,Min,Max
 IsBlurry,0.7142857142857143,,,,
 HasGlare,0.2857142857142857,,,,
@@ -115,7 +148,7 @@ relative regioni (`BlurRegions`, `GlareRegions`).
 
 ## Interfaccia web
 
-Il progetto `DocQualityChecker.Web` mette a disposizione una pagina Razor per
+Il progetto `DocQualityChecker.Api` include una pagina Razor per
 analizzare le immagini direttamente dal browser. Il form consente di
 personalizzare tutte le soglie dei controlli tramite **slider** e accanto a
 ogni etichetta è presente un'icona con maggiori informazioni sul relativo
@@ -700,6 +733,7 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | GlareRegions | 67.53 |
 | Total | 182.05 |
 
+
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
@@ -754,6 +788,7 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | GlareRegions | 9.79 |
 | Total | 59.36 |
 
+
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
@@ -771,6 +806,63 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 | BlurRegions | 17.08 |
 | GlareRegions | 4.58 |
 | Total | 46.69 |
+
+| Immagine | Tempo totale (ms) |
+|----------|------------------|
+| 93_HONOR-7X.png | 65.17 |
+| blur/img1.jpg | 149.62 |
+| blur/img2.jpg | 122.23 |
+| blur/img3.jpg | 100.50 |
+| glare/img1.jpg | 49.31 |
+| glare/img2.jpg | 29.31 |
+| glare/img3.jpg | 30.78 |
+
+| Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
+|----------|-----------|----------|-------------|
+| 93_HONOR-7X.png | 497.05 | 65.17 | 86.89 |
+| blur/img1.jpg | 485.03 | 149.62 | 69.15 |
+| blur/img2.jpg | 464.82 | 122.23 | 73.70 |
+| blur/img3.jpg | 480.09 | 100.50 | 79.07 |
+| glare/img1.jpg | 205.37 | 49.31 | 75.99 |
+| glare/img2.jpg | 203.91 | 29.31 | 85.63 |
+| glare/img3.jpg | 206.94 | 30.78 | 85.13 |
+
+| Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
+|------|------|------|------|------|------|------|------|------|------|------|
+| 93_HONOR-7X | 14.94 | 14.94 | 1900.95 | 1900.95 | 30889 | 30889 | 124.03 | 124.03 | 98.01 | 98.01 |
+| blur/img1 | 6.36 | 6.36 | 79.86 | 79.86 | 76139 | 76139 | 152.23 | 152.23 | 64.61 | 64.61 |
+| blur/img2 | 5.28 | 5.28 | 12.08 | 12.08 | 0 | 0 | 84.98 | 84.98 | 58.27 | 58.27 |
+| blur/img3 | 2.40 | 2.40 | 324.15 | 324.15 | 5458 | 5458 | 31.92 | 31.92 | 36.84 | 36.84 |
+| glare/img1 | 13.42 | 13.42 | 213.15 | 213.15 | 1540 | 1540 | 105.08 | 105.08 | 94.68 | 94.68 |
+| glare/img2 | 5.36 | 5.36 | 205.19 | 205.19 | 391 | 391 | 95.60 | 95.60 | 60.30 | 60.30 |
+| glare/img3 | 5.05 | 5.05 | 551.69 | 551.69 | 1424 | 1424 | 114.82 | 114.82 | 58.15 | 58.15 |
+
+| Image | Brisque pre | Brisque post | Blur pre | Blur post | MotionBlur pre | MotionBlur post | Glare pre | Glare post | Exposure pre | Exposure post | Contrast pre | Contrast post | ColorDominance pre | ColorDominance post | Noise pre | Noise post | Banding pre | Banding post | BlurHeatmap pre | BlurHeatmap post | GlareHeatmap pre | GlareHeatmap post | BlurRegions pre | BlurRegions post | GlareRegions pre | GlareRegions post | Total pre | Total post | Diff % |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.jpg | 15.7 | 24.8 | 19.1 | 16.5 | 20.8 | 12.4 | 15.2 | 13.3 | 9.0 | 12.2 | 9.8 | 12.8 | 10.5 | 13.0 | 177.7 | 26.4 | 14.6 | 21.6 | 24.3 | 20.9 | 23.5 | 13.7 | 80.0 | 89.5 | 24.1 | 29.1 | 184.5 | 194.1 | 5.2 |
+| 10.jpg | 125.1 | 107.6 | 158.1 | 138.6 | 186.3 | 110.7 | 129.7 | 103.3 | 70.3 | 116.8 | 82.3 | 144.5 | 104.5 | 127.7 | 1472.7 | 102.1 | 144.3 | 167.7 | 233.4 | 170.1 | 137.2 | 143.4 | 796.8 | 905.8 | 193.8 | 179.5 | 1640.5 | 528.7 | -67.8 |
+| 1001.jpg | 244.0 | 189.8 | 296.2 | 240.7 | 301.2 | 187.0 | 212.5 | 196.4 | 136.1 | 181.5 | 158.9 | 202.4 | 156.9 | 200.7 | 2743.9 | 165.2 | 229.0 | 309.2 | 424.5 | 298.9 | 244.2 | 245.8 | 1461.8 | 1727.3 | 352.6 | 380.2 | 3083.6 | 836.8 | -72.9 |
+| 1004.jpg | 252.1 | 332.9 | 288.7 | 859.3 | 295.0 | 501.6 | 214.5 | 221.5 | 139.9 | 187.1 | 153.4 | 207.5 | 160.7 | 206.2 | 2736.4 | 169.6 | 226.8 | 378.2 | 446.4 | 380.3 | 263.0 | 306.3 | 1461.6 | 1934.2 | 373.3 | 439.9 | 3053.1 | 1104.9 | -63.8 |
+| 1005.jpg | 223.6 | 191.6 | 280.2 | 258.2 | 302.2 | 200.4 | 218.4 | 180.6 | 145.9 | 185.4 | 189.1 | 214.2 | 197.4 | 217.5 | 2813.8 | 140.0 | 226.2 | 298.6 | 447.7 | 314.4 | 275.0 | 231.0 | 1501.1 | 1717.3 | 404.1 | 387.5 | 3079.8 | 747.2 | -75.7 |
+| 22.jpg | 68.3 | 67.5 | 77.4 | 96.1 | 89.0 | 59.5 | 63.7 | 50.3 | 48.8 | 73.1 | 45.8 | 64.9 | 53.9 | 72.7 | 804.7 | 46.7 | 82.8 | 104.7 | 123.9 | 99.1 | 76.7 | 84.8 | 331.9 | 364.1 | 122.2 | 120.3 | 777.2 | 294.6 | -62.1 |
+| 242.jpg | 491.0 | 190.9 | 430.6 | 241.2 | 274.7 | 168.0 | 209.9 | 180.2 | 128.8 | 192.8 | 135.7 | 206.7 | 139.6 | 207.6 | 2500.5 | 128.2 | 227.1 | 284.0 | 403.3 | 300.4 | 253.5 | 209.2 | 1388.7 | 1672.3 | 497.3 | 515.5 | 2962.2 | 741.6 | -75.0 |
+| 266.jpg | 18.9 | 31.2 | 23.1 | 21.9 | 29.0 | 18.4 | 19.9 | 15.3 | 11.6 | 16.4 | 12.8 | 19.0 | 12.6 | 16.4 | 216.9 | 29.2 | 18.7 | 29.9 | 36.3 | 24.5 | 22.9 | 20.2 | 68.6 | 81.9 | 28.7 | 33.2 | 201.4 | 205.6 | 2.1 |
+| 275.jpg | 79.8 | 92.3 | 91.8 | 97.3 | 101.1 | 56.5 | 75.2 | 62.2 | 45.4 | 63.3 | 54.3 | 94.1 | 52.8 | 80.3 | 912.4 | 61.6 | 78.9 | 114.4 | 136.7 | 103.7 | 88.4 | 96.1 | 303.5 | 447.4 | 128.1 | 191.1 | 862.1 | 337.6 | -60.8 |
+| 279.jpg | 271.7 | 312.6 | 239.4 | 366.8 | 239.1 | 316.1 | 181.7 | 157.6 | 106.0 | 147.4 | 118.9 | 165.0 | 119.5 | 162.9 | 2202.4 | 95.8 | 193.5 | 237.1 | 326.9 | 263.5 | 222.6 | 213.5 | 1118.1 | 1311.6 | 300.7 | 303.5 | 2482.6 | 672.1 | -72.9 |
+| 281.jpg | 194.8 | 148.8 | 229.9 | 204.8 | 243.2 | 141.1 | 191.8 | 152.6 | 105.0 | 163.6 | 117.1 | 179.7 | 125.9 | 171.2 | 2211.8 | 116.8 | 189.7 | 250.2 | 357.3 | 243.2 | 202.1 | 202.5 | 1032.1 | 1198.2 | 321.7 | 300.5 | 2324.8 | 646.8 | -72.2 |
+| 293.jpg | 283.0 | 172.4 | 295.5 | 236.5 | 291.7 | 164.2 | 215.4 | 191.4 | 125.5 | 204.6 | 142.6 | 217.3 | 136.4 | 192.4 | 2514.2 | 130.1 | 201.5 | 276.6 | 401.7 | 281.6 | 234.7 | 207.7 | 1206.2 | 1460.4 | 327.7 | 367.8 | 2707.6 | 674.8 | -75.1 |
+| 313.jpg | 129.1 | 124.0 | 150.5 | 133.7 | 158.9 | 110.8 | 113.4 | 101.7 | 76.3 | 109.7 | 81.3 | 121.2 | 88.0 | 117.0 | 1528.6 | 71.3 | 171.6 | 157.0 | 286.2 | 161.3 | 132.9 | 141.2 | 692.0 | 828.6 | 190.8 | 186.1 | 1574.1 | 483.1 | -69.3 |
+| 326.jpg | 282.9 | 151.5 | 439.9 | 209.0 | 310.1 | 137.0 | 172.3 | 147.9 | 114.2 | 151.8 | 120.4 | 161.9 | 119.8 | 167.6 | 2377.0 | 112.2 | 185.3 | 264.2 | 344.0 | 242.7 | 220.5 | 179.2 | 1390.4 | 1398.1 | 311.7 | 293.2 | 3060.3 | 623.5 | -79.6 |
+| 447.jpg | 188.3 | 149.0 | 223.3 | 202.0 | 238.7 | 134.0 | 177.1 | 143.5 | 131.3 | 150.0 | 140.0 | 179.8 | 129.9 | 201.5 | 2189.4 | 145.3 | 178.6 | 303.7 | 312.5 | 285.3 | 217.9 | 199.8 | 1145.5 | 1413.4 | 283.6 | 281.1 | 2451.5 | 678.8 | -72.3 |
+| 482.jpg | 114.0 | 101.3 | 128.1 | 130.6 | 145.6 | 81.9 | 116.3 | 95.1 | 70.2 | 99.4 | 70.8 | 110.0 | 71.2 | 110.7 | 1289.4 | 77.2 | 112.3 | 138.4 | 186.4 | 139.5 | 118.3 | 115.8 | 584.7 | 674.5 | 186.3 | 197.5 | 1342.8 | 391.0 | -70.9 |
+| 497.jpg | 115.1 | 113.9 | 155.7 | 147.6 | 142.8 | 98.7 | 112.2 | 87.7 | 66.7 | 96.0 | 73.6 | 106.2 | 73.9 | 107.9 | 1302.9 | 80.4 | 106.5 | 144.8 | 209.8 | 174.5 | 119.7 | 118.4 | 614.4 | 721.2 | 215.3 | 260.5 | 1418.2 | 437.4 | -69.2 |
+| 523.jpg | 102.1 | 99.6 | 141.9 | 122.3 | 142.1 | 83.8 | 103.7 | 97.0 | 68.3 | 88.8 | 69.2 | 96.6 | 75.9 | 102.8 | 1274.9 | 69.4 | 113.3 | 147.3 | 200.1 | 140.9 | 135.5 | 104.8 | 570.5 | 662.5 | 191.8 | 193.7 | 1360.0 | 524.2 | -61.5 |
+| 65.jpg | 189.5 | 170.2 | 238.3 | 254.5 | 287.9 | 145.3 | 320.6 | 170.1 | 124.6 | 194.9 | 128.6 | 233.0 | 126.4 | 245.5 | 2363.7 | 186.1 | 188.7 | 270.5 | 373.5 | 285.3 | 229.8 | 211.1 | 1187.3 | 1537.7 | 320.8 | 323.7 | 2679.1 | 688.4 | -74.3 |
+| 743.jpg | 247.5 | 193.5 | 272.1 | 258.3 | 335.5 | 183.5 | 230.2 | 177.4 | 143.6 | 183.7 | 160.9 | 206.6 | 152.8 | 217.6 | 2807.3 | 180.1 | 229.3 | 319.3 | 403.2 | 328.1 | 282.9 | 234.6 | 1433.9 | 1691.7 | 361.9 | 388.8 | 3094.0 | 726.5 | -76.5 |
+| 988.jpg | 225.1 | 210.3 | 278.2 | 256.1 | 313.3 | 171.3 | 225.7 | 191.7 | 139.2 | 204.6 | 153.2 | 220.3 | 152.8 | 226.3 | 2709.9 | 140.1 | 233.9 | 332.1 | 437.8 | 396.0 | 261.3 | 244.9 | 1440.4 | 1791.9 | 360.6 | 402.8 | 3122.0 | 907.5 | -70.9 |
+| 997.jpg | 222.8 | 191.6 | 263.5 | 285.3 | 312.8 | 218.3 | 232.7 | 225.9 | 145.5 | 188.6 | 150.2 | 205.4 | 145.8 | 227.4 | 2713.5 | 144.3 | 231.5 | 296.0 | 424.6 | 325.3 | 265.8 | 253.2 | 1397.9 | 1678.4 | 418.8 | 378.7 | 3100.8 | 763.4 | -75.4 |
+| Average | 185.7 | 153.1 | 214.6 | 217.2 | 216.4 | 150.0 | 161.5 | 134.7 | 97.8 | 136.9 | 107.7 | 153.1 | 109.4 | 154.2 | 1902.9 | 109.9 | 162.9 | 220.2 | 297.3 | 226.3 | 183.1 | 171.7 | 964.0 | 1150.4 | 268.9 | 279.7 | 2116.5 | 600.4 | -71.6 |
+
 ## Ottimizzazioni delle performance
 
 Le ultime versioni della libreria includono alcune migliorie mirate a ridurre drasticamente i tempi di analisi:
@@ -953,18 +1045,18 @@ Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individua
 
 ## Web app
 
-Il progetto `DocQualityChecker.Web` fornisce una semplice interfaccia Razor Pages per verificare la qualità delle immagini.
+Il progetto `DocQualityChecker.Api` fornisce una semplice interfaccia Razor Pages per verificare la qualità delle immagini insieme agli endpoint API.
 Per avviarla:
 
 ```bash
-dotnet run --project DocQualityChecker.Web/DocQualityChecker.Web.csproj
+dotnet run --project DocQualityChecker.Api/DocQualityChecker.Api.csproj
 ```
 
 L'applicazione consente di caricare un file e mostrare i risultati dei controlli direttamente nel browser.
 
 ## Docker
 
-È disponibile un'immagine Docker che esegue l'applicazione Razor.
+È disponibile un'immagine Docker che esegue l'applicazione con le pagine Razor integrate.
 Per crearla eseguire dalla cartella radice:
 
 ```bash
