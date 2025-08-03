@@ -647,6 +647,33 @@ HasNoise: False
 IsValidDocument: False
 ```
 
+## Valutazione del subset MIDV-500
+
+Per una valutazione preliminare è stato utilizzato un sottoinsieme di 20 immagini del dataset [MIDV-500](https://huggingface.co/datasets/Noaman/midv500). Le annotazioni includono una maschera del documento da cui è stata ricavata la percentuale di area occupata rispetto al frame. Le metriche ottenute da DocQualitySmoke sono riportate nella tabella seguente.
+
+| Metric | PassRate | Mean | Std | Min | Max |
+|---|---|---|---|---|---|
+| IsBlurry | 0.95 |  |  |  |  |
+| HasGlare | 0.35 |  |  |  |  |
+| HasNoise | 1.00 |  |  |  |  |
+| HasLowContrast | 1.00 |  |  |  |  |
+| HasColorDominance | 1.00 |  |  |  |  |
+| !IsWellExposed | 1.00 |  |  |  |  |
+| BlurScore |  | 475.80 | 250.47 | 83.23 | 861.61 |
+| MotionBlurScore |  | 1.05 | 0.07 | 1.00 | 1.30 |
+| GlareArea |  | 6977.25 | 6635.07 | 52.00 | 18497.00 |
+| Exposure |  | 133.46 | 11.28 | 117.72 | 146.28 |
+| Contrast |  | 54.41 | 2.51 | 51.19 | 59.46 |
+| Noise |  | 42.04 | 25.17 | 8.23 | 84.44 |
+| ColorDominance |  | 1.24 | 0.10 | 1.15 | 1.39 |
+| BandingScore |  | 0.38 | 0.15 | 0.27 | 0.80 |
+| BrisqueScore |  | 4.50 | 0.36 | 4.11 | 5.36 |
+| AvgProcessingTimeMs |  | 269.77 |  |  |  |
+| DocumentAreaRatio |  | 0.22 | 0.04 | 0.14 | 0.27 |
+
+Il rapporto tra area del documento e immagine è in media ~22%; considerando un fotogramma da 1920×1080 px ciò corrisponde a circa 4.5×10⁵ px. Il glare copre mediamente 6977 px (circa l'1.6% dell'area del documento).
+
+
 ## Tempi di esecuzione dei controlli
 
 Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciascun controllo su ogni immagine del dataset.
@@ -655,128 +682,130 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 ### 93_HONOR-7X.png
 | Controllo | ms |
 |-----------|---|
-| Brisque | 12.41 |
-| Blur | 3.54 |
-| MotionBlur | 5.17 |
-| Glare | 2.30 |
-| Exposure | 3.20 |
-| Contrast | 3.07 |
-| ColorDominance | 1.41 |
-| Noise | 10.15 |
-| Banding | 2.27 |
-| BlurHeatmap | 12.33 |
-| GlareHeatmap | 8.48 |
-| BlurRegions | 26.77 |
-| GlareRegions | 15.64 |
-| Total | 65.17 |
+| Brisque | 22.09 |
+| Blur | 12.94 |
+| MotionBlur | 17.58 |
+| Glare | 9.33 |
+| Exposure | 5.67 |
+| Contrast | 7.43 |
+| ColorDominance | 7.24 |
+| Noise | 14.29 |
+| Banding | 3.30 |
+| BlurHeatmap | 20.87 |
+| GlareHeatmap | 6.51 |
+| BlurRegions | 16.22 |
+| GlareRegions | 17.07 |
+| Total | 78.46 |
 
 ### blur/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 29.40 |
-| Blur | 16.70 |
-| MotionBlur | 10.96 |
-| Glare | 10.02 |
-| Exposure | 4.34 |
-| Contrast | 4.77 |
-| ColorDominance | 4.25 |
-| Noise | 22.03 |
-| Banding | 6.66 |
-| BlurHeatmap | 13.10 |
-| GlareHeatmap | 52.82 |
-| BlurRegions | 55.70 |
-| GlareRegions | 49.70 |
-| Total | 149.62 |
+| Brisque | 60.69 |
+| Blur | 40.59 |
+| MotionBlur | 61.16 |
+| Glare | 22.00 |
+| Exposure | 8.47 |
+| Contrast | 6.60 |
+| ColorDominance | 6.93 |
+| Noise | 31.07 |
+| Banding | 35.32 |
+| BlurHeatmap | 42.05 |
+| GlareHeatmap | 48.31 |
+| BlurRegions | 113.75 |
+| GlareRegions | 47.04 |
+| Total | 273.97 |
 
 ### blur/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 22.72 |
-| Blur | 36.49 |
-| MotionBlur | 19.31 |
-| Glare | 9.97 |
-| Exposure | 3.64 |
-| Contrast | 4.05 |
-| ColorDominance | 4.30 |
-| Noise | 21.80 |
-| Banding | 6.81 |
-| BlurHeatmap | 37.71 |
-| GlareHeatmap | 31.33 |
-| BlurRegions | 51.72 |
-| GlareRegions | 32.12 |
-| Total | 122.23 |
+| Brisque | 36.66 |
+| Blur | 57.01 |
+| MotionBlur | 39.02 |
+| Glare | 53.86 |
+| Exposure | 14.00 |
+| Contrast | 5.80 |
+| ColorDominance | 6.04 |
+| Noise | 49.57 |
+| Banding | 18.83 |
+| BlurHeatmap | 36.49 |
+| GlareHeatmap | 43.60 |
+| BlurRegions | 151.45 |
+| GlareRegions | 67.53 |
+| Total | 182.05 |
+
 
 ### blur/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 18.92 |
-| Blur | 18.40 |
-| MotionBlur | 18.12 |
-| Glare | 16.08 |
-| Exposure | 9.56 |
-| Contrast | 10.04 |
-| ColorDominance | 10.40 |
-| Noise | 19.11 |
-| Banding | 8.86 |
-| BlurHeatmap | 21.13 |
-| GlareHeatmap | 21.42 |
-| BlurRegions | 41.26 |
-| GlareRegions | 19.86 |
-| Total | 100.50 |
+| Brisque | 37.46 |
+| Blur | 27.14 |
+| MotionBlur | 39.27 |
+| Glare | 28.22 |
+| Exposure | 10.63 |
+| Contrast | 11.09 |
+| ColorDominance | 10.97 |
+| Noise | 45.38 |
+| Banding | 18.33 |
+| BlurHeatmap | 25.37 |
+| GlareHeatmap | 10.78 |
+| BlurRegions | 45.65 |
+| GlareRegions | 14.06 |
+| Total | 113.63 |
 
 ### glare/img1.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.11 |
-| Blur | 2.70 |
-| MotionBlur | 10.24 |
-| Glare | 2.04 |
-| Exposure | 1.62 |
-| Contrast | 2.88 |
-| ColorDominance | 1.69 |
-| Noise | 8.21 |
-| Banding | 2.44 |
-| BlurHeatmap | 3.98 |
-| GlareHeatmap | 2.79 |
-| BlurRegions | 12.72 |
-| GlareRegions | 3.77 |
-| Total | 49.31 |
+| Brisque | 2.87 |
+| Blur | 3.53 |
+| MotionBlur | 3.58 |
+| Glare | 6.24 |
+| Exposure | 4.50 |
+| Contrast | 4.89 |
+| ColorDominance | 4.89 |
+| Noise | 12.08 |
+| Banding | 5.99 |
+| BlurHeatmap | 12.46 |
+| GlareHeatmap | 9.70 |
+| BlurRegions | 25.92 |
+| GlareRegions | 14.76 |
+| Total | 76.14 |
 
 ### glare/img2.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 8.00 |
-| Blur | 7.82 |
-| MotionBlur | 5.08 |
-| Glare | 4.94 |
-| Exposure | 1.62 |
-| Contrast | 8.02 |
-| ColorDominance | 1.79 |
-| Noise | 6.27 |
-| Banding | 2.63 |
-| BlurHeatmap | 5.68 |
-| GlareHeatmap | 2.47 |
-| BlurRegions | 12.17 |
-| GlareRegions | 3.62 |
-| Total | 29.31 |
+| Brisque | 3.31 |
+| Blur | 3.90 |
+| MotionBlur | 3.62 |
+| Glare | 7.38 |
+| Exposure | 2.21 |
+| Contrast | 2.49 |
+| ColorDominance | 2.41 |
+| Noise | 9.22 |
+| Banding | 3.60 |
+| BlurHeatmap | 4.92 |
+| GlareHeatmap | 5.82 |
+| BlurRegions | 21.61 |
+| GlareRegions | 9.79 |
+| Total | 59.36 |
+
 
 ### glare/img3.jpg
 | Controllo | ms |
 |-----------|---|
-| Brisque | 2.30 |
-| Blur | 4.47 |
-| MotionBlur | 4.41 |
-| Glare | 5.55 |
-| Exposure | 3.25 |
-| Contrast | 3.39 |
-| ColorDominance | 3.23 |
-| Noise | 10.08 |
-| Banding | 4.07 |
-| BlurHeatmap | 9.86 |
-| GlareHeatmap | 8.71 |
-| BlurRegions | 25.26 |
-| GlareRegions | 6.94 |
-| Total | 30.78 |
+| Brisque | 2.98 |
+| Blur | 3.84 |
+| MotionBlur | 3.39 |
+| Glare | 2.84 |
+| Exposure | 5.77 |
+| Contrast | 2.48 |
+| ColorDominance | 2.31 |
+| Noise | 7.16 |
+| Banding | 3.54 |
+| BlurHeatmap | 6.09 |
+| GlareHeatmap | 3.38 |
+| BlurRegions | 17.08 |
+| GlareRegions | 4.58 |
+| Total | 46.69 |
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
