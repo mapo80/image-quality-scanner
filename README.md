@@ -187,6 +187,12 @@ python tools/compute_metrics_py.py
 
 # 4) Confronto
 python tools/compare_metrics.py
+
+# 5) Ground-truth (opzionale)
+python tools/generate_synthetic_dataset.py
+~/.dotnet/dotnet run --project DocQualitySmoke -- --sample data/synthetic_sample.txt --outDir reports
+python tools/compute_metrics_py.py --sample data/synthetic_sample.txt --output reports/metrics_per_image_py.csv
+python tools/compare_metrics.py --gt data/synthetic_gt.csv
 ```
 
 Esempio di output:
@@ -197,6 +203,15 @@ Esempio di output:
 | BlurScore | 0.02                      | OK     |
 | Exposure  | 0.01                      | OK     |
 | IsBlurry  | 0.00                      | OK     |
+```
+
+Esecuzione con **ground-truth** sintetico:
+
+```text
+| Metric    | NetMAE/Acc | PyMAE/Acc |
+|-----------|------------|-----------|
+| BlurScore | 138.14     | 0.00      |
+| HasGlare  | 0.90       | 1.00      |
 ```
 
 ### Valutazione qualitativa
