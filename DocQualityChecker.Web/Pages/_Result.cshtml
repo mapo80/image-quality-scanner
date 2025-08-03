@@ -1,0 +1,162 @@
+@model DocQualityChecker.Web.Pages.IndexModel
+<div id="result">
+    <div class="alert alert-info">
+        <h2>Result: @(Model.Result!.IsValidDocument ? "Valid" : "Invalid")</h2>
+    </div>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Brisque</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Score</th><th>Max</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.BrisqueScore.ToString("F2")</td>
+                                <td>@Model.Settings.BrisqueMax</td>
+                                <td>@(Model.Result!.BrisqueScore <= Model.Settings.BrisqueMax ? "Yes" : "No")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Blur</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Score</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.BlurScore.ToString("F2")</td>
+                                <td>@Model.Settings.BlurThreshold</td>
+                                <td>@(Model.Result!.IsBlurry ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Motion blur</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Score</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.MotionBlurScore.ToString("F2")</td>
+                                <td>@Model.Settings.MotionBlurThreshold</td>
+                                <td>@(Model.Result!.HasMotionBlur ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Glare</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Area</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.GlareArea</td>
+                                <td>@Model.Settings.AreaThreshold</td>
+                                <td>@(Model.Result!.HasGlare ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Exposure</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Value</th><th>Min</th><th>Max</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.Exposure.ToString("F2")</td>
+                                <td>@Model.Settings.ExposureMin</td>
+                                <td>@Model.Settings.ExposureMax</td>
+                                <td>@(Model.Result!.IsWellExposed ? "Yes" : "No")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Contrast</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Value</th><th>Min</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.Contrast.ToString("F2")</td>
+                                <td>@Model.Settings.ContrastMin</td>
+                                <td>@(Model.Result!.HasLowContrast ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Color dominance</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.ColorDominance.ToString("F2")</td>
+                                <td>@Model.Settings.DominanceThreshold</td>
+                                <td>@(Model.Result!.HasColorDominance ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Noise</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.Noise.ToString("F2")</td>
+                                <td>@Model.Settings.NoiseThreshold</td>
+                                <td>@(Model.Result!.HasNoise ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Banding</div>
+                <div class="card-body">
+                    <table class="table table-sm mb-0">
+                        <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Result!.BandingScore.ToString("F2")</td>
+                                <td>@Model.Settings.BandingThreshold</td>
+                                <td>@(Model.Result!.HasBanding ? "No" : "Yes")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

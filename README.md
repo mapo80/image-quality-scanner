@@ -942,26 +942,20 @@ Per l'elenco completo delle analisi consultare [docs/images/glare/README_full.md
 
 Durante l'analisi è emerso che le funzioni di calcolo del rumore e di individuazione delle regioni (in particolare `FindBlurRegions`) impiegano la maggior parte del tempo a causa di doppi cicli annidati su tutti i pixel. Inoltre alcune metriche venivano ricalcolate più volte all'interno di `CheckQuality`. Ottimizzando questi passaggi e memorizzando i risultati di `ComputeMotionBlurScore`, `ComputeNoise` e `ComputeBandingScore` il tempo complessivo è stato ridotto di circa il 20‑30 % su entrambe le immagini.
 
-Nella cartella `webapp` è presente un piccolo client React (Vite + Ant Design) scritto in **TypeScript**.
-Per testarlo occorre prima avviare l'API:
+## Web app
+
+Il progetto `DocQualityChecker.Web` fornisce una semplice interfaccia Razor Pages per verificare la qualità delle immagini.
+Per avviarla:
 
 ```bash
-dotnet run --project DocQualityChecker.Api/DocQualityChecker.Api.csproj
+dotnet run --project DocQualityChecker.Web/DocQualityChecker.Web.csproj
 ```
 
-In un secondo terminale:
-
-```bash
-cd webapp
-npm install
-npm run dev
-```
-
-La webapp presuppone che l'API sia raggiungibile su `http://localhost:5274` e consente di caricare un'immagine tramite drag&drop, regolare alcune soglie e inviare la richiesta all'endpoint `/quality/check`. Il risultato viene mostrato a video e, se richiesto, anche le heatmap generate.
+L'applicazione consente di caricare un file e mostrare i risultati dei controlli direttamente nel browser.
 
 ## Docker
 
-È disponibile un'immagine Docker che contiene sia l'API sia la webapp compilata.
+È disponibile un'immagine Docker che esegue l'applicazione Razor.
 Per crearla eseguire dalla cartella radice:
 
 ```bash
@@ -974,44 +968,4 @@ Avvio del container:
 docker run -p 8080:8080 image-quality-scanner
 ```
 
-Sia la webapp che le API saranno raggiungibili su `http://localhost:8080`.
-L'endpoint principale è `POST http://localhost:8080/quality/check`. Con la
-variabile `ASPNETCORE_ENVIRONMENT=Development` è possibile visualizzare la
-documentazione Swagger aprendo `http://localhost:8080/swagger`.
-
-## Test di integrazione con Chrome Headless
-
-L'esecuzione della suite Playwright avvia automaticamente l'API e la webapp.
-Durante i test viene caricato un documento di esempio e i risultati sono
-mostrati nel browser. Lo script registra un video e uno screenshot finale che
-vengono salvati in `webapp/test-results`.
-
-Per rigenerare gli artefatti:
-
-```bash
-bash dotnet-install.sh -InstallDir "$HOME/dotnet" -Version 9.0.303
-cd webapp
-npm install
-npx playwright install --with-deps
-npm test --silent
-```
-
-### Esecuzione con Docker
-
-In alternativa è possibile eseguire la suite sfruttando l'immagine Docker che
-contiene sia l'API che la webapp. Dopo aver costruito e avviato il container con
-la porta `8080` è sufficiente impostare la variabile `USE_DOCKER` per
-Playwright:
-
-```bash
-docker build -t image-quality-scanner .
-docker run -d -p 8080:8080 image-quality-scanner
-USE_DOCKER=true BASE_URL=http://localhost:8080 npm test --silent
-```
-
-Copia quindi la cartella `webapp/test-results` dentro `docs/integration_test_run`
-per aggiornare screenshot e video nel repository.
-
-![Schermata test di integrazione](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/test-finished.png)
-
-[Guarda il video](docs/integration_test_run/integration-Frontend-Backe-d35e7-tion-returns-valid-response/video.webm)
+L'applicazione sarà raggiungibile su `http://localhost:8080`.
