@@ -12,6 +12,7 @@ public class IndexModel : PageModel
     [BindProperty]
     public IFormFile? Image { get; set; }
 
+    [BindProperty]
     public QualitySettings Settings { get; } = new();
 
     public DocumentQualityResult? Result { get; private set; }

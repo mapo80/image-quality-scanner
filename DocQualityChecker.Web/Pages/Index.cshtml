@@ -7,15 +7,123 @@
     <meta charset="utf-8" />
     <title>Document quality analysis</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 </head>
 <body class="bg-light">
 <div class="container py-5">
     <h1 class="mb-4 text-center">Document quality analysis</h1>
     <form method="post" enctype="multipart/form-data" class="mb-5">
+        @{
+            var defaults = new QualitySettings();
+        }
+        <div class="mb-3">
+            <a class="btn btn-link p-0" data-bs-toggle="collapse" href="#defaultThresholds" role="button" aria-expanded="false" aria-controls="defaultThresholds">
+                Show default thresholds
+            </a>
+            <div class="collapse mt-2" id="defaultThresholds">
+                <table class="table table-sm">
+                    <thead>
+                        <tr><th>Check</th><th>Default</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>BRISQUE max</td><td>@defaults.BrisqueMax</td></tr>
+                        <tr><td>Blur threshold</td><td>@defaults.BlurThreshold</td></tr>
+                        <tr><td>Glare brightness</td><td>@defaults.BrightThreshold</td></tr>
+                        <tr><td>Glare area</td><td>@defaults.AreaThreshold</td></tr>
+                        <tr><td>Exposure min</td><td>@defaults.ExposureMin</td></tr>
+                        <tr><td>Exposure max</td><td>@defaults.ExposureMax</td></tr>
+                        <tr><td>Contrast min</td><td>@defaults.ContrastMin</td></tr>
+                        <tr><td>Color dominance</td><td>@defaults.DominanceThreshold</td></tr>
+                        <tr><td>Noise threshold</td><td>@defaults.NoiseThreshold</td></tr>
+                        <tr><td>Motion blur threshold</td><td>@defaults.MotionBlurThreshold</td></tr>
+                        <tr><td>Banding threshold</td><td>@defaults.BandingThreshold</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div class="mb-3">
             <label class="form-label" asp-for="Image">Image</label>
             <input class="form-control" asp-for="Image" type="file" />
             <span class="text-danger" asp-validation-for="Image"></span>
+        </div>
+        <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+            <div class="col">
+                <label asp-for="Settings.BrisqueMax" class="form-label">BRISQUE max
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Maximum acceptable BRISQUE score."></i>
+                </label>
+                <input asp-for="Settings.BrisqueMax" type="range" class="form-range" min="0" max="100" />
+                <span id="Settings_BrisqueMaxValue" class="form-text">@Model.Settings.BrisqueMax</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.BlurThreshold" class="form-label">Blur threshold
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Laplacian variance threshold for blur detection."></i>
+                </label>
+                <input asp-for="Settings.BlurThreshold" type="range" class="form-range" min="0" max="1000" />
+                <span id="Settings_BlurThresholdValue" class="form-text">@Model.Settings.BlurThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.MotionBlurThreshold" class="form-label">Motion blur threshold
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Directional blur ratio threshold."></i>
+                </label>
+                <input asp-for="Settings.MotionBlurThreshold" type="range" class="form-range" min="0" max="10" step="0.1" />
+                <span id="Settings_MotionBlurThresholdValue" class="form-text">@Model.Settings.MotionBlurThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.BrightThreshold" class="form-label">Glare brightness
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Pixel brightness threshold for glare detection."></i>
+                </label>
+                <input asp-for="Settings.BrightThreshold" type="range" class="form-range" min="0" max="255" />
+                <span id="Settings_BrightThresholdValue" class="form-text">@Model.Settings.BrightThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.AreaThreshold" class="form-label">Glare area
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Minimum glare area in pixels."></i>
+                </label>
+                <input asp-for="Settings.AreaThreshold" type="range" class="form-range" min="0" max="10000" />
+                <span id="Settings_AreaThresholdValue" class="form-text">@Model.Settings.AreaThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.ExposureMin" class="form-label">Exposure min
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Minimum acceptable average luminance."></i>
+                </label>
+                <input asp-for="Settings.ExposureMin" type="range" class="form-range" min="0" max="255" />
+                <span id="Settings_ExposureMinValue" class="form-text">@Model.Settings.ExposureMin</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.ExposureMax" class="form-label">Exposure max
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Maximum acceptable average luminance."></i>
+                </label>
+                <input asp-for="Settings.ExposureMax" type="range" class="form-range" min="0" max="255" />
+                <span id="Settings_ExposureMaxValue" class="form-text">@Model.Settings.ExposureMax</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.ContrastMin" class="form-label">Contrast min
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Minimum standard deviation of luminance."></i>
+                </label>
+                <input asp-for="Settings.ContrastMin" type="range" class="form-range" min="0" max="128" />
+                <span id="Settings_ContrastMinValue" class="form-text">@Model.Settings.ContrastMin</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.DominanceThreshold" class="form-label">Color dominance
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Ratio of dominant RGB channel to the average."></i>
+                </label>
+                <input asp-for="Settings.DominanceThreshold" type="range" class="form-range" min="1" max="5" step="0.1" />
+                <span id="Settings_DominanceThresholdValue" class="form-text">@Model.Settings.DominanceThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.NoiseThreshold" class="form-label">Noise threshold
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Maximum acceptable noise level."></i>
+                </label>
+                <input asp-for="Settings.NoiseThreshold" type="range" class="form-range" min="0" max="1000" />
+                <span id="Settings_NoiseThresholdValue" class="form-text">@Model.Settings.NoiseThreshold</span>
+            </div>
+            <div class="col">
+                <label asp-for="Settings.BandingThreshold" class="form-label">Banding threshold
+                    <i class="bi bi-info-circle ms-1" data-bs-toggle="tooltip" title="Maximum banding score."></i>
+                </label>
+                <input asp-for="Settings.BandingThreshold" type="range" class="form-range" min="0" max="10" step="0.1" />
+                <span id="Settings_BandingThresholdValue" class="form-text">@Model.Settings.BandingThreshold</span>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">Analyze</button>
     </form>
@@ -25,5 +133,16 @@
     }
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.querySelectorAll('input[type="range"]').forEach(function (el) {
+        var span = document.getElementById(el.id + 'Value');
+        if (span) {
+            span.innerText = el.value;
+            el.addEventListener('input', function () { span.innerText = el.value; });
+        }
+    });
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) { new bootstrap.Tooltip(tooltipTriggerEl); });
+</script>
 </body>
 </html>

@@ -83,6 +83,15 @@ Se `settings.generateHeatmaps` è impostato a `true` la risposta includerà le
 mappe di calore in formato base64 (`BlurHeatmap` e `GlareHeatmap`) e le
 relative regioni (`BlurRegions`, `GlareRegions`).
 
+## Interfaccia web
+
+Il progetto `DocQualityChecker.Web` mette a disposizione una pagina Razor per
+analizzare le immagini direttamente dal browser. Il form consente di
+personalizzare tutte le soglie dei controlli tramite **slider** e accanto a
+ogni etichetta è presente un'icona con maggiori informazioni sul relativo
+controllo. All'inizio del form è inoltre disponibile una sezione collassabile,
+chiusa di default, che riporta i valori di riferimento predefiniti.
+
 ## Esecuzione dei test
 
 1. Installare lo SDK .NET 9 (se non presente).
