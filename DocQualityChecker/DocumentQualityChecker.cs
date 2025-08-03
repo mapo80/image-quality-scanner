@@ -71,7 +71,7 @@ namespace DocQualityChecker
         public bool HasMotionBlur(SKBitmap image, double threshold, out double score)
         {
             score = ComputeMotionBlurScore(image);
-            return score > threshold;
+            return score > threshold || score < 1.0 / threshold;
         }
 
         /// <summary>
@@ -187,8 +187,20 @@ namespace DocQualityChecker
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
 
-            var intensities = GetIntensityBuffer(image);
-            return ComputeNoise(intensities, image.Width, image.Height);
+            int w = image.Width;
+            int h = image.Height;
+            var pixels = image.Pixels;
+            var gray = new byte[pixels.Length];
+            for (int i = 0; i < pixels.Length; i++)
+                gray[i] = (byte)Intensity(pixels[i]);
+            var blurred = GaussianBlurBytes(gray, w, h);
+            long sum = 0;
+            for (int i = 0; i < gray.Length; i++)
+            {
+                byte diff = (byte)(gray[i] - blurred[i]);
+                sum += diff;
+            }
+            return sum / (double)gray.Length;
         }
 
         public bool HasNoise(SKBitmap image, double threshold, out double noise)
@@ -198,8 +210,7 @@ namespace DocQualityChecker
         }
 
         /// <summary>
-        /// Computes a normalized variance of row/column averages to detect banding.
-        /// Values above 0.5 generally indicate visible stripes.
+        /// Computes variance of row/column averages to detect banding.
         /// </summary>
         public double ComputeBandingScore(SKBitmap image)
         {
@@ -209,44 +220,46 @@ namespace DocQualityChecker
             int h = image.Height;
             var rowMeans = new double[h];
             var colMeans = new double[w];
-            double sum = 0, sumSq = 0;
             var pixels = image.Pixels;
 
             for (int y = 0; y < h; y++)
             {
                 int row = y * w;
+                double rowSum = 0;
                 for (int x = 0; x < w; x++)
                 {
                     double val = Intensity(pixels[row + x]);
-                    rowMeans[y] += val;
+                    rowSum += val;
                     colMeans[x] += val;
-                    sum += val;
-                    sumSq += val * val;
                 }
+                rowMeans[y] = rowSum / w;
             }
 
-            for (int i = 0; i < h; i++) rowMeans[i] /= w;
-            for (int i = 0; i < w; i++) colMeans[i] /= h;
+            for (int x = 0; x < w; x++)
+                colMeans[x] /= h;
 
-            double mean = sum / (w * h);
-            double var = sumSq / (w * h) - mean * mean + 1e-5;
+            double rowAvg = 0;
+            for (int i = 0; i < h; i++) rowAvg += rowMeans[i];
+            rowAvg /= h;
+            double colAvg = 0;
+            for (int i = 0; i < w; i++) colAvg += colMeans[i];
+            colAvg /= w;
 
             double rowVar = 0, colVar = 0;
             for (int i = 0; i < h; i++)
             {
-                double d = rowMeans[i] - mean;
+                double d = rowMeans[i] - rowAvg;
                 rowVar += d * d;
             }
             rowVar /= h;
             for (int i = 0; i < w; i++)
             {
-                double d = colMeans[i] - mean;
+                double d = colMeans[i] - colAvg;
                 colVar += d * d;
             }
             colVar /= w;
 
-            double bandVar = Math.Max(rowVar, colVar);
-            return bandVar / var;
+            return rowVar + colVar;
         }
 
         public bool HasBanding(SKBitmap image, double threshold, out double score)
@@ -293,11 +306,13 @@ namespace DocQualityChecker
         private static double ComputeMotionBlurScore(double[] intensities, int w, int h)
         {
             double sumX = 0, sumY = 0;
+            int count = 0;
             object sync = new object();
 
             Parallel.For(1, h - 1, y =>
             {
                 double localX = 0, localY = 0;
+                int localCount = 0;
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
@@ -309,18 +324,20 @@ namespace DocQualityChecker
 
                     localX += Math.Abs(right - left);
                     localY += Math.Abs(down - up);
+                    localCount++;
                 }
 
                 lock (sync)
                 {
                     sumX += localX;
                     sumY += localY;
+                    count += localCount;
                 }
             });
 
-            double max = Math.Max(sumX, sumY);
-            double min = Math.Min(sumX, sumY) + 1e-5;
-            return max / min;
+            double gradX = sumX / Math.Max(count, 1);
+            double gradY = sumY / Math.Max(count, 1);
+            return Math.Max(gradX, 1.0) / Math.Max(gradY, 1.0);
         }
 
         private static double[] BuildLaplacian(double[] intensities, int w, int h)
@@ -367,100 +384,86 @@ namespace DocQualityChecker
             return FindConnectedComponents(mask, w, h);
         }
 
-        private static double ComputeNoise(double[] intensities, int w, int h)
+        private static byte[] GaussianBlurBytes(byte[] src, int w, int h)
         {
-            // Sample pixels to speed up computation on very large images
-            int step = Math.Max(1, Math.Min(w, h) / 512);
-
-            double sum = 0;
-            int count = 0;
-            object sync = new object();
-
-            Parallel.For(1, h - 1, y =>
+            var dst = new byte[src.Length];
+            int[] kernel = { 1, 2, 1, 2, 4, 2, 1, 2, 1 };
+            for (int y = 0; y < h; y++)
             {
-                if ((y - 1) % step != 0)
-                    return;
-
-                double localSum = 0;
-                int localCount = 0;
                 int row = y * w;
-                for (int x = 1; x < w - 1; x += step)
+                for (int x = 0; x < w; x++)
                 {
-                    int idx = row + x;
-                    double center = intensities[idx];
-
-                    double neighborSum = 0;
+                    int acc = 0;
+                    int k = 0;
                     for (int j = -1; j <= 1; j++)
+                    {
+                        int yy = Math.Clamp(y + j, 0, h - 1);
+                        int r = yy * w;
                         for (int i = -1; i <= 1; i++)
-                            if (i != 0 || j != 0)
-                                neighborSum += intensities[idx + i + j * w];
-
-                    double mean = neighborSum / 8.0;
-                    double diff = center - mean;
-                    localSum += diff * diff;
-                    localCount++;
+                        {
+                            int xx = Math.Clamp(x + i, 0, w - 1);
+                            acc += src[r + xx] * kernel[k++];
+                        }
+                    }
+                    dst[row + x] = (byte)(acc / 16);
                 }
-
-                lock (sync)
-                {
-                    sum += localSum;
-                    count += localCount;
-                }
-            });
-
-            return count > 0 ? sum / count : 0;
+            }
+            return dst;
         }
 
         private static double ComputeBandingScore(double[] intensities, int w, int h)
         {
             var rowMeans = new double[h];
             var colMeans = new double[w];
-            double sum = 0, sumSq = 0;
 
             for (int y = 0; y < h; y++)
             {
                 int row = y * w;
+                double rowSum = 0;
                 for (int x = 0; x < w; x++)
                 {
                     double val = intensities[row + x];
-                    rowMeans[y] += val;
+                    rowSum += val;
                     colMeans[x] += val;
-                    sum += val;
-                    sumSq += val * val;
                 }
+                rowMeans[y] = rowSum / w;
             }
 
-            for (int i = 0; i < h; i++) rowMeans[i] /= w;
-            for (int i = 0; i < w; i++) colMeans[i] /= h;
+            for (int x = 0; x < w; x++)
+                colMeans[x] /= h;
 
-            double mean = sum / (w * h);
-            double var = sumSq / (w * h) - mean * mean + 1e-5;
+            double rowAvg = 0;
+            for (int i = 0; i < h; i++) rowAvg += rowMeans[i];
+            rowAvg /= h;
+            double colAvg = 0;
+            for (int i = 0; i < w; i++) colAvg += colMeans[i];
+            colAvg /= w;
 
             double rowVar = 0, colVar = 0;
             for (int i = 0; i < h; i++)
             {
-                double d = rowMeans[i] - mean;
+                double d = rowMeans[i] - rowAvg;
                 rowVar += d * d;
             }
             rowVar /= h;
             for (int i = 0; i < w; i++)
             {
-                double d = colMeans[i] - mean;
+                double d = colMeans[i] - colAvg;
                 colVar += d * d;
             }
             colVar /= w;
 
-            double bandVar = Math.Max(rowVar, colVar);
-            return bandVar / var;
+            return rowVar + colVar;
         }
 
-        private static bool HasGlare(double[] intensities, int brightThreshold, int areaThreshold, out int glareArea)
+        private static bool HasGlareInternal(SKBitmap image, int brightThreshold, int areaThreshold, out int glareArea)
         {
             int count = 0;
-            foreach (double val in intensities)
+            foreach (var p in image.Pixels)
             {
-                if (val >= brightThreshold)
-                    count++;
+                if (p.Red >= brightThreshold) count++;
+                if (p.Green >= brightThreshold) count++;
+                if (p.Blue >= brightThreshold) count++;
             }
             glareArea = count;
             return glareArea > areaThreshold;
@@ -497,7 +500,7 @@ namespace DocQualityChecker
 
         private static double Intensity(SKColor p)
         {
-            return (p.Red + p.Green + p.Blue) / 3.0;
+            return 0.299 * p.Red + 0.587 * p.Green + 0.114 * p.Blue;
         }
 
         private static double[] GetIntensityBuffer(SKBitmap image, int step = 1)
@@ -535,8 +538,7 @@ namespace DocQualityChecker
         public bool HasGlare(SKBitmap image, int brightThreshold, int areaThreshold, out int glareArea)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
-            var intensities = GetIntensityBuffer(image);
-            return HasGlare(intensities, brightThreshold, areaThreshold, out glareArea);
+            return HasGlareInternal(image, brightThreshold, areaThreshold, out glareArea);
         }
 
         /// <summary>
@@ -625,17 +627,17 @@ namespace DocQualityChecker
             int h = (image.Height + downStep - 1) / downStep;
 
             double motionScore = ComputeMotionBlurScore(intensities, w, h);
-            double noiseScore = ComputeNoise(intensities, w, h);
-            double bandingScore = ComputeBandingScore(intensities, w, h);
+            double noiseScore = ComputeNoise(image);
+            double bandingScore = ComputeBandingScore(image);
 
             var result = new DocumentQualityResult
             {
                 BrisqueScore = ComputeBrisqueScore(intensities),
                 IsBlurry = IsBlurry(intensities, w, h, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
-                HasMotionBlur = motionScore > settings.MotionBlurThreshold,
+                HasMotionBlur = motionScore > settings.MotionBlurThreshold || motionScore < 1.0 / settings.MotionBlurThreshold,
                 MotionBlurScore = motionScore,
-                HasGlare = HasGlare(intensities, settings.BrightThreshold, settings.AreaThreshold, out var area),
+                HasGlare = HasGlare(image, settings.BrightThreshold, settings.AreaThreshold, out var area),
                 GlareArea = area,
                 IsWellExposed = IsWellExposed(image, settings.ExposureMin, settings.ExposureMax, out var exposure),
                 Exposure = exposure,
