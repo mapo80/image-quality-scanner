@@ -287,19 +287,33 @@ namespace DocQualityChecker
 
         private static bool IsBlurry(double[] intensities, int w, int h, double threshold, out double blurScore)
         {
+            double sum = 0;
             double sumSq = 0;
-            for (int y = 1; y < h - 1; y++)
+            object sync = new object();
+
+            Parallel.For(1, h - 1, y =>
             {
+                double localSum = 0;
+                double localSq = 0;
                 int row = y * w;
                 for (int x = 1; x < w - 1; x++)
                 {
                     int idx = row + x;
                     double lap = intensities[idx - w] + intensities[idx - 1] + intensities[idx + 1] + intensities[idx + w] - 4 * intensities[idx];
-                    sumSq += lap * lap;
+                    localSum += lap;
+                    localSq += lap * lap;
                 }
-            }
 
-            blurScore = sumSq / ((w - 2) * (h - 2));
+                lock (sync)
+                {
+                    sum += localSum;
+                    sumSq += localSq;
+                }
+            });
+
+            int count = (w - 2) * (h - 2);
+            double mean = sum / count;
+            blurScore = sumSq / count - mean * mean;
             return blurScore < threshold;
         }
 
