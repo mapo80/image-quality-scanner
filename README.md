@@ -31,214 +31,34 @@ python run_smoke_test.py
 dotnet run --project DocQualitySmoke -- --sample docs/dataset_samples/sample_paths.txt --outDir docs/dataset_samples
 ```
 
-Esempio di output:
-
-```
-shape: (3, 7)
-┌─────────────────────────────────────────┬──────────┬──────────┬──────────┬──────────┬──────────┬──────────────┐
-│ path                                    ┆ BlurScor ┆ IsBlurry ┆ GlareAre ┆ HasGlare ┆ Exposure ┆ IsWellExpose │
-│                                         ┆ e        ┆          ┆ a        ┆          ┆          ┆ d            │
-╞═════════════════════════════════════════╪══════════╪══════════╪══════════╪══════════╪══════════╪══════════════╡
-│ data/midv500/synthetic_00/000.jpg       ┆ 123.4    ┆ false    ┆ 0        ┆ false    ┆ 120.1    ┆ true         │
-│ …                                       ┆ …        ┆ …        ┆ …        ┆ …        ┆ …        ┆ …            │
-└─────────────────────────────────────────┴──────────┴──────────┴──────────┴──────────┴──────────┴──────────────┘
-Aggregated metrics saved to data/smoke_metrics.csv
-```
-
-## Quick .NET smoke-test
-
-```bash
-python tools/download_midv500.py
-dotnet run --project DocQualitySmoke -- --encode
-```
-
-I file `.base64` delle immagini elaborate saranno salvati in `data/encoded_samples/`.
-
-### Metriche campione MIDV-500 (100 immagini)
-
-| Metric              | PassRate | Mean     | Std      | Min    | Max       | Count |
-|:--------------------|:---------|:---------|:---------|:-------|:----------|------:|
-| IsBlurry            | 0.67     |          |          |        |           |   100 |
-| HasGlare            | 0.55     |          |          |        |           |   100 |
-| HasNoise            | 1.00     |          |          |        |           |   100 |
-| HasLowContrast      | 0.76     |          |          |        |           |   100 |
-| HasColorDominance   | 1.00     |          |          |        |           |   100 |
-| !IsWellExposed      | 0.88     |          |          |        |           |   100 |
-| BlurScore           |          | 306.89   | 282.63   | 25.52  | 1127.47   |   100 |
-| MotionBlurScore     |          | 1.17     | 0.25     | 1.00   | 2.51      |   100 |
-| GlareArea           |          | 14800.45 | 31764.28 | 0.00   | 108543.00 |   100 |
-| Exposure            |          | 132.74   | 28.51    | 69.52  | 174.98    |   100 |
-| Contrast            |          | 49.76    | 20.43    | 21.95  | 90.74     |   100 |
-| Noise               |          | 29.24    | 26.23    | 2.49   | 99.19     |   100 |
-| ColorDominance      |          | 1.19     | 0.14     | 1.00   | 1.46      |   100 |
-| BandingScore        |          | 0.52     | 0.18     | 0.25   | 0.85      |   100 |
-| BrisqueScore        |          | 4.45     | 3.47     | 0.77   | 12.62     |   100 |
-| AvgProcessingTimeMs |          | 229.64   | 32.55    | 152.93 | 512.34    |   100 |
-
-
-
-## Controlli di qualità
-La classe `DocumentQualityChecker` esegue diversi controlli sull'immagine:
-
-### BrisqueScore
-Il BRISQUE (Blind/Referenceless Image Spatial Quality Evaluator) è un indice di qualità senza riferimento. In questa implementazione semplificata il punteggio è calcolato dalla varianza dei livelli di intensità e viene normalizzato tra 0 (immagine ideale) e 100 (scarsa qualità). Il valore ottimale è **inferiore a 50** (impostazione `BrisqueMax`).
-
-### IsBlurry
-Verifica la nitidezza calcolando la varianza del filtro Laplaciano. Restituisce un punteggio numerico e un booleano. Valori maggiori di **100** indicano un'immagine nitida; valori inferiori la rendono sfocata (`BlurThreshold`).
-
-### HasGlare
-Conta i pixel con intensità oltre **240** e verifica che l'area sia minore di **500** pixel. Se l'area luminosa supera la soglia (`AreaThreshold`) l'immagine contiene riflessi.
-
-### Esposizione
-Calcola la luminanza media usando la formula `0.299R + 0.587G + 0.114B` e verifica che sia compresa tra `ExposureMin` e `ExposureMax` (80-180 di default).
-
-### Contrasto
-Analizza la deviazione standard della luminanza. Valori inferiori a `ContrastMin` (30) indicano un contrasto insufficiente.
-
-### Dominanza colore
-Verifica se un canale RGB domina sugli altri calcolando il rapporto tra il canale più elevato e la media. Se il rapporto supera `DominanceThreshold` (1.5) l'immagine presenta una dominante.
-
-### Rumore
-Stima il rumore confrontando ogni pixel con la media dei vicini. Se il valore supera `NoiseThreshold` (20) il disturbo è considerato eccessivo.
-
-### Motion blur
-Calcola il rapporto tra le variazioni orizzontali e verticali dei pixel. Valori molto distanti da 1 indicano una sfocatura dovuta al movimento (`MotionBlurThreshold`).
-
-### Bande orizzontali/verticali
-Misura la varianza delle medie di righe e colonne per rilevare la presenza di bande uniformi. Un punteggio elevato (oltre `BandingThreshold`) segnala possibili difetti di scansione.
-
-### CheckQuality
-Combina i controlli precedenti usando le soglie definite in `QualitySettings` e restituisce un `DocumentQualityResult` con tutti i valori ottenuti.
-
-Le soglie sono configurabili tramite l'oggetto `QualitySettings`. Impostando `GenerateHeatmaps` a `true` è inoltre possibile ottenere due bitmap (`BlurHeatmap` e `GlareHeatmap`) che evidenziano rispettivamente le zone sfocate e quelle colpite da riflessi. Nello stesso modo vengono calcolate anche le coordinate di tali aree tramite le liste `BlurRegions` e `GlareRegions` restituite nel `DocumentQualityResult`.
-
-## Parametri configurabili
-La classe `QualitySettings` consente di personalizzare le soglie utilizzate nei vari controlli. Nella tabella seguente sono riportati tutti i parametri disponibili, con i valori di default e alcune indicazioni su come regolarli a seconda delle esigenze:
-
-| Proprietà | Descrizione | Valore predefinito | Note sull'utilizzo |
-|-----------|-------------|--------------------|--------------------|
-| `BrisqueMax` | Valore massimo accettabile del punteggio BRISQUE. | `50.0` | Ridurre il valore per richiedere una qualità più elevata, aumentarlo per essere meno restrittivi. |
-| `BlurThreshold` | Soglia sulla varianza del Laplaciano sotto la quale l'immagine è considerata sfocata. | `100.0` | Se le immagini risultano troppo frequentemente "blurry" è possibile abbassare la soglia. |
-| `BrightThreshold` | Intensità (0-255) oltre la quale un pixel è considerato riflesso. | `240` | Valori più alti evitano falsi positivi in condizioni luminose. |
-| `AreaThreshold` | Numero minimo di pixel luminosi per dichiarare la presenza di glare. | `500` | Diminuire se si vogliono individuare anche riflessi di piccole dimensioni. |
-| `ExposureMin` | Luminanza media minima accettabile. | `80.0` | Aumentare se le immagini tendono ad essere troppo scure. |
-| `ExposureMax` | Luminanza media massima accettabile. | `180.0` | Ridurre se le immagini sono spesso sovraesposte. |
-| `ContrastMin` | Deviazione standard minima della luminanza per considerare sufficiente il contrasto. | `30.0` | Alzare la soglia richiede un contrasto maggiore. |
-| `DominanceThreshold` | Rapporto massimo tra il canale dominante e la media degli altri due. | `1.5` | Ridurre se è necessario rilevare anche dominanti cromatiche leggere. |
-| `NoiseThreshold` | Livello massimo di rumore ammesso. | `500.0` | Diminuire per ottenere immagini molto pulite, aumentare se il rumore non è un problema. |
-| `MotionBlurThreshold` | Rapporto massimo tra gradienti orizzontali e verticali prima di considerare il movimento. | `3.0` | Valori più bassi rendono il controllo più severo. |
-| `BandingThreshold` | Soglia sul rapporto di varianza delle righe/colonne per individuare bande. | `0.5` | Aumentare se si vogliono rilevare solo bande marcate. |
-| `GenerateHeatmaps` | Se `true` produce le mappe di calore e le coordinate delle aree problematiche. | `false` | Utile in fase di debug o per applicazioni che devono mostrare i punti da correggere. |
-
-## API REST
-
-Il progetto `DocQualityChecker.Api` espone un endpoint `POST /quality/check` per
-eseguire i controlli via HTTP. L'input è un form con i campi:
-
-- `image` (file) immagine da analizzare
-- `pdf` (file, opzionale) documento PDF da cui estrarre le pagine
-- `pageIndex` (opzionale) indice della pagina PDF da elaborare. Se omesso sono
-  processate tutte le pagine
-- `checks` (opzionale) lista di controlli da eseguire
-- `settings` (opzionale) oggetto `QualitySettings` per personalizzare le soglie
-
-Quando viene caricato un file PDF l'endpoint restituisce un array di risultati,
-uno per ciascuna pagina elaborata.
-
-Se `settings.generateHeatmaps` è impostato a `true` la risposta includerà le
-mappe di calore in formato base64 (`BlurHeatmap` e `GlareHeatmap`) e le
-relative regioni (`BlurRegions`, `GlareRegions`).
-
-## Interfaccia web
-
-Il progetto `DocQualityChecker.Api` include una pagina Razor per
-analizzare le immagini direttamente dal browser. Il form consente di
-personalizzare tutte le soglie dei controlli tramite **slider** e accanto a
-ogni etichetta è presente un'icona con maggiori informazioni sul relativo
-controllo. All'inizio del form è inoltre disponibile una sezione collassabile,
-chiusa di default, che riporta i valori di riferimento predefiniti.
-
-## Esecuzione dei test
-
-1. Installare lo SDK .NET 9 (se non presente).
-2. Dalla cartella del progetto eseguire:
-
-```bash
-dotnet test DocQualityChecker.Tests/DocQualityChecker.Tests.csproj -c Release
-```
-
-I test creeranno alcune immagini di prova e verificheranno le funzioni di blur, glare, esposizione, contrasto, dominante colore e rumore.
-
-## Verifica corrispondenza .NET vs Python
-
-Per assicurarsi che l'implementazione Python produca gli stessi risultati di quella .NET è disponibile una piccola pipeline di verifica.
-
-```bash
-# 1) Dataset & sample
-python tools/download_midv500.py
-
-# 2) .NET metrics
-dotnet build DocQualityChecker -c Release
-dotnet run --project DocQualitySmoke
-
-# 3) Python metrics
-pip install -r requirements.txt
-python tools/compute_metrics_py.py
-
-# 4) Confronto
-python tools/compare_metrics.py
-
-# 5) Ground-truth (opzionale)
-python tools/generate_synthetic_dataset.py
-~/.dotnet/dotnet run --project DocQualitySmoke -- --sample data/synthetic_sample.txt --outDir reports
-python tools/compute_metrics_py.py --sample data/synthetic_sample.txt --output reports/metrics_per_image_py.csv
-python tools/compare_metrics.py --gt data/synthetic_gt.csv
-```
-
-Esempio di output:
+Esempio di output su **150 frame MIDV-500**:
 
 ```text
-| Metric    | MeanRelError/DisagreeRate | Status |
-|-----------|---------------------------|--------|
-| BlurScore | 0.02                      | OK     |
-| Exposure  | 0.01                      | OK     |
-| IsBlurry  | 0.00                      | OK     |
+| Metric         | MeanRelError | Status |
+|----------------|--------------|--------|
+| BlurScore      | 0.8152       | FAIL   |
+| Noise          | 0.5079       | FAIL   |
+| IsBlurry       | 0.6133       | FAIL   |
+| HasNoise       | 0.2933       | FAIL   |
+| MotionBlurScore| 0.0381       | OK     |
+| GlareArea      | 0.1016       | FAIL   |
+| ElapsedMs      | 0.2058       | FAIL   |
 ```
 
-Esecuzione con **ground-truth** sintetico:
-
-```text
-| Metric    | NetMAE/Acc | PyMAE/Acc |
-|-----------|------------|-----------|
-| BlurScore | 138.14     | 0.00      |
-| HasGlare  | 0.90       | 1.00      |
-```
-
-### Confronto sul dataset sintetico
-
-Il confronto sulle 10 immagini generate artificialmente mette in luce notevoli discrepanze dell'implementazione .NET rispetto a Python:
-
-| Metric          | MeanRelError | Status |
-|-----------------|--------------|--------|
-| MotionBlurScore | 0.80         | FAIL   |
-| GlareArea       | 0.27         | FAIL   |
-| Contrast        | 0.60         | FAIL   |
-| Noise           | 0.18         | FAIL   |
-| BandingScore    | 0.30         | FAIL   |
-| ElapsedMs       | 0.21         | FAIL   |
-| HasNoise        | 0.20         | FAIL   |
-
-Il ground-truth conferma scarti elevati della pipeline .NET, in particolare per *MotionBlurScore* (MAE ≈5.08e9) e *GlareArea* (MAE ≈7770), mentre l'implementazione Python coincide con i valori attesi in tutte le metriche.
+La media dei tempi di elaborazione per immagine è di **363 ms** per .NET
+contro **288 ms** per Python.
 
 ### Valutazione qualitativa
 
-Sul campione di 150 fotogrammi le due implementazioni risultano quasi
-identiche per esposizione, contrasto, dominanza del colore e corretta
-esposizione. Persistono invece scostamenti rilevanti su blur, motion blur,
-riflessi, rumore, banding e tempi di elaborazione, con tassi di disaccordo
-superiori al 25 % per i relativi flag. Ciò suggerisce che l'algoritmo Python
-necessiti di ulteriori ottimizzazioni per allinearsi alla versione .NET.
-
+Sul campione MIDV-500, .NET e Python concordano su esposizione, contrasto,
+dominanza di colore e correttezza dell'esposizione. I controlli su blur e
+rumore mostrano invece scarti notevoli: gli score di sfocatura differiscono
+in media dell’81 % e il flag *IsBlurry* non coincide nel 61 % dei casi.
+Anche l’individuazione del rumore risulta divergente (errore relativo ~51 %,
+disaccordo del 29 %). Il calcolo delle aree di riflesso è appena oltre la
+soglia del 10 %, mentre le metriche di motion blur restano allineate.
+Python risulta mediamente più rapido (≈ 288 ms) rispetto alla pipeline
+.NET (≈ 363 ms) sull’hardware in uso.
 
 ## Esempi di output dei test
 
@@ -882,23 +702,23 @@ Di seguito sono riportati i tempi medi di esecuzione (in millisecondi) per ciasc
 
 | Immagine | Tempo totale (ms) |
 |----------|------------------|
-| 93_HONOR-7X.png | 38.43 |
-| blur/img1.jpg | 290.24 |
-| blur/img2.jpg | 85.76 |
-| blur/img3.jpg | 120.80 |
-| glare/img1.jpg | 55.36 |
-| glare/img2.jpg | 31.43 |
-| glare/img3.jpg | 41.74 |
+| 93_HONOR-7X.png | 56.32 |
+| blur/img1.jpg | 285.74 |
+| blur/img2.jpg | 69.77 |
+| blur/img3.jpg | 106.06 |
+| glare/img1.jpg | 27.07 |
+| glare/img2.jpg | 21.43 |
+| glare/img3.jpg | 38.39 |
 
 | Immagine | Prima (ms) | Dopo (ms) | Riduzione % |
 |----------|-----------|----------|-------------|
-| 93_HONOR-7X.png | 497.05 | 38.43 | 92.27 |
-| blur/img1.jpg | 485.03 | 290.24 | 40.16 |
-| blur/img2.jpg | 464.82 | 85.76 | 81.55 |
-| blur/img3.jpg | 480.09 | 120.80 | 74.84 |
-| glare/img1.jpg | 205.37 | 55.36 | 73.04 |
-| glare/img2.jpg | 203.91 | 31.43 | 84.58 |
-| glare/img3.jpg | 206.94 | 41.74 | 79.83 |
+| 93_HONOR-7X.png | 497.05 | 56.32 | 88.67 |
+| blur/img1.jpg | 485.03 | 285.74 | 41.09 |
+| blur/img2.jpg | 464.82 | 69.77 | 84.99 |
+| blur/img3.jpg | 480.09 | 106.06 | 77.92 |
+| glare/img1.jpg | 205.37 | 27.07 | 86.82 |
+| glare/img2.jpg | 203.91 | 21.43 | 89.49 |
+| glare/img3.jpg | 206.94 | 38.39 | 81.45 |
 
 | Immagine | BrisqueScore pre | BrisqueScore post | BlurScore pre | BlurScore post | GlareArea pre | GlareArea post | Exposure pre | Exposure post | Contrast pre | Contrast post |
 |------|------|------|------|------|------|------|------|------|------|------|
