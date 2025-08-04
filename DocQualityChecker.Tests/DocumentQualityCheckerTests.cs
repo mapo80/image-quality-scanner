@@ -27,7 +27,12 @@ namespace DocQualityChecker.Tests
         {
             using var img = CreateBaseImage();
             var checker = CreateChecker();
-            var settings = new QualitySettings { BandingThreshold = double.MaxValue, NoiseThreshold = 200.0 };
+            var settings = new QualitySettings
+            {
+                BandingThreshold = double.MaxValue,
+                NoiseThreshold = 200.0,
+                BrisqueMax = double.MaxValue,
+            };
             var result = checker.CheckQuality(img, settings);
             Assert.False(result.IsBlurry);
             Assert.False(result.HasGlare);

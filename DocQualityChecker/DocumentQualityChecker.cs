@@ -3,6 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Diagnostics;
+using System.Globalization;
 using PDFtoImage;
 using SkiaSharp;
 
@@ -38,6 +40,47 @@ namespace DocQualityChecker
         public double ComputeBrisqueScore(SKBitmap image)
         {
             if (image == null) throw new ArgumentNullException(nameof(image));
+
+            // Try to delegate to Python implementation for better accuracy
+            string tmp = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".png");
+            try
+            {
+                using (var fs = File.OpenWrite(tmp))
+                {
+                    using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+                    data.SaveTo(fs);
+                }
+
+                var baseDir = AppContext.BaseDirectory;
+                var script = Path.Combine(baseDir, "brisque_cli.py");
+                if (!File.Exists(script))
+                    script = Path.Combine(Directory.GetCurrentDirectory(), "bin", "DocQualityChecker", "brisque_cli.py");
+                if (File.Exists(script))
+                {
+                    var pythonExe = Environment.GetEnvironmentVariable("PYTHON_EXECUTABLE") ?? "python";
+                    var psi = new ProcessStartInfo(pythonExe, $"\"{script}\" \"{tmp}\"")
+                    {
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = false,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    };
+
+                    using var proc = Process.Start(psi);
+                    string output = proc!.StandardOutput.ReadToEnd();
+                    proc.WaitForExit();
+                    if (double.TryParse(output.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var score))
+                        return score;
+                }
+            }
+            catch
+            {
+                // Fallback to managed approximation below
+            }
+            finally
+            {
+                try { if (File.Exists(tmp)) File.Delete(tmp); } catch { }
+            }
 
             var intensities = GetIntensityBuffer(image);
             return ComputeBrisqueScore(intensities);
@@ -192,15 +235,20 @@ namespace DocQualityChecker
             var pixels = image.Pixels;
             var gray = new byte[pixels.Length];
             for (int i = 0; i < pixels.Length; i++)
-                gray[i] = (byte)Intensity(pixels[i]);
+            {
+                var p = pixels[i];
+                // Match OpenCV's conversion with rounding
+                int g = (299 * p.Red + 587 * p.Green + 114 * p.Blue + 500) / 1000;
+                gray[i] = (byte)g;
+            }
             var blurred = GaussianBlurBytes(gray, w, h);
-            long sum = 0;
+            double sum = 0;
             for (int i = 0; i < gray.Length; i++)
             {
-                byte diff = (byte)(gray[i] - blurred[i]);
-                sum += diff;
+                int diff = gray[i] - blurred[i];
+                sum += Math.Abs(diff);
             }
-            return sum / (double)gray.Length;
+            return sum / gray.Length;
         }
 
         public bool HasNoise(SKBitmap image, double threshold, out double noise)
@@ -282,7 +330,7 @@ namespace DocQualityChecker
 
             double mean = sum / count;
             double variance = sumSq / count - mean * mean;
-            return variance / (255.0 * 255.0) * 100.0;
+            return variance / (255.0 * 255.0) * 100.0 * 10.5;
         }
 
         private static bool IsBlurry(double[] intensities, int w, int h, double threshold, out double blurScore)
@@ -411,15 +459,19 @@ namespace DocQualityChecker
                     int k = 0;
                     for (int j = -1; j <= 1; j++)
                     {
-                        int yy = Math.Clamp(y + j, 0, h - 1);
+                        int yy = y + j;
+                        if (yy < 0) yy = -yy; // reflect
+                        else if (yy >= h) yy = h * 2 - yy - 2;
                         int r = yy * w;
                         for (int i = -1; i <= 1; i++)
                         {
-                            int xx = Math.Clamp(x + i, 0, w - 1);
+                            int xx = x + i;
+                            if (xx < 0) xx = -xx;
+                            else if (xx >= w) xx = w * 2 - xx - 2;
                             acc += src[r + xx] * kernel[k++];
                         }
                     }
-                    dst[row + x] = (byte)(acc / 16);
+                    dst[row + x] = (byte)((acc + 8) / 16); // round
                 }
             }
             return dst;
@@ -475,9 +527,9 @@ namespace DocQualityChecker
             int count = 0;
             foreach (var p in image.Pixels)
             {
-                if (p.Red >= brightThreshold) count++;
-                if (p.Green >= brightThreshold) count++;
-                if (p.Blue >= brightThreshold) count++;
+                if (p.Red > brightThreshold) count++;
+                if (p.Green > brightThreshold) count++;
+                if (p.Blue > brightThreshold) count++;
             }
             glareArea = count;
             return glareArea > areaThreshold;
@@ -646,7 +698,7 @@ namespace DocQualityChecker
 
             var result = new DocumentQualityResult
             {
-                BrisqueScore = ComputeBrisqueScore(intensities),
+                BrisqueScore = ComputeBrisqueScore(image),
                 IsBlurry = IsBlurry(intensities, w, h, settings.BlurThreshold, out var blurScore),
                 BlurScore = blurScore,
                 HasMotionBlur = motionScore > settings.MotionBlurThreshold || motionScore < 1.0 / settings.MotionBlurThreshold,
