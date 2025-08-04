@@ -319,6 +319,27 @@ Applicazione disponibile su [**http://localhost:8080**](http://localhost:8080).
 
 ---
 
-## 14. Licenza
+## 14. Confronto MIDV-500
+
+| Metric / Flag | Python (μ) | .NET (μ) | Δ% (medio) |
+| --- | --- | --- | --- |
+| BlurScore | 61.545 | 358.454 | 81.88% |
+| MotionBlurScore | 0.884 | 0.874 | 3.24% |
+| GlareArea | 137107.350 | 144059.060 | 7.67% |
+| Exposure | 125.548 | 125.539 | 0.01% |
+| Contrast | 52.825 | 52.823 | 0.01% |
+| Noise | 51.023 | 26.402 | 50.19% |
+| ColorDominance | 1.219 | 1.219 | 0.00% |
+| BandingScore | 1641.232 | 1641.035 | 0.03% |
+| BrisqueScore | nan | 4.442 | nan% |
+| IsBlurry | 0.720 | 0.170 | 55.00% |
+| HasGlare | 1.000 | 1.000 | 0.00% |
+| IsWellExposed | 0.850 | 0.850 | 0.00% |
+| HasLowContrast | 0.000 | 0.000 | 0.00% |
+| HasNoise | 1.000 | 0.680 | 32.00% |
+| HasColorDominance | 0.000 | 0.000 | 0.00% |
+| HasBanding | 1.000 | 1.000 | 0.00% |
+
+## 15. Licenza
 
 Da specificare.
