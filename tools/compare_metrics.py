@@ -25,6 +25,7 @@ NUM_METRICS = [
     "ColorDominance",
     "BandingScore",
     "BrisqueScore",
+    "ElapsedMs",
 ]
 
 

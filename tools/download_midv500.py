@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 from tqdm import tqdm
 from huggingface_hub import snapshot_download
+import pandas as pd
 
 
 def _generate_synthetic(root: Path, total: int = 50, videos: int = 10) -> None:
@@ -35,26 +36,56 @@ def main() -> None:
             token=token,
         )
 
+    def _extract_parquets() -> list[Path]:
+        data_dir = dataset_root / "data"
+        parquets = sorted(data_dir.glob("*.parquet"))
+        if not parquets:
+            return []
+        out_dir = dataset_root / "hf_frames"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        saved: list[Path] = []
+        for pq in parquets:
+            if len(saved) >= sample_size:
+                break
+            df = pd.read_parquet(pq)
+            for _, row in df.iterrows():
+                if len(saved) >= sample_size:
+                    break
+                img_bytes = row["pixel_values"]["bytes"]
+                arr = np.frombuffer(img_bytes, dtype=np.uint8)
+                img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                if img is None:
+                    continue
+                path = out_dir / f"{len(saved):06d}.jpg"
+                cv2.imwrite(str(path), img)
+                saved.append(path)
+        return saved
+
+    sample_size = int(os.environ.get("SAMPLE_SIZE", "50"))
+
     if not any(dataset_root.iterdir()):
         try:
             _download_hf()
         except Exception as hf_exc:  # pragma: no cover - network dependent
             print(f"huggingface download failed: {hf_exc}")
-            try:
-                midv500.download_dataset(str(dataset_root))
-            except Exception as exc:  # pragma: no cover - network dependent
-                print(f"dataset download failed: {exc}. generating synthetic sample")
-                _generate_synthetic(dataset_root)
-
     image_paths = list(dataset_root.rglob("*.jpg")) + list(dataset_root.rglob("*.png"))
     if not image_paths:
+        extracted = _extract_parquets()
+        image_paths = extracted
+    if not image_paths:
+        print("no frames found after download, fetching via midv500 package")
+        try:
+            midv500.download_dataset(str(dataset_root))
+        except Exception as exc:  # pragma: no cover - network dependent
+            print(f"dataset download failed: {exc}. generating synthetic sample")
+            _generate_synthetic(dataset_root, total=sample_size)
+        image_paths = list(dataset_root.rglob("*.jpg")) + list(dataset_root.rglob("*.png"))
+    if not image_paths:
         print("no frames found, creating synthetic dataset")
-        _generate_synthetic(dataset_root)
+        _generate_synthetic(dataset_root, total=sample_size)
         image_paths = list(dataset_root.rglob("*.jpg")) + list(dataset_root.rglob("*.png"))
     if not image_paths:
         raise SystemExit("No image frames found in dataset or synthetic set")
-
-    sample_size = int(os.environ.get("SAMPLE_SIZE", "50"))
     random.seed(42)
 
     video_dirs = {p.parent for p in image_paths}
