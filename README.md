@@ -340,6 +340,27 @@ Applicazione disponibile su [**http://localhost:8080**](http://localhost:8080).
 | HasColorDominance | 0.000 | 0.000 | 0.00% |
 | HasBanding | 1.000 | 1.000 | 0.00% |
 
-## 15. Licenza
+## 15. Confronto GoPro_Large (test)
+
+| Metric / Flag | Python (μ) | .NET (μ) | Δ% (medio) |
+| --- | --- | --- | --- |
+| BlurScore | 72.885 | 71.404 | 4.01% |
+| MotionBlurScore | 0.843 | 0.850 | 1.74% |
+| GlareArea | 67495.900 | 67495.900 | 0.00% |
+| Exposure | 116.228 | 116.228 | 0.01% |
+| Contrast | 53.512 | 53.510 | 0.01% |
+| Noise | 0.857 | 0.857 | 0.00% |
+| ColorDominance | 1.043 | 1.043 | 0.00% |
+| BandingScore | 1146.766 | 1146.685 | 0.02% |
+| BrisqueScore | 49.374 | 49.374 | 0.00% |
+| IsBlurry | 0.880 | 0.880 | 0.00% |
+| HasGlare | 1.000 | 1.000 | 0.00% |
+| IsWellExposed | 1.000 | 1.000 | 0.00% |
+| HasLowContrast | 0.000 | 0.000 | 0.00% |
+| HasNoise | 0.000 | 0.000 | 0.00% |
+| HasColorDominance | 0.000 | 0.000 | 0.00% |
+| HasBanding | 1.000 | 1.000 | 0.00% |
+
+## 16. Licenza
 
 Da specificare.

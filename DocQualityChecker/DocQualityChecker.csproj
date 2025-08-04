@@ -13,4 +13,8 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="brisque_cli.py" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

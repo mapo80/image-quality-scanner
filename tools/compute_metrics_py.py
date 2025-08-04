@@ -10,9 +10,9 @@ import pandas as pd
 from tqdm import tqdm
 
 try:
-    from imquality import brisque
+    from brisque import BRISQUE
 except Exception:  # pragma: no cover - library may be missing
-    brisque = None
+    BRISQUE = None
 
 
 BOOL_METRICS = [
@@ -64,7 +64,8 @@ def compute_metrics(image_path: str) -> dict:
     contrast = float(np.std(gray))
     has_low_contrast = contrast < 30
 
-    noise = float(np.mean(np.abs(gray - cv2.GaussianBlur(gray, (3, 3), 0))))
+    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
+    noise = float(np.mean(cv2.absdiff(gray, blurred)))
     has_noise = noise > 20
 
     mean_b = np.mean(img[:, :, 0])
@@ -78,9 +79,10 @@ def compute_metrics(image_path: str) -> dict:
     mean_cols = np.mean(gray, axis=0)
     banding_score = float(np.var(mean_rows) + np.var(mean_cols))
 
-    if brisque is not None:
+    if BRISQUE is not None:
         try:
-            brisque_score = float(brisque.score(img))
+            rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            brisque_score = float(BRISQUE().score(rgb))
         except Exception:
             brisque_score = math.nan
     else:
@@ -140,7 +142,7 @@ def main():
     os.makedirs(os.path.dirname(args.output), exist_ok=True)
     df.to_csv(args.output, index=False)
 
-    if brisque is None:
+    if BRISQUE is None:
         print("Warning: BRISQUE not available, values set to NaN")
 
 
