@@ -1,6 +1,6 @@
 # Image Quality Scanner
 
-> **Libreria cross‑platform per l’analisi della qualità di immagini di documenti**\
+> **Libreria cross‑platform per l’analisi della qualità di immagini di documenti**
 > Implementazioni in **.NET 9 (SkiaSharp)** e **Python 3 (pythonnet)** con supporto PDF via [PDFtoImage](https://www.nuget.org/packages/PDFtoImage).
 
 ---
@@ -15,8 +15,8 @@ QualityResult CheckQuality(Stream imageOrPdf,
                           int? pageIndex = null);
 ```
 
-- Se `pageIndex` è `null` vengono processate **tutte** le pagine.
-- L’oggetto `QualityResult` espone punteggi numerici, flag booleani, heat‑map opzionali e statistiche di tempo.
+* Se `pageIndex` è `null` vengono processate **tutte** le pagine.
+* L’oggetto `QualityResult` espone punteggi numerici, flag booleani, heat‑map opzionali e statistiche di tempo.
 
 ---
 
@@ -114,7 +114,7 @@ Tempo medio: **288 ms (Python)** vs **363 ms (.NET)**.
 | **HasBanding**        | Flag banding                                                    | Derivato               |
 | **BrisqueScore**      | Modello BRISQUE no‑reference                                    | `> 40` ⇒ qualità bassa |
 
-*Le soglie sono interamente configurabili tramite **`QualitySettings`**.*
+*Le soglie sono interamente configurabili tramite **\`\`**.*
 
 ### 5.1 Metriche essenziali & risultati acquisiti (MIDV‑500, 20 immagini)
 
@@ -143,16 +143,94 @@ Tempo medio: **288 ms (Python)** vs **363 ms (.NET)**.
 | MotionBlurScore             | 3,8 %        | —        | Allineate entro ±5 %           |
 | GlareArea                   | 10 %         | —        | Metodo clustering identico     |
 
-> **Da allineare**\
-> 1. Kernel e sigma del filtro Gaussiano per `BlurScore`.\
-> 2. Soglie `IsBlurry` e `HasNoise`.\
+> **Da allineare**
+> 1. Kernel e sigma del filtro Gaussiano per `BlurScore`.
+> 2. Soglie `IsBlurry` e `HasNoise`.
 > 3. Strategia di campionamento in `ComputeNoise` (full‑frame vs patch‑sampling).
 
 ---
 
 ## 7. Dataset & Benchmark
 
-*(Sezione invariata – vedi dettagli nel canvas originale)*
+### 7.1 Subset MIDV‑500 (20 immagini)
+
+| Metric                     | Pass‑rate | Mean     | Std      | Min    | Max    |
+| -------------------------- | --------- | -------- | -------- | ------ | ------ |
+| **IsBlurry**               | 0.95      | —        | —        | —      | —      |
+| **HasGlare**               | 0.35      | —        | —        | —      | —      |
+| **HasNoise**               | 1.00      | —        | —        | —      | —      |
+| **HasLowContrast**         | 1.00      | —        | —        | —      | —      |
+| **BlurScore**              | —         | 475.80   | 250.47   | 83.23  | 861.61 |
+| **MotionBlurScore**        | —         | 1.05     | 0.07     | 1.00   | 1.30   |
+| **GlareArea**              | —         | 6 977.25 | 6 635.07 | 52     | 18 497 |
+| **Exposure**               | —         | 133.46   | 11.28    | 117.72 | 146.28 |
+| **Contrast**               | —         | 54.41    | 2.51     | 51.19  | 59.46  |
+| **Noise**                  | —         | 42.04    | 25.17    | 8.23   | 84.44  |
+| **BrisqueScore**           | —         | 4.50     | 0.36     | 4.11   | 5.36   |
+| **AvgProcessingTime (ms)** | —         | 269.77   | —        | —      | —      |
+
+> L’area media del documento è \~22 % del frame; il glare copre in media 6 977 px (1.6 % dell’area documento).
+
+### 7.2 PDF synthetic dataset
+
+#### blur.pdf (9 pagine)
+
+| Pagina    | BlurScore  | Blurry | GlareArea | HasGlare |
+| --------- | ---------- | ------ | --------- | -------- |
+| 1         | 131.46     | False  | 52 997    | ✅        |
+| 2         | 190.63     | False  | 0         | ❌        |
+| …         | …          | …      | …         | …        |
+| **Media** | **522.66** | —      | —         | —        |
+
+Totale pagine: 9  ·  Pagine blur: 3  ·  Pagine glare: 4.
+
+#### glare.pdf (9 pagine)
+
+| Pagina    | BlurScore    | Blurry | GlareArea | HasGlare |
+| --------- | ------------ | ------ | --------- | -------- |
+| 1         | 171.33       | False  | 3 016     | ✅        |
+| 2         | 428.69       | False  | 3         | ❌        |
+| …         | …            | …      | …         | …        |
+| **Media** | **1 114.83** | —      | —         | —        |
+
+Totale pagine: 9  ·  Pagine glare: 6  ·  Blur medio: 1 114.83.
+
+### 7.3 Dataset Roboflow (Glare / Blur)
+
+Per testare riflessi e sfocatura su immagini reali è possibile utilizzare:
+
+* **glare** – 49 immagini annotate ([link](https://universe.roboflow.com/pradeep-singh/glare-xw4ce))
+* **blur** – dataset di sfocatura ([link](https://universe.roboflow.com/yolov7-lwj30/blur-nv01n))
+
+Scaricare con:
+
+```bash
+export ROBOFLOW_API_KEY="<api‑key>"
+python download_datasets.py
+```
+
+I dataset vengono salvati in `glare_dataset` / `blur_dataset`; eseguire `DatasetEvaluator` per stampare i valori e generare heat‑map:
+
+```bash
+dotnet run --project DatasetEvaluator/DatasetEvaluator.csproj <immagine>
+```
+
+### 7.4 Tempi di esecuzione dei controlli
+
+Esempio file **93\_HONOR‑7X.png**:
+
+| Controllo      | ms        |
+| -------------- | --------- |
+| Brisque        | 21.90     |
+| Blur           | 26.35     |
+| MotionBlur     | 10.03     |
+| Glare          | 11.37     |
+| Exposure       | 9.82      |
+| Contrast       | 2.13      |
+| ColorDominance | 1.95      |
+| Noise          | 11.40     |
+| Banding        | 3.14      |
+| **Total**      | **73.68** |
 
 ---
 
@@ -184,18 +262,18 @@ Ogni blocco è comprimibile; all’interno le immagini sono disposte su **due co
 
 ### 8.1 Guida alla lettura dei punteggi Guida alla lettura dei punteggi
 
-I valori mostrati sotto ogni immagine sono calcolati con le **soglie di default** (§5).\
-*Verde* = rientra nei limiti consigliati, *rosso* = richiede intervento (nuovo scatto o preprocessing).\
+I valori mostrati sotto ogni immagine sono calcolati con le **soglie di default** (§5).
+*Verde* = rientra nei limiti consigliati, *rosso* = richiede intervento (nuovo scatto o preprocessing).
 Personalizza le soglie tramite `QualitySettings` per adattare la sensibilità alle tue esigenze.
 
 ---
 
 ## 9. Ottimizzazioni performance (lug 2025). Ottimizzazioni performance (lug 2025)
 
-- **Intensity buffer down‑sampling** per immagini > 512 px.
-- Campionamento adattivo in `ComputeNoise`.
-- Memoizzazione di `MotionBlurScore`, `Noise`, `BandingScore`.
-- `Parallel.For` sostituisce doppi cicli annidati.
+* **Intensity buffer down‑sampling** per immagini > 512 px.
+* Campionamento adattivo in `ComputeNoise`.
+* Memoizzazione di `MotionBlurScore`, `Noise`, `BandingScore`.
+* `Parallel.For` sostituisce doppi cicli annidati.
 
 Con tali ottimizzazioni il tempo per immagine nel dataset *glare* è **23 – 71 ms**.
 
@@ -235,8 +313,8 @@ Applicazione disponibile su [**http://localhost:8080**](http://localhost:8080).
 
 ## 13. Contribuire
 
-1. Eseguire `dotnet test` e `pytest`.\
-2. Allineare soglie Python/.NET se necessario.\
+1. Eseguire `dotnet test` e `pytest`.
+2. Allineare soglie Python/.NET se necessario.
 3. Aggiornare documentazione.
 
 ---
@@ -244,4 +322,3 @@ Applicazione disponibile su [**http://localhost:8080**](http://localhost:8080).
 ## 14. Licenza
 
 Da specificare.
-
