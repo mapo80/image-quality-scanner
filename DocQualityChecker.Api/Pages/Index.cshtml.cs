@@ -14,7 +14,7 @@ public class IndexModel : PageModel
     public IFormFile? Image { get; set; }
 
     [BindProperty]
-    public QualitySettings Settings { get; } = new();
+    public QualitySettings Settings { get; set; } = new();
 
     public DocumentQualityResult? Result { get; private set; }
     public string? BlurHeatmap { get; private set; }

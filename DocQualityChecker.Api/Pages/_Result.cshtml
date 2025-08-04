@@ -1,6 +1,52 @@
+@using System.Linq
 @model DocQualityChecker.Api.Pages.IndexModel
+@functions{
+    string GetStatusClass(double value, double threshold, bool highIsBad)
+    {
+        if (highIsBad)
+        {
+            if (value <= threshold * 0.8) return "table-success";
+            if (value <= threshold) return "table-warning";
+            return "table-danger";
+        }
+        else
+        {
+            if (value >= threshold * 1.2) return "table-success";
+            if (value >= threshold) return "table-warning";
+            return "table-danger";
+        }
+    }
+
+    string GetRangeStatusClass(double value, double min, double max)
+    {
+        var margin = (max - min) * 0.1;
+        if (value < min || value > max) return "table-danger";
+        if (value < min + margin || value > max - margin) return "table-warning";
+        return "table-success";
+    }
+
+    string PassTextClass(string statusClass) => statusClass switch
+    {
+        "table-success" => "text-success",
+        "table-warning" => "text-warning",
+        _ => "text-danger"
+    };
+}
+@{
+    var brisqueClass = GetStatusClass(Model.Result!.BrisqueScore, Model.Settings.BrisqueMax, true);
+    var blurClass = GetStatusClass(Model.Result!.BlurScore, Model.Settings.BlurThreshold, false);
+    var motionBlurClass = GetStatusClass(Model.Result!.MotionBlurScore, Model.Settings.MotionBlurThreshold, true);
+    var glareClass = GetStatusClass(Model.Result!.GlareArea, Model.Settings.AreaThreshold, true);
+    var exposureClass = GetRangeStatusClass(Model.Result!.Exposure, Model.Settings.ExposureMin, Model.Settings.ExposureMax);
+    var contrastClass = GetStatusClass(Model.Result!.Contrast, Model.Settings.ContrastMin, false);
+    var colorDominanceClass = GetStatusClass(Model.Result!.ColorDominance, Model.Settings.DominanceThreshold, true);
+    var noiseClass = GetStatusClass(Model.Result!.Noise, Model.Settings.NoiseThreshold, true);
+    var bandingClass = GetStatusClass(Model.Result!.BandingScore, Model.Settings.BandingThreshold, true);
+    var classes = new[] { brisqueClass, blurClass, motionBlurClass, glareClass, exposureClass, contrastClass, colorDominanceClass, noiseClass, bandingClass };
+    var finalClass = classes.Contains("table-danger") ? "alert-danger" : classes.Contains("table-warning") ? "alert-warning" : "alert-success";
+}
 <div id="result">
-    <div class="alert alert-info">
+    <div class="alert @finalClass">
         <h2>Result: @(Model.Result!.IsValidDocument ? "Valid" : "Invalid")</h2>
     </div>
     <div class="row g-4">
@@ -11,10 +57,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Score</th><th>Max</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@brisqueClass">
                                 <td>@Model.Result!.BrisqueScore.ToString("F2")</td>
                                 <td>@Model.Settings.BrisqueMax</td>
-                                <td>@(Model.Result!.BrisqueScore <= Model.Settings.BrisqueMax ? "Yes" : "No")</td>
+                                <td class="@PassTextClass(brisqueClass)">@((Model.Result!.BrisqueScore <= Model.Settings.BrisqueMax) ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -28,10 +74,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Score</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@blurClass">
                                 <td>@Model.Result!.BlurScore.ToString("F2")</td>
                                 <td>@Model.Settings.BlurThreshold</td>
-                                <td>@(Model.Result!.IsBlurry ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(blurClass)">@(Model.Result!.IsBlurry ? "No" : "Yes")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -49,10 +95,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Score</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@motionBlurClass">
                                 <td>@Model.Result!.MotionBlurScore.ToString("F2")</td>
                                 <td>@Model.Settings.MotionBlurThreshold</td>
-                                <td>@(Model.Result!.HasMotionBlur ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(motionBlurClass)">@((Model.Result!.HasMotionBlur) ? "No" : "Yes")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -66,10 +112,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Area</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@glareClass">
                                 <td>@Model.Result!.GlareArea</td>
                                 <td>@Model.Settings.AreaThreshold</td>
-                                <td>@(Model.Result!.HasGlare ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(glareClass)">@(!Model.Result!.HasGlare ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -87,11 +133,11 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Value</th><th>Min</th><th>Max</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@exposureClass">
                                 <td>@Model.Result!.Exposure.ToString("F2")</td>
                                 <td>@Model.Settings.ExposureMin</td>
                                 <td>@Model.Settings.ExposureMax</td>
-                                <td>@(Model.Result!.IsWellExposed ? "Yes" : "No")</td>
+                                <td class="@PassTextClass(exposureClass)">@((Model.Result!.IsWellExposed) ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -105,10 +151,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Value</th><th>Min</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@contrastClass">
                                 <td>@Model.Result!.Contrast.ToString("F2")</td>
                                 <td>@Model.Settings.ContrastMin</td>
-                                <td>@(Model.Result!.HasLowContrast ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(contrastClass)">@(!Model.Result!.HasLowContrast ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -122,10 +168,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@colorDominanceClass">
                                 <td>@Model.Result!.ColorDominance.ToString("F2")</td>
                                 <td>@Model.Settings.DominanceThreshold</td>
-                                <td>@(Model.Result!.HasColorDominance ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(colorDominanceClass)">@(!Model.Result!.HasColorDominance ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -139,10 +185,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@noiseClass">
                                 <td>@Model.Result!.Noise.ToString("F2")</td>
                                 <td>@Model.Settings.NoiseThreshold</td>
-                                <td>@(Model.Result!.HasNoise ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(noiseClass)">@(!Model.Result!.HasNoise ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>
@@ -156,10 +202,10 @@
                     <table class="table table-sm mb-0">
                         <thead><tr><th>Value</th><th>Threshold</th><th>Pass</th></tr></thead>
                         <tbody>
-                            <tr>
+                            <tr class="@bandingClass">
                                 <td>@Model.Result!.BandingScore.ToString("F2")</td>
                                 <td>@Model.Settings.BandingThreshold</td>
-                                <td>@(Model.Result!.HasBanding ? "No" : "Yes")</td>
+                                <td class="@PassTextClass(bandingClass)">@(!Model.Result!.HasBanding ? "Yes" : "No")</td>
                             </tr>
                         </tbody>
                     </table>

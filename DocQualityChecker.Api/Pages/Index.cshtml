@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
 </head>
 <body class="bg-light">
+<div id="loader" class="position-fixed top-0 start-0 w-100 vh-100 d-flex align-items-center justify-content-center bg-white bg-opacity-75 d-none" style="z-index:1050;">
+    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+</div>
 <div class="container py-5">
     <h1 class="mb-4 text-center">Document quality analysis</h1>
     <form method="post" enctype="multipart/form-data" class="mb-5">
@@ -17,9 +20,9 @@
             var defaults = new QualitySettings();
         }
         <div class="mb-3">
-            <a class="btn btn-link p-0" data-bs-toggle="collapse" href="#defaultThresholds" role="button" aria-expanded="false" aria-controls="defaultThresholds">
+            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#defaultThresholds" aria-expanded="false" aria-controls="defaultThresholds">
                 Show default thresholds
-            </a>
+            </button>
             <div class="collapse mt-2" id="defaultThresholds">
                 <table class="table table-sm">
                     <thead>
@@ -147,6 +150,18 @@
     });
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.forEach(function (tooltipTriggerEl) { new bootstrap.Tooltip(tooltipTriggerEl); });
+    var form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function () {
+            document.getElementById('loader').classList.remove('d-none');
+        });
+    }
+    window.addEventListener('load', function () {
+        var res = document.getElementById('result');
+        if (res) {
+            res.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
 </script>
 </body>
 </html>
