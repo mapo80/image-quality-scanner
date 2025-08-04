@@ -221,16 +221,16 @@ Esempio file **93\_HONOR‑7X.png**:
 
 | Controllo      | ms        |
 | -------------- | --------- |
-| Brisque        | 21.90     |
-| Blur           | 26.35     |
-| MotionBlur     | 10.03     |
-| Glare          | 11.37     |
-| Exposure       | 9.82      |
-| Contrast       | 2.13      |
-| ColorDominance | 1.95      |
-| Noise          | 11.40     |
-| Banding        | 3.14      |
-| **Total**      | **73.68** |
+| Brisque        | 20.45     |
+| Blur           | 28.18     |
+| MotionBlur     | 12.15     |
+| Glare          | 4.71      |
+| Exposure       | 7.22      |
+| Contrast       | 2.21      |
+| ColorDominance | 1.79      |
+| Noise          | 15.93     |
+| Banding        | 2.79      |
+| **Total**      | **64.54** |
 
 ---
 
